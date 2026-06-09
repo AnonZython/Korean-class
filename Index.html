@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>한국어 연습문제 — 선생님</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --purple:#534AB7;--purple-l:#EEEDFE;--purple-d:#3C3489;
+  --teal:#0F6E56;--teal-l:#E1F5EE;
+  --red:#A32D2D;--red-l:#FCEBEB;
+  --amber:#854F0B;--amber-l:#FAEEDA;
+  --blue:#185FA5;--blue-l:#E6F1FB;
+  --border:#e2e0f0;--bg:#f8f7ff;--sur:#ffffff;
+  --text:#1a1830;--muted:#6b6891;
+  --r:12px;--rs:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ── Nav ── */
+.nav{background:var(--sur);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.nav-top{display:flex;align-items:center;gap:10px;padding:0 20px;height:52px}
+.nav-badge{background:var(--purple-l);color:var(--purple);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px}
+.nav-title{font-size:15px;font-weight:700}
+.nav-tabs{display:flex;padding:0 16px}
+.ntab{padding:10px 18px;font-size:13px;font-family:'Noto Sans KR',sans-serif;font-weight:500;color:var(--muted);border:none;background:none;cursor:pointer;border-bottom:2.5px solid transparent;transition:all .15s;white-space:nowrap}
+.ntab:hover{color:var(--text)}
+.ntab.active{color:var(--purple);border-bottom-color:var(--purple);font-weight:700}
+.ntab .nb{display:inline-flex;align-items:center;justify-content:center;background:var(--border);color:var(--muted);font-size:10px;font-weight:700;min-width:18px;height:18px;border-radius:20px;margin-left:6px;padding:0 5px}
+.ntab.active .nb{background:var(--purple);color:#fff}
+
+.container{max-width:740px;margin:0 auto;padding:20px 16px 80px}
+.page{display:none}.page.active{display:block}
+
+/* ── Cards ── */
+.card{background:var(--sur);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:14px}
+.card-hdr{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.card-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.ci-purple{background:var(--purple-l)}
+.ci-teal{background:var(--teal-l)}
+.ci-amber{background:var(--amber-l)}
+.card-ttl{font-size:14px;font-weight:700}
+.card-sub{font-size:12px;color:var(--muted);margin-top:2px}
+
+label{font-size:11px;font-weight:700;color:var(--muted);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px;margin-top:13px}
+label:first-of-type{margin-top:0}
+input[type=text],textarea{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:var(--rs);font-size:14px;font-family:'Noto Sans KR',sans-serif;color:var(--text);background:var(--sur);outline:none;transition:border-color .15s}
+input[type=text]:focus,textarea:focus{border-color:var(--purple)}
+.big-input{font-size:18px;font-weight:700;padding:12px 14px}
+textarea{min-height:52px;resize:vertical}
+
+/* Steps */
+.steps{display:flex;align-items:center;gap:0;padding:14px 0 4px}
+.step{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.step-num{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;transition:all .2s}
+.step.active .step-num{background:var(--purple);border-color:var(--purple);color:#fff}
+.step.done .step-num{background:var(--teal);border-color:var(--teal);color:#fff}
+.step.active{color:var(--purple);font-weight:700}
+.step.done{color:var(--teal)}
+.step-line{flex:1;height:1.5px;background:var(--border);margin:0 6px;transition:background .2s}
+.step-line.done{background:var(--teal)}
+
+/* Type grid */
+.type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.ttab{padding:10px 6px;font-size:12px;font-family:'Noto Sans KR',sans-serif;font-weight:500;border:1.5px solid var(--border);border-radius:var(--rs);background:var(--sur);color:var(--muted);cursor:pointer;text-align:center;line-height:1.4;transition:all .15s}
+.ttab:hover{border-color:var(--purple);color:var(--purple)}
+.ttab.active{background:var(--purple-l);color:var(--purple);border-color:var(--purple);font-weight:700}
+.ttab .ticon{font-size:17px;display:block;margin-bottom:3px}
+
+/* Form section */
+.form-sec{border:1.5px solid var(--border);border-radius:var(--r);padding:16px;margin-top:14px;background:var(--bg)}
+.form-sec-hdr{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
+.opt-row{display:flex;gap:7px;align-items:center;margin-bottom:8px}
+.opt-row input{flex:1;margin:0}
+.opt-lbl{font-size:13px;font-weight:700;color:var(--muted);min-width:20px;text-align:center}
+.cbtn{padding:5px 11px;font-size:12px;font-family:'Noto Sans KR',sans-serif;border:1.5px solid var(--border);border-radius:6px;background:var(--sur);color:var(--muted);cursor:pointer;white-space:nowrap;transition:all .15s}
+.cbtn.sel{background:var(--teal-l);color:var(--teal);border-color:var(--teal);font-weight:700}
+.pair-row{display:flex;gap:7px;align-items:center;margin-bottom:8px}
+.pair-row input{flex:1;margin:0}
+.pair-eq{color:var(--muted)}
+.rmv{background:none;border:none;color:var(--muted);cursor:pointer;padding:4px 6px;border-radius:5px;font-size:13px}
+.rmv:hover{color:var(--red);background:var(--red-l)}
+.phrase-wrap{display:flex;flex-wrap:wrap;gap:6px;padding:8px;background:var(--sur);border:1px solid var(--border);border-radius:var(--rs);min-height:36px;margin-top:6px}
+.pchip{display:inline-flex;align-items:center;gap:5px;background:var(--purple-l);border:1px solid #c8c4f0;border-radius:20px;padding:4px 10px;font-size:13px;color:var(--purple)}
+.pchip button{background:none;border:none;color:var(--purple);cursor:pointer;font-size:11px;opacity:.6}
+.pchip button:hover{opacity:1}
+.sent-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.sent-row input{flex:1;margin:0}
+.sent-num{width:22px;height:22px;border-radius:50%;background:var(--purple-l);color:var(--purple);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.divider{height:1px;background:var(--border);margin:14px 0}
+
+/* Buttons */
+.btn-pri{background:var(--purple);color:#fff;border:none;padding:11px 20px;border-radius:var(--rs);font-size:14px;font-family:'Noto Sans KR',sans-serif;font-weight:700;cursor:pointer;transition:background .15s}
+.btn-pri:hover{background:var(--purple-d)}
+.btn-pri:disabled{background:#b0acd8;cursor:default}
+.btn-sec{background:var(--sur);color:var(--text);border:1.5px solid var(--border);padding:9px 16px;border-radius:var(--rs);font-size:13px;font-family:'Noto Sans KR',sans-serif;cursor:pointer;transition:all .15s}
+.btn-sec:hover{background:var(--bg)}
+.btn-add{display:inline-flex;align-items:center;gap:6px;background:var(--purple);color:#fff;border:none;padding:10px 16px;border-radius:var(--rs);font-size:13px;font-family:'Noto Sans KR',sans-serif;font-weight:700;cursor:pointer;transition:background .15s;margin-top:12px}
+.btn-add:hover{background:var(--purple-d)}
+.smsg{font-size:13px;text-align:center;padding:5px 0;min-height:20px}
+.smsg.ok{color:var(--teal)}.smsg.err{color:var(--red)}
+
+/* Q list in builder */
+.q-item{display:flex;align-items:center;gap:9px;padding:9px 13px;background:var(--sur);border:1px solid var(--border);border-radius:var(--rs);margin-bottom:5px}
+.q-n{font-size:12px;font-weight:700;color:var(--muted);min-width:24px}
+.q-t{flex:1;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.q-tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap}
+.tag-mc{background:#EEEDFE;color:#534AB7}
+.tag-tf{background:#E1F5EE;color:#0F6E56}
+.tag-match{background:#FAEEDA;color:#854F0B}
+.tag-imgsel{background:#FBEAF0;color:#993556}
+.tag-phrase{background:#E6F1FB;color:#185FA5}
+.tag-order{background:#F1EFE8;color:#5F5E5A}
+
+/* Pub bar */
+.pub-bar{position:sticky;bottom:0;background:var(--sur);border-top:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:12px;max-width:740px;margin:0 auto}
+.pub-info{font-size:13px;color:var(--muted);flex:1}
+.pub-info strong{color:var(--text)}
+
+/* Share box */
+.share-box{background:var(--purple-l);border:2px solid var(--purple);border-radius:var(--r);padding:28px 20px;text-align:center;margin-top:8px}
+.share-code{font-family:'DM Mono',monospace;font-size:48px;font-weight:500;letter-spacing:12px;color:var(--purple-d);padding:14px 0;line-height:1}
+
+/* ── Page 2: My Quizzes ── */
+.quiz-card{background:var(--sur);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;margin-bottom:10px;display:flex;align-items:flex-start;gap:14px;transition:border-color .15s}
+.quiz-card:hover{border-color:#c8c4f0}
+.quiz-card-body{flex:1;min-width:0}
+.quiz-card-name{font-size:15px;font-weight:700;margin-bottom:3px}
+.quiz-card-desc{font-size:12px;color:var(--muted);margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.quiz-card-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.quiz-code{font-family:'DM Mono',monospace;font-size:15px;font-weight:500;letter-spacing:4px;background:var(--purple-l);color:var(--purple);padding:3px 10px;border-radius:6px;cursor:pointer;user-select:all;transition:background .12s}
+.quiz-code:hover{background:#d8d4f8}
+.quiz-meta-tag{font-size:11px;color:var(--muted);background:var(--bg);border:1px solid var(--border);padding:2px 8px;border-radius:20px}
+.quiz-card-actions{display:flex;flex-direction:column;gap:6px;flex-shrink:0}
+.icon-btn{background:none;border:1px solid var(--border);border-radius:var(--rs);padding:6px 10px;font-size:12px;cursor:pointer;color:var(--muted);white-space:nowrap;transition:all .15s;font-family:'Noto Sans KR',sans-serif}
+.icon-btn:hover{background:var(--bg);color:var(--text)}
+.icon-btn.danger:hover{background:var(--red-l);color:var(--red);border-color:var(--red)}
+.empty-state{text-align:center;padding:48px 20px;color:var(--muted)}
+.empty-icon{font-size:36px;margin-bottom:12px}
+.empty-text{font-size:14px;margin-bottom:16px}
+
+/* ── Page 3: Student answers ── */
+.quiz-select-bar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.quiz-select-bar select{flex:1;min-width:180px;padding:9px 12px;border:1.5px solid var(--border);border-radius:var(--rs);font-size:13px;font-family:'Noto Sans KR',sans-serif;color:var(--text);background:var(--sur);outline:none}
+.quiz-select-bar select:focus{border-color:var(--purple)}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.stat-card{background:var(--bg);border-radius:var(--rs);padding:14px;text-align:center}
+.stat-num{font-size:26px;font-weight:700;font-family:'DM Mono',monospace}
+.stat-lbl{font-size:11px;color:var(--muted);margin-top:3px;font-weight:500}
+.stat-purple .stat-num{color:var(--purple)}
+.stat-teal .stat-num{color:var(--teal)}
+.stat-amber .stat-num{color:var(--amber)}
+.answer-row{background:var(--sur);border:1px solid var(--border);border-radius:var(--rs);margin-bottom:8px;overflow:hidden}
+.answer-row-hdr{display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer;transition:background .12s}
+.answer-row-hdr:hover{background:var(--bg)}
+.answer-name{font-size:14px;font-weight:700;flex:1}
+.answer-score{font-family:'DM Mono',monospace;font-size:13px;font-weight:500}
+.answer-score.hi{color:var(--teal)}
+.answer-score.mid{color:var(--amber)}
+.answer-score.lo{color:var(--red)}
+.answer-time{font-size:11px;color:var(--muted)}
+.answer-chevron{font-size:12px;color:var(--muted);transition:transform .2s}
+.answer-chevron.open{transform:rotate(180deg)}
+.answer-detail{display:none;padding:12px 14px;border-top:1px solid var(--border);background:var(--bg)}
+.answer-detail.open{display:block}
+.ans-q-row{display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px}
+.ans-q-row:last-child{border-bottom:none}
+.ans-q-num{min-width:28px;font-weight:700;color:var(--muted)}
+.ans-q-text{flex:1;color:var(--text);line-height:1.4}
+.ans-q-result{font-size:12px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap}
+.res-ok{background:var(--teal-l);color:var(--teal)}
+.res-err{background:var(--red-l);color:var(--red)}
+.res-skip{background:var(--bg);color:var(--muted);border:1px solid var(--border)}
+.tab-pill{display:inline-flex;background:var(--bg);border:1px solid var(--border);border-radius:20px;overflow:hidden;margin-bottom:16px}
+.tab-pill button{padding:6px 16px;font-size:12px;font-family:'Noto Sans KR',sans-serif;font-weight:500;border:none;background:none;color:var(--muted);cursor:pointer;transition:all .15s}
+.tab-pill button.active{background:var(--purple);color:#fff;border-radius:20px}
+
+.grade-toggle{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--bg);border-radius:var(--rs);margin-bottom:14px;border:1px solid var(--border)}
+.grade-toggle-label{flex:1;font-size:13px;font-weight:500;color:var(--text)}
+.grade-toggle-sub{font-size:11px;color:var(--muted);display:block;margin-top:2px}
+.toggle-switch{position:relative;width:44px;height:24px;flex-shrink:0}
+.toggle-switch input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#ccc;border-radius:24px;transition:.3s}
+.toggle-slider:before{position:absolute;content:"";height:18px;width:18px;left:3px;bottom:3px;background:white;border-radius:50%;transition:.3s}
+.toggle-switch input:checked + .toggle-slider{background:var(--teal)}
+.toggle-switch input:checked + .toggle-slider:before{transform:translateX(20px)}
+.grade-released .grade-toggle{background:var(--teal-l);border-color:var(--teal)}
+.grade-released .grade-toggle-label{color:var(--teal)}
+.icon-btn-on{background:var(--teal-l)!important;color:var(--teal)!important;border-color:var(--teal)!important;font-weight:700!important}
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <div class="nav-top">
+    <span class="nav-badge">선생님</span>
+    <span class="nav-title">한국어 연습문제</span>
+  </div>
+  <div class="nav-tabs">
+    <button class="ntab active" onclick="showPage('make')" id="ntab-make">연습문제 만들기</button>
+    <button class="ntab" onclick="showPage('list')" id="ntab-list">만든 문제들 <span class="nb" id="nb-list">0</span></button>
+    <button class="ntab" onclick="showPage('answers')" id="ntab-answers">학생 답 모음 <span class="nb" id="nb-answers">0</span></button>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ══════════════════════════════════════════════════
+     PAGE 1 — Make quiz
+══════════════════════════════════════════════════ -->
+<div class="page active" id="page-make">
+
+  <!-- Steps -->
+  <div class="steps">
+    <div class="step active" id="s1"><span class="step-num">1</span>퀴즈 이름</div>
+    <div class="step-line" id="l1"></div>
+    <div class="step" id="s2"><span class="step-num">2</span>문제 만들기</div>
+    <div class="step-line" id="l2"></div>
+    <div class="step" id="s3"><span class="step-num">3</span>공유</div>
+  </div>
+
+  <!-- Step 1 -->
+  <div id="step1">
+    <div class="card" style="margin-top:10px">
+      <div class="card-hdr"><div class="card-icon ci-purple">📋</div>
+        <div><div class="card-ttl">퀴즈 이름 입력</div><div class="card-sub">학생들에게 보여질 이름을 먼저 정해주세요</div></div>
+      </div>
+      <label>퀴즈 이름 *</label>
+      <input type="text" class="big-input" id="qname" placeholder="예: 1과 동사 복습 / 3월 2주차 연습문제" maxlength="60">
+      <label>설명 (선택)</label>
+      <input type="text" id="qdesc" placeholder="예: 교재 32~40쪽 내용">
+      <div style="margin-top:16px">
+        <button class="btn-pri" onclick="goStep2()">다음 — 문제 만들기 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2 -->
+  <div id="step2" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0 6px">
+      <div>
+        <div style="font-size:16px;font-weight:700" id="s2-name"></div>
+        <div style="font-size:12px;color:var(--muted)" id="s2-desc"></div>
+      </div>
+      <button class="btn-sec" style="font-size:12px;padding:6px 12px" onclick="goStep1Edit()">✎ 이름 수정</button>
+    </div>
+
+    <div class="card">
+      <div class="card-hdr" style="margin-bottom:12px">
+        <div class="card-icon ci-purple">🎯</div>
+        <div><div class="card-ttl">문제 유형 선택</div><div class="card-sub">유형을 선택하고 문제 작성 → 추가. 같은 유형 여러 개 가능</div></div>
+      </div>
+      <div class="type-grid">
+        <button class="ttab active" onclick="setType('mc')" id="tab-mc"><span class="ticon">🔘</span>객관식</button>
+        <button class="ttab" onclick="setType('tf')" id="tab-tf"><span class="ticon">⭕</span>O / X</button>
+        <button class="ttab" onclick="setType('match')" id="tab-match"><span class="ticon">🔗</span>A↔B 연결</button>
+        <button class="ttab" onclick="setType('imgsel')" id="tab-imgsel"><span class="ticon">🖼</span>이미지 선택</button>
+        <button class="ttab" onclick="setType('phrase')" id="tab-phrase"><span class="ticon">🔀</span>Phrase 순서</button>
+        <button class="ttab" onclick="setType('order')" id="tab-order"><span class="ticon">↕</span>문장 순서</button>
+      </div>
+
+      <div class="form-sec">
+        <div class="form-sec-hdr" id="form-hdr"></div>
+
+        <div id="sec-mc">
+          <label>문제</label><input type="text" id="mc-q" placeholder="예: 다음 중 '가다'의 과거형은?">
+          <label>보기 — 정답 옆 ✓</label>
+          <div id="mc-opts">
+            <div class="opt-row"><span class="opt-lbl">①</span><input type="text" class="mc-opt" placeholder="보기 1"><button class="cbtn" onclick="selC(this,'mc-opts')">✓</button></div>
+            <div class="opt-row"><span class="opt-lbl">②</span><input type="text" class="mc-opt" placeholder="보기 2"><button class="cbtn" onclick="selC(this,'mc-opts')">✓</button></div>
+            <div class="opt-row"><span class="opt-lbl">③</span><input type="text" class="mc-opt" placeholder="보기 3"><button class="cbtn" onclick="selC(this,'mc-opts')">✓</button></div>
+            <div class="opt-row"><span class="opt-lbl">④</span><input type="text" class="mc-opt" placeholder="보기 4"><button class="cbtn" onclick="selC(this,'mc-opts')">✓</button></div>
+          </div>
+        </div>
+
+        <div id="sec-tf" style="display:none">
+          <label>문제</label><input type="text" id="tf-q" placeholder="예: '먹었어요'는 과거형이다.">
+          <label>정답</label>
+          <div style="display:flex;gap:8px;margin-top:5px">
+            <button class="cbtn" id="tf-O" onclick="selTF('O')">O (맞다)</button>
+            <button class="cbtn" id="tf-X" onclick="selTF('X')">X (틀리다)</button>
+          </div>
+        </div>
+
+        <div id="sec-match" style="display:none">
+          <label>지시문 (선택)</label><input type="text" id="match-q" placeholder="Column A와 Column B를 연결하세요.">
+          <label>A → B 쌍 (최대 6개)</label>
+          <div id="match-pairs">
+            <div class="pair-row"><input type="text" class="ma" placeholder="A 1"><span class="pair-eq">→</span><input type="text" class="mb" placeholder="B 1"><button class="rmv" onclick="rmPair(this)">✕</button></div>
+            <div class="pair-row"><input type="text" class="ma" placeholder="A 2"><span class="pair-eq">→</span><input type="text" class="mb" placeholder="B 2"><button class="rmv" onclick="rmPair(this)">✕</button></div>
+            <div class="pair-row"><input type="text" class="ma" placeholder="A 3"><span class="pair-eq">→</span><input type="text" class="mb" placeholder="B 3"><button class="rmv" onclick="rmPair(this)">✕</button></div>
+          </div>
+          <button class="rmv" onclick="addPair()" style="color:var(--purple);font-size:13px;padding:5px 8px">＋ 쌍 추가</button>
+        </div>
+
+        <div id="sec-imgsel" style="display:none">
+          <label>문제</label><input type="text" id="imgsel-q" placeholder="'도서관'을 나타내는 이미지는?">
+          <label>보기 — URL 또는 텍스트 (정답 옆 ✓)</label>
+          <div id="imgsel-opts">
+            <div class="opt-row"><span class="opt-lbl">①</span><input type="text" class="img-opt" placeholder="URL 또는 텍스트"><button class="cbtn" onclick="selC(this,'imgsel-opts')">✓</button></div>
+            <div class="opt-row"><span class="opt-lbl">②</span><input type="text" class="img-opt" placeholder="URL 또는 텍스트"><button class="cbtn" onclick="selC(this,'imgsel-opts')">✓</button></div>
+            <div class="opt-row"><span class="opt-lbl">③</span><input type="text" class="img-opt" placeholder="URL 또는 텍스트"><button class="cbtn" onclick="selC(this,'imgsel-opts')">✓</button></div>
+            <div class="opt-row"><span class="opt-lbl">④</span><input type="text" class="img-opt" placeholder="URL 또는 텍스트"><button class="cbtn" onclick="selC(this,'imgsel-opts')">✓</button></div>
+          </div>
+        </div>
+
+        <div id="sec-phrase" style="display:none">
+          <label>지시문</label><input type="text" id="phrase-q" placeholder="단어를 올바른 순서로 배열하세요.">
+          <label>Phrase — 올바른 순서대로, Enter / 쉼표로 구분</label>
+          <input type="text" id="phrase-input" placeholder="나는, 학교에, 갑니다" onkeydown="phraseKD(event)">
+          <div class="phrase-wrap" id="phrase-chips"></div>
+        </div>
+
+        <div id="sec-order" style="display:none">
+          <label>지시문</label><input type="text" id="order-q" placeholder="문장을 올바른 순서로 배열하세요.">
+          <label>문장 — 올바른 순서대로</label>
+          <div id="order-sents">
+            <div class="sent-row"><span class="sent-num">1</span><input type="text" class="ord-s" placeholder="첫 번째 문장"></div>
+            <div class="sent-row"><span class="sent-num">2</span><input type="text" class="ord-s" placeholder="두 번째 문장"></div>
+            <div class="sent-row"><span class="sent-num">3</span><input type="text" class="ord-s" placeholder="세 번째 문장"></div>
+            <div class="sent-row"><span class="sent-num">4</span><input type="text" class="ord-s" placeholder="네 번째 문장"></div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+        <button class="btn-add" onclick="addQ()">＋ 이 문제 추가</button>
+        <div class="smsg" id="amsg"></div>
+      </div>
+    </div>
+
+    <div class="card" id="qlist-card" style="display:none">
+      <div class="card-hdr" style="margin-bottom:10px">
+        <div class="card-icon ci-teal">📝</div>
+        <div><div class="card-ttl">추가된 문제</div><div class="card-sub" id="qlist-sub"></div></div>
+      </div>
+      <div id="q-list"></div>
+    </div>
+  </div>
+
+  <!-- Step 3 -->
+  <div id="step3" style="display:none">
+    <div class="share-box">
+      <div style="font-size:13px;color:var(--purple);margin-bottom:4px;font-weight:500" id="share-qname"></div>
+      <p style="font-size:13px;color:var(--purple);margin-bottom:2px">✓ 저장 완료 — 학생들에게 이 코드를 알려주세요</p>
+      <div class="share-code" id="scode" onclick="copyCode()"></div>
+      <p style="font-size:12px;color:var(--purple);opacity:.7">클릭하면 복사됩니다 · student.html에서 코드 입력</p>
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:16px">
+        <button class="btn-sec" onclick="resetMake()">＋ 새 퀴즈 만들기</button>
+        <button class="btn-pri" onclick="showPage('list')">만든 문제들 보기 →</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /page-make -->
+
+<!-- Pub bar -->
+<div style="position:fixed;bottom:0;left:0;right:0;background:var(--sur);border-top:1px solid var(--border);padding:12px 20px;display:none;align-items:center;gap:12px;z-index:99" id="pub-bar">
+  <div class="pub-info">문제 <strong id="pub-count">0</strong>개 준비됨</div>
+  <button class="btn-pri" id="pub-btn" onclick="publishQuiz()">공유 코드 생성 →</button>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════
+     PAGE 2 — My quizzes
+══════════════════════════════════════════════════ -->
+<div class="page" id="page-list">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 0 12px">
+    <div style="font-size:16px;font-weight:700">만든 문제들</div>
+    <button class="btn-pri" style="padding:8px 16px;font-size:13px" onclick="showPage('make')">＋ 새 퀴즈 만들기</button>
+  </div>
+  <div id="quiz-list-area"></div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════
+     PAGE 3 — Student answers
+══════════════════════════════════════════════════ -->
+<div class="page" id="page-answers">
+  <div style="padding:16px 0 12px;font-size:16px;font-weight:700">학생 답 모음</div>
+
+  <div class="quiz-select-bar">
+    <select id="ans-quiz-select" onchange="loadAnswers()">
+      <option value="">— 퀴즈를 선택하세요 —</option>
+    </select>
+    <button class="btn-sec" style="font-size:12px;padding:8px 14px" onclick="refreshAnswers()">🔄 새로고침</button>
+  </div>
+
+  <div id="ans-area">
+    <div class="empty-state"><div class="empty-icon">📊</div><div class="empty-text">퀴즈를 선택하면 학생들의 답이 표시됩니다</div></div>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+// ── State ────────────────────────────────────────────────────────────────────
+let qType='mc', questions=[], tfVal=null, phraseList=[];
+let editingQuizCode=null;
+
+const typeIcons={mc:'🔘',tf:'⭕',match:'🔗',imgsel:'🖼',phrase:'🔀',order:'↕'};
+const typeLabels={mc:'객관식',tf:'O / X',match:'A↔B 연결',imgsel:'이미지 선택',phrase:'Phrase 순서',order:'문장 순서'};
+const tagClass={mc:'tag-mc',tf:'tag-tf',match:'tag-match',imgsel:'tag-imgsel',phrase:'tag-phrase',order:'tag-order'};
+
+// Storage via Firebase REST API — see helpers above
+
+// ── Nav ──────────────────────────────────────────────────────────────────────
+async function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.getElementById('ntab-'+id).classList.add('active');
+  document.getElementById('pub-bar').style.display='none';
+  if(id==='list') renderQuizList();
+  if(id==='answers') initAnswersPage();
+  if(id==='make' && questions.length>0){
+    document.getElementById('pub-bar').style.display='flex';
+  }
+  updateBadges();
+}
+
+async function updateBadges(){
+  try{const all=await getQuizzes();document.getElementById('nb-list').textContent=Object.keys(all).length;}catch(e){}
+}
+
+// ── Steps ────────────────────────────────────────────────────────────────────
+function setStepUI(n){
+  [1,2,3].forEach(i=>{
+    const el=document.getElementById('s'+i);
+    el.classList.remove('active','done');
+    if(i<n) el.classList.add('done');
+    else if(i===n) el.classList.add('active');
+  });
+  [1,2].forEach(i=>document.getElementById('l'+i).classList.toggle('done',i<n));
+}
+
+function goStep2(){
+  const name=document.getElementById('qname').value.trim();
+  if(!name){document.getElementById('qname').style.borderColor='var(--red)';document.getElementById('qname').focus();return;}
+  document.getElementById('qname').style.borderColor='';
+  document.getElementById('s2-name').textContent=document.getElementById('qname').value.trim();
+  document.getElementById('s2-desc').textContent=document.getElementById('qdesc').value.trim();
+  document.getElementById('step1').style.display='none';
+  document.getElementById('step2').style.display='';
+  document.getElementById('step3').style.display='none';
+  setStepUI(2); setType('mc');
+}
+
+function goStep1Edit(){
+  document.getElementById('step1').style.display='';
+  document.getElementById('step2').style.display='none';
+  document.getElementById('pub-bar').style.display='none';
+  setStepUI(1);
+}
+
+// ── Type ─────────────────────────────────────────────────────────────────────
+function setType(t){
+  qType=t;
+  ['mc','tf','match','imgsel','phrase','order'].forEach(s=>{
+    document.getElementById('sec-'+s).style.display=s===t?'':'none';
+    document.getElementById('tab-'+s).classList.toggle('active',s===t);
+  });
+  document.getElementById('form-hdr').textContent=typeIcons[t]+'  '+typeLabels[t]+' 문제 작성';
+  tfVal=null; phraseList=[]; renderChips();
+  ['tf-O','tf-X'].forEach(id=>document.getElementById(id).classList.remove('sel'));
+  document.getElementById('amsg').textContent='';
+}
+
+function selC(btn,cid){
+  document.querySelectorAll('#'+cid+' .cbtn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+}
+function selTF(v){
+  tfVal=v;
+  document.getElementById('tf-O').classList.toggle('sel',v==='O');
+  document.getElementById('tf-X').classList.toggle('sel',v==='X');
+}
+function addPair(){
+  const c=document.getElementById('match-pairs').children.length;
+  if(c>=6) return;
+  const d=document.createElement('div');d.className='pair-row';
+  d.innerHTML=`<input type="text" class="ma" placeholder="A ${c+1}"><span class="pair-eq">→</span><input type="text" class="mb" placeholder="B ${c+1}"><button class="rmv" onclick="rmPair(this)">✕</button>`;
+  document.getElementById('match-pairs').appendChild(d);
+}
+function rmPair(btn){if(document.getElementById('match-pairs').children.length>2) btn.closest('.pair-row').remove();}
+function phraseKD(e){
+  if(e.key==='Enter'||e.key===','){
+    e.preventDefault();
+    const v=e.target.value.replace(/,/g,'').trim();
+    if(v){phraseList.push(v);e.target.value='';renderChips();}
+  }
+}
+function renderChips(){
+  document.getElementById('phrase-chips').innerHTML=phraseList.map((p,i)=>
+    `<span class="pchip">${p}<button onclick="rmPhrase(${i})">✕</button></span>`).join('');
+}
+function rmPhrase(i){phraseList.splice(i,1);renderChips();}
+
+// ── Add question ─────────────────────────────────────────────────────────────
+function smsg(txt,cls){
+  const el=document.getElementById('amsg');el.textContent=txt;el.className='smsg '+(cls||'');
+  if(cls) setTimeout(()=>{if(el.textContent===txt){el.textContent='';el.className='smsg';}},2600);
+}
+
+function addQ(){
+  let q={type:qType};
+  if(qType==='mc'){
+    const qt=document.getElementById('mc-q').value.trim();
+    if(!qt) return smsg('문제를 입력해주세요.','err');
+    const opts=[...document.querySelectorAll('.mc-opt')].map(i=>i.value.trim());
+    if(opts.some(o=>!o)) return smsg('모든 보기를 입력해주세요.','err');
+    const cb=document.querySelector('#mc-opts .cbtn.sel');
+    if(!cb) return smsg('정답을 선택해주세요 (✓).','err');
+    q={...q,text:qt,options:opts,correct:[...document.querySelectorAll('#mc-opts .cbtn')].indexOf(cb)};
+    document.getElementById('mc-q').value='';
+    document.querySelectorAll('.mc-opt').forEach(i=>i.value='');
+    document.querySelectorAll('#mc-opts .cbtn').forEach(b=>b.classList.remove('sel'));
+  } else if(qType==='tf'){
+    const qt=document.getElementById('tf-q').value.trim();
+    if(!qt) return smsg('문제를 입력해주세요.','err');
+    if(!tfVal) return smsg('정답(O/X)을 선택해주세요.','err');
+    q={...q,text:qt,correct:tfVal};
+    document.getElementById('tf-q').value='';tfVal=null;
+    ['tf-O','tf-X'].forEach(id=>document.getElementById(id).classList.remove('sel'));
+  } else if(qType==='match'){
+    const rows=[...document.querySelectorAll('#match-pairs .pair-row')];
+    const pairs=rows.map(r=>({a:r.querySelector('.ma').value.trim(),b:r.querySelector('.mb').value.trim()})).filter(p=>p.a&&p.b);
+    if(pairs.length<2) return smsg('최소 2쌍을 입력해주세요.','err');
+    q={...q,text:document.getElementById('match-q').value.trim()||'Column A와 Column B를 연결하세요.',pairs};
+    document.getElementById('match-q').value='';
+    document.querySelectorAll('#match-pairs input').forEach(i=>i.value='');
+  } else if(qType==='imgsel'){
+    const qt=document.getElementById('imgsel-q').value.trim();
+    if(!qt) return smsg('문제를 입력해주세요.','err');
+    const allV=[...document.querySelectorAll('.img-opt')].map(i=>i.value.trim());
+    const opts=allV.filter(o=>o);
+    if(opts.length<2) return smsg('최소 2개의 보기를 입력해주세요.','err');
+    const cbs=[...document.querySelectorAll('#imgsel-opts .cbtn')];
+    const si=cbs.findIndex(b=>b.classList.contains('sel'));
+    if(si<0) return smsg('정답을 선택해주세요.','err');
+    const correctVal=allV[si];
+    q={...q,text:qt,options:opts,correct:Math.max(0,opts.indexOf(correctVal))};
+    document.getElementById('imgsel-q').value='';
+    document.querySelectorAll('.img-opt').forEach(i=>i.value='');
+    cbs.forEach(b=>b.classList.remove('sel'));
+  } else if(qType==='phrase'){
+    const qt=document.getElementById('phrase-q').value.trim();
+    if(!qt) return smsg('지시문을 입력해주세요.','err');
+    const inp=document.getElementById('phrase-input').value.replace(/,/g,'').trim();
+    if(inp) phraseList.push(inp);
+    if(phraseList.length<2) return smsg('최소 2개의 phrase를 입력해주세요.','err');
+    q={...q,text:qt,phrases:[...phraseList]};
+    document.getElementById('phrase-q').value='';document.getElementById('phrase-input').value='';
+    phraseList=[];renderChips();
+  } else if(qType==='order'){
+    const qt=document.getElementById('order-q').value.trim();
+    if(!qt) return smsg('지시문을 입력해주세요.','err');
+    const sents=[...document.querySelectorAll('.ord-s')].map(i=>i.value.trim()).filter(s=>s);
+    if(sents.length<2) return smsg('최소 2개의 문장을 입력해주세요.','err');
+    q={...q,text:qt,sentences:sents};
+    document.getElementById('order-q').value='';
+    document.querySelectorAll('.ord-s').forEach(i=>i.value='');
+  }
+  questions.push(q);renderQList();
+  smsg('문제 추가됨 (총 '+questions.length+'개) ✓','ok');
+}
+
+function renderQList(){
+  document.getElementById('qlist-card').style.display=questions.length?'':'none';
+  document.getElementById('pub-bar').style.display=questions.length?'flex':'none';
+  document.getElementById('pub-count').textContent=questions.length;
+  document.getElementById('qlist-sub').textContent='총 '+questions.length+'개';
+  const groups={};const order=[];
+  questions.forEach((q,i)=>{
+    if(!groups[q.type]){groups[q.type]=[];order.push(q.type);}
+    groups[q.type].push({q,i});
+  });
+  document.getElementById('q-list').innerHTML=order.map(t=>`
+    <div style="margin-bottom:10px">
+      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;padding:3px 0;border-bottom:1px solid var(--border);margin-bottom:6px;display:flex;justify-content:space-between">
+        <span>${typeIcons[t]} ${typeLabels[t]}</span><span style="font-weight:400">${groups[t].length}개</span>
+      </div>
+      ${groups[t].map(({q,i})=>`
+        <div class="q-item">
+          <span class="q-n">${i+1}</span>
+          <span class="q-t">${q.text}</span>
+          <span class="q-tag ${tagClass[q.type]}">${typeLabels[q.type]}</span>
+          <button class="rmv" onclick="rmQ(${i})">✕</button>
+        </div>`).join('')}
+    </div>`).join('');
+}
+
+function rmQ(i){questions.splice(i,1);renderQList();}
+
+// ── Publish ──────────────────────────────────────────────────────────────────
+async function publishQuiz(){
+  if(!questions.length) return;
+  document.getElementById('pub-btn').disabled=true;
+  document.getElementById('pub-btn').textContent='저장 중...';
+  const code=Math.random().toString(36).slice(2,7).toUpperCase();
+  const quiz={code,name:document.getElementById('qname').value.trim(),desc:document.getElementById('qdesc').value.trim(),questions,createdAt:Date.now(),gradeReleased:false};
+  try{
+    await saveQuiz(code,quiz);
+    document.getElementById('scode').textContent=code;
+    document.getElementById('share-qname').textContent='「'+quiz.name+'」';
+    document.getElementById('step2').style.display='none';
+    document.getElementById('step3').style.display='';
+    document.getElementById('pub-bar').style.display='none';
+    setStepUI(3);questions=[];updateBadges();
+  }catch(e){alert('저장 실패: '+e.message);document.getElementById('pub-btn').disabled=false;document.getElementById('pub-btn').textContent='공유 코드 생성 →';}
+}
+
+function copyCode(){
+  const code=document.getElementById('scode').textContent;
+  navigator.clipboard.writeText(code).then(()=>{
+    const el=document.getElementById('scode');
+    const orig=el.textContent;el.textContent='복사됨!';
+    setTimeout(()=>el.textContent=orig,1200);
+  }).catch(()=>{});
+}
+
+function resetMake(){
+  questions=[];
+  document.getElementById('qname').value='';document.getElementById('qdesc').value='';
+  document.getElementById('step1').style.display='';
+  document.getElementById('step2').style.display='none';
+  document.getElementById('step3').style.display='none';
+  document.getElementById('pub-bar').style.display='none';
+  document.getElementById('pub-btn').disabled=false;
+  setStepUI(1);
+}
+
+// ── Page 2: Quiz list ────────────────────────────────────────────────────────
+async function renderQuizList(){
+  const area=document.getElementById('quiz-list-area');
+  area.innerHTML='<div class="empty-state"><div class="empty-icon">⏳</div><div class="empty-text">불러오는 중...</div></div>';
+  const all=await getQuizzes();
+  const codes=Object.keys(all).sort((a,b)=>(all[b].createdAt||0)-(all[a].createdAt||0));
+  if(!codes.length){
+    area.innerHTML=`<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">아직 만든 퀴즈가 없습니다</div><button class="btn-pri" onclick="showPage('make')">첫 퀴즈 만들기 →</button></div>`;
+    return;
+  }
+  const subCounts={};
+  for(const code of codes){subCounts[code]=(await getAnswers(code)).length;}
+  area.innerHTML=codes.map(code=>{
+    const q=all[code];
+    const subCount=subCounts[code]||0;
+    const date=q.createdAt?new Date(q.createdAt).toLocaleDateString('ko-KR',{month:'short',day:'numeric'}):'';
+    return `<div class="quiz-card">
+      <div class="quiz-card-body">
+        <div class="quiz-card-name">${q.name}</div>
+        ${q.desc?`<div class="quiz-card-desc">${q.desc}</div>`:''}
+        <div class="quiz-card-meta">
+          <span class="quiz-code" onclick="copyText('${code}',this)" title="클릭하여 복사">${code}</span>
+          <span class="quiz-meta-tag">문제 ${q.questions.length}개</span>
+          <span class="quiz-meta-tag">제출 ${subCount}명</span>
+          ${date?`<span class="quiz-meta-tag">${date}</span>`:''}
+        </div>
+      </div>
+      <div class="quiz-card-actions">
+        <button class="icon-btn" onclick="viewAnswersFor('${code}')">답 보기</button>
+        <button class="icon-btn ${q.gradeReleased?'icon-btn-on':''}" onclick="toggleGradeRelease('${code}',this)" id="gr-btn-${code}">${q.gradeReleased?'✓ 성적 공개 중':'성적 공개'}</button>
+        <button class="icon-btn danger" onclick="deleteQuiz('${code}')">삭제</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function copyText(text,el){
+  navigator.clipboard.writeText(text).then(()=>{
+    const orig=el.textContent;el.textContent='복사됨!';
+    setTimeout(()=>el.textContent=orig,1200);
+  }).catch(()=>{});
+}
+
+async function deleteQuiz(code){
+  if(!confirm('이 퀴즈를 삭제하시겠습니까?\n관련된 학생 답안도 모두 삭제됩니다.')) return;
+  await deleteQuizFromDB(code);
+  renderQuizList();updateBadges();
+}
+
+async function viewAnswersFor(code){
+  showPage('answers');
+  document.getElementById('ans-quiz-select').value=code;
+  loadAnswers();
+}
+
+// ── Page 3: Answers ──────────────────────────────────────────────────────────
+async function initAnswersPage(){
+  const all=await getQuizzes();
+  const sel=document.getElementById('ans-quiz-select');
+  const cur=sel.value;
+  const codes=Object.keys(all).sort((a,b)=>(all[b].createdAt||0)-(all[a].createdAt||0));
+  sel.innerHTML='<option value="">— 퀴즈를 선택하세요 —</option>'+
+    codes.map(c=>`<option value="${c}">${all[c].name} (${c})</option>`).join('');
+  if(cur&&all[cur]) sel.value=cur;
+  loadAnswers();
+}
+
+function refreshAnswers(){initAnswersPage();}
+
+async function loadAnswers(){
+  const code=document.getElementById('ans-quiz-select').value;
+  const area=document.getElementById('ans-area');
+  if(!code){area.innerHTML='<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-text">퀴즈를 선택하면 학생들의 답이 표시됩니다</div></div>';return;}
+  area.innerHTML='<div class="empty-state"><div class="empty-icon">⏳</div><div class="empty-text">불러오는 중...</div></div>';
+  const all=await getQuizzes();
+  const quiz=all[code];
+  if(!quiz){area.innerHTML='<div class="empty-state"><div class="empty-text">퀴즈를 찾을 수 없습니다</div></div>';return;}
+  const allAnswers=(await getAnswers(code)).sort((a,b)=>b.submittedAt-a.submittedAt);
+
+  const total=quiz.questions.length;
+  const avgScore=allAnswers.length?Math.round(allAnswers.reduce((s,a)=>s+a.score,0)/allAnswers.length*10)/10:0;
+  const perfect=allAnswers.filter(a=>a.score===total).length;
+
+  const gradeReleased=quiz.gradeReleased||false;
+  area.innerHTML=`
+    <div class="grade-toggle ${gradeReleased?'grade-released':''}">
+      <div class="grade-toggle-label">성적 공개
+        <span class="grade-toggle-sub">${gradeReleased?'학생들이 본인 점수를 확인할 수 있습니다':'켜면 학생들이 student.html에서 본인 점수를 확인할 수 있습니다'}</span>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" ${gradeReleased?'checked':''} onchange="toggleGradeReleaseFromAnswers('${code}',this)">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card stat-purple"><div class="stat-num">${allAnswers.length}</div><div class="stat-lbl">제출 학생 수</div></div>
+      <div class="stat-card stat-teal"><div class="stat-num">${total>0?Math.round(avgScore/total*100):0}점</div><div class="stat-lbl">평균 점수</div></div>
+      <div class="stat-card stat-amber"><div class="stat-num">${perfect}</div><div class="stat-lbl">100점 학생</div></div>
+    </div>
+    ${allAnswers.length===0?
+      '<div class="empty-state"><div class="empty-icon">🕐</div><div class="empty-text">아직 제출한 학생이 없습니다</div></div>':
+      allAnswers.map((a,ai)=>{
+        const pct=Math.round(a.score/total*100);
+        const sc=pct>=80?'hi':pct>=50?'mid':'lo';
+        const dt=new Date(a.submittedAt).toLocaleString('ko-KR',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+        return `<div class="answer-row">
+          <div class="answer-row-hdr" onclick="toggleDetail(${ai})">
+            <span class="answer-name">${a.studentName||'학생 '+(ai+1)}</span>
+            <span class="answer-score ${sc}">${a.score} / ${total} (${pct}점)</span>
+            <span class="answer-time">${dt}</span>
+            <span class="answer-chevron" id="chev-${ai}">▼</span>
+          </div>
+          <div class="answer-detail" id="detail-${ai}">
+            ${quiz.questions.map((q,qi)=>{
+              const ans=a.answers[qi];
+              const correct=checkAnswer(q,ans);
+              return `<div class="ans-q-row">
+                <span class="ans-q-num">${qi+1}</span>
+                <span class="ans-q-text">${q.text}</span>
+                <span class="ans-q-result ${ans==null?'res-skip':correct?'res-ok':'res-err'}">${ans==null?'미응답':correct?'정답':'오답'}</span>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>`;
+      }).join('')
+    }`;
+}
+
+function toggleDetail(ai){
+  const d=document.getElementById('detail-'+ai);
+  const c=document.getElementById('chev-'+ai);
+  const open=d.classList.toggle('open');
+  c.classList.toggle('open',open);
+}
+
+
+
+async function toggleGradeReleaseFromAnswers(code,checkbox){
+  await toggleGradeReleaseDB(code,checkbox.checked);
+  loadAnswers();
+}
+async function toggleGradeRelease(code,btn){
+  const all=await getQuizzes();
+  if(!all[code]) return;
+  const on=!all[code].gradeReleased;
+  await toggleGradeReleaseDB(code,on);
+  btn.textContent=on?'✓ 성적 공개 중':'성적 공개';
+  btn.classList.toggle('icon-btn-on',on);
+}
+function checkAnswer(q,ans){
+  if(ans==null) return false;
+  if(q.type==='mc'||q.type==='imgsel') return ans===q.correct;
+  if(q.type==='tf') return ans===q.correct;
+  if(q.type==='match'){
+    if(typeof ans!=='object') return false;
+    return q.pairs.every((pair,pi)=>Object.values(ans).some(m=>m.aIdx===pi&&m.bVal===pair.b));
+  }
+  if(q.type==='phrase') return Array.isArray(ans)&&ans.length===q.phrases.length&&ans.every((v,i)=>v===q.phrases[i]);
+  if(q.type==='order') return Array.isArray(ans)&&ans.every((s,i)=>s===q.sentences[i]);
+  return false;
+}
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+setType('mc');
+updateBadges();
+
+// ── Firebase REST API (SDK 없음 — file:// 에서도 작동) ────────────────────
+const DB = "https://korean-quiz-bebeenbed-ef240-default-rtdb.firebaseio.com";
+async function fbGet(path){const r=await fetch(DB+path+'.json');if(!r.ok)throw new Error('읽기 실패');return r.json();}
+async function fbSet(path,data){const r=await fetch(DB+path+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});if(!r.ok)throw new Error('쓰기 실패');return r.json();}
+async function fbPush(path,data){const r=await fetch(DB+path+'.json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});if(!r.ok)throw new Error('추가 실패');return r.json();}
+async function fbPatch(path,data){const r=await fetch(DB+path+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});if(!r.ok)throw new Error('수정 실패');return r.json();}
+async function fbDelete(path){await fetch(DB+path+'.json',{method:'DELETE'});}
+
+// ── Storage helpers ───────────────────────────────────────────────────────
+async function getQuizzes(){return (await fbGet('/quizzes'))||{};}
+async function saveQuiz(code,quiz){await fbSet('/quizzes/'+code,quiz);}
+async function deleteQuizFromDB(code){
+  await fbDelete('/quizzes/'+code);
+  const all=await fbGet('/answers')||{};
+  const updates={};
+  Object.keys(all).forEach(k=>{if(all[k].quizCode===code)updates[k]=null;});
+  if(Object.keys(updates).length)await fbPatch('/answers',updates);
+}
+async function getAnswers(quizCode){
+  const all=await fbGet('/answers')||{};
+  return Object.values(all).filter(a=>a.quizCode===quizCode);
+}
+async function saveAnswer(rec){await fbPush('/answers',rec);}
+async function toggleGradeReleaseDB(code,val){await fbSet('/quizzes/'+code+'/gradeReleased',val);}
+</script>
+</body>
+</html>
