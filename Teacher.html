@@ -421,42 +421,34 @@ function setEntryMode(mode){
   document.getElementById('gmsg').textContent='';
 }
 
-function checkGrade(){
+async function checkGrade(){
   const code=document.getElementById('gcode-inp').value.trim();
   const name=document.getElementById('gname-inp').value.trim();
   if(code.length<5) return setGMsg('5자리 코드를 입력해주세요.','err');
   if(!name) return setGMsg('이름을 입력해주세요.','err');
   setGMsg('확인 중...','');
-
   try{
-    const allQuizzes=JSON.parse(null/*removed*/||'{}');
-    const quiz=allQuizzes[code];
+    const quiz=await fbGet('/quizzes/'+code);
     if(!quiz) return setGMsg('코드를 찾을 수 없습니다.','err');
     if(!quiz.gradeReleased) return setGMsg('선생님이 아직 성적을 공개하지 않았습니다.','err');
-
-    const allAnswers=JSON.parse(null/*removed*/||'[]');
-    // Find this student's answer — exact name match only, show only their own
-    const myAnswers=allAnswers.filter(a=>a.quizCode===code && a.studentName===name);
+    const allAns=await fbGet('/answers')||{};
+    const myAnswers=Object.values(allAns).filter(a=>a.quizCode===code&&a.studentName===name);
     if(!myAnswers.length) return setGMsg('이름을 찾을 수 없습니다. 문제를 먼저 제출해주세요.','err');
-
-    // Show only the most recent submission for this student
     const myBest=myAnswers.sort((a,b)=>b.submittedAt-a.submittedAt)[0];
     const total=quiz.questions.length;
     const pct=Math.round(myBest.score/total*100);
     const emoji=pct===100?'🎉':pct>=70?'👍':'💪';
     const msg=pct===100?'완벽합니다!':pct>=80?'아주 잘했어요!':pct>=60?'잘했어요!':'더 연습해봐요.';
-
     document.getElementById('grade-result').style.display='';
-    document.getElementById('grade-result').innerHTML=`
-      <div class="grade-check-card">
-        <div class="grade-icon">${emoji}</div>
-        <div class="grade-name">${name} 학생 · 「${quiz.name}」</div>
-        <div class="grade-score-big">${myBest.score}<span style="font-size:22px;opacity:.5"> / ${total}</span></div>
-        <div class="grade-pct">${pct}점</div>
-        <div style="font-size:14px;color:var(--teal);opacity:.8;margin-top:4px">${msg}</div>
-      </div>`;
+    document.getElementById('grade-result').innerHTML=`<div class="grade-check-card">
+      <div class="grade-icon">\${emoji}</div>
+      <div class="grade-name">\${name} 학생 · 「\${quiz.name}」</div>
+      <div class="grade-score-big">\${myBest.score}<span style="font-size:22px;opacity:.5"> / \${total}</span></div>
+      <div class="grade-pct">\${pct}점</div>
+      <div style="font-size:14px;color:var(--teal);opacity:.8;margin-top:4px">\${msg}</div>
+    </div>`;
     setGMsg('','');
-  }catch(e){setGMsg('오류가 발생했습니다. 다시 시도해주세요.','err');}
+  }catch(e){setGMsg('오류: '+e.message,'err');}
 }
 
 function setGMsg(txt,cls){
