@@ -189,6 +189,14 @@ textarea{min-height:52px;resize:vertical}
 .grade-released .grade-toggle{background:var(--teal-l);border-color:var(--teal)}
 .grade-released .grade-toggle-label{color:var(--teal)}
 .icon-btn-on{background:var(--teal-l)!important;color:var(--teal)!important;border-color:var(--teal)!important;font-weight:700!important}
+
+.points-row{display:flex;align-items:center;gap:10px;margin-top:10px;padding:10px 12px;background:var(--amber-l);border-radius:var(--rs);border:1px solid #e8c882}
+.points-row label{margin:0;font-size:12px;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+.points-inp{width:70px!important;text-align:center;font-weight:700;font-size:15px;padding:7px 10px}
+.points-hint{font-size:12px;color:var(--amber);opacity:.8}
+.q-pts{font-size:11px;font-weight:700;background:var(--amber-l);color:var(--amber);border:1px solid #e8c882;padding:2px 8px;border-radius:20px;white-space:nowrap}
+.mc-multi-hint{font-size:11px;color:var(--purple);margin-bottom:6px;display:none}
+#sec-mc .mc-multi-hint{display:block}
 </style>
 </head>
 <body>
@@ -259,6 +267,9 @@ textarea{min-height:52px;resize:vertical}
         <button class="ttab" onclick="setType('imgsel')" id="tab-imgsel"><span class="ticon">🖼</span>이미지 선택</button>
         <button class="ttab" onclick="setType('phrase')" id="tab-phrase"><span class="ticon">🔀</span>Phrase 순서</button>
         <button class="ttab" onclick="setType('order')" id="tab-order"><span class="ticon">↕</span>문장 순서</button>
+        <button class="ttab" onclick="setType('audio')" id="tab-audio"><span class="ticon">🎧</span>Audio 듣기</button>
+        <button class="ttab" onclick="setType('wordfill')" id="tab-wordfill"><span class="ticon">📝</span>단어 빈칸</button>
+        <button class="ttab" onclick="setType('inlinesel')" id="tab-inlinesel"><span class="ticon">🔤</span>문장 내 선택</button>
       </div>
 
       <div class="form-sec">
@@ -266,7 +277,7 @@ textarea{min-height:52px;resize:vertical}
 
         <div id="sec-mc">
           <label>문제</label><input type="text" id="mc-q" placeholder="예: 다음 중 '가다'의 과거형은?">
-          <label>보기 — 정답 옆 ✓</label>
+          <label>보기 — 정답 옆 ✓ (복수 정답 가능, 여러 개 선택)</label>
           <div id="mc-opts">
             <div class="opt-row"><span class="opt-lbl">①</span><input type="text" class="mc-opt" placeholder="보기 1"><button class="cbtn" onclick="selC(this,'mc-opts')">✓</button></div>
             <div class="opt-row"><span class="opt-lbl">②</span><input type="text" class="mc-opt" placeholder="보기 2"><button class="cbtn" onclick="selC(this,'mc-opts')">✓</button></div>
@@ -288,9 +299,9 @@ textarea{min-height:52px;resize:vertical}
           <label>지시문 (선택)</label><input type="text" id="match-q" placeholder="Column A와 Column B를 연결하세요.">
           <label>A → B 쌍 (최대 6개)</label>
           <div id="match-pairs">
-            <div class="pair-row"><input type="text" class="ma" placeholder="A 1"><span class="pair-eq">→</span><input type="text" class="mb" placeholder="B 1"><button class="rmv" onclick="rmPair(this)">✕</button></div>
-            <div class="pair-row"><input type="text" class="ma" placeholder="A 2"><span class="pair-eq">→</span><input type="text" class="mb" placeholder="B 2"><button class="rmv" onclick="rmPair(this)">✕</button></div>
-            <div class="pair-row"><input type="text" class="ma" placeholder="A 3"><span class="pair-eq">→</span><input type="text" class="mb" placeholder="B 3"><button class="rmv" onclick="rmPair(this)">✕</button></div>
+            <div class="pair-row"><input type="text" class="ma" placeholder="A 1"><span class="pair-eq">→</span><input type="text" class="mb" placeholder="B 1"><input type="number" class="mp" value="1" min="1" max="100" style="width:54px;text-align:center;font-weight:700"><span style="font-size:12px;color:var(--amber)">점</span><button class="rmv" onclick="rmPair(this)">✕</button></div>
+            <div class="pair-row"><input type="text" class="ma" placeholder="A 2"><span class="pair-eq">→</span><input type="text" class="mb" placeholder="B 2"><input type="number" class="mp" value="1" min="1" max="100" style="width:54px;text-align:center;font-weight:700"><span style="font-size:12px;color:var(--amber)">점</span><button class="rmv" onclick="rmPair(this)">✕</button></div>
+            <div class="pair-row"><input type="text" class="ma" placeholder="A 3"><span class="pair-eq">→</span><input type="text" class="mb" placeholder="B 3"><input type="number" class="mp" value="1" min="1" max="100" style="width:54px;text-align:center;font-weight:700"><span style="font-size:12px;color:var(--amber)">점</span><button class="rmv" onclick="rmPair(this)">✕</button></div>
           </div>
           <button class="rmv" onclick="addPair()" style="color:var(--purple);font-size:13px;padding:5px 8px">＋ 쌍 추가</button>
         </div>
@@ -324,8 +335,61 @@ textarea{min-height:52px;resize:vertical}
           </div>
         </div>
 
+        <!-- Audio -->
+        <div id="sec-audio" style="display:none">
+          <label>오디오 파일 URL</label>
+          <input type="text" id="audio-url" placeholder="예: https://... .mp3 또는 .wav">
+          <label>문제 지시문</label>
+          <input type="text" id="audio-q" placeholder="예: 오디오를 듣고 알맞은 답을 고르세요.">
+          <label>보기 — 정답 옆 ✓</label>
+          <div id="audio-opts">
+            <div class="opt-row"><span class="opt-lbl">①</span><input type="text" class="aud-opt" placeholder="보기 1"><button class="cbtn" onclick="selC(this,'audio-opts')">✓</button></div>
+            <div class="opt-row"><span class="opt-lbl">②</span><input type="text" class="aud-opt" placeholder="보기 2"><button class="cbtn" onclick="selC(this,'audio-opts')">✓</button></div>
+            <div class="opt-row"><span class="opt-lbl">③</span><input type="text" class="aud-opt" placeholder="보기 3"><button class="cbtn" onclick="selC(this,'audio-opts')">✓</button></div>
+            <div class="opt-row"><span class="opt-lbl">④</span><input type="text" class="aud-opt" placeholder="보기 4"><button class="cbtn" onclick="selC(this,'audio-opts')">✓</button></div>
+          </div>
+        </div>
+
+        <!-- Word Fill -->
+        <div id="sec-wordfill" style="display:none">
+          <label>제시 단어 목록 — Enter 또는 쉼표로 구분 (빈칸보다 많아도 됨)</label>
+          <input type="text" id="wf-word-input" placeholder="예: 학교, 도서관, 병원, 공원, 카페" onkeydown="wfWordKD(event)">
+          <div class="phrase-wrap" id="wf-word-chips"></div>
+          <label>문장들 — 빈칸은 ___ 로 표시 (문장마다 Enter)</label>
+          <div id="wf-sents">
+            <div class="sent-row"><span class="sent-num">1</span><input type="text" class="wf-s" placeholder="예: 저는 ___에 가요."></div>
+            <div class="sent-row"><span class="sent-num">2</span><input type="text" class="wf-s" placeholder="예: ___에서 책을 읽어요."></div>
+            <div class="sent-row"><span class="sent-num">3</span><input type="text" class="wf-s" placeholder="예: (빈 칸은 비워두세요)"></div>
+          </div>
+          <button class="rmv" onclick="addWfSent()" style="color:var(--purple);font-size:13px;padding:5px 8px;margin-top:4px">＋ 문장 추가</button>
+          <label>각 빈칸의 정답 — 순서대로 Enter 또는 쉼표로 구분</label>
+          <input type="text" id="wf-ans-input" placeholder="예: 학교, 도서관" onkeydown="wfAnsKD(event)">
+          <div class="phrase-wrap" id="wf-ans-chips"></div>
+          <label>빈칸별 배점 — 정답과 같은 순서로 Enter 또는 쉼표로 구분 (비우면 모두 1점)</label>
+          <input type="text" id="wf-pts-input" placeholder="예: 2, 3 (빈칸 1번=2점, 2번=3점)" onkeydown="wfPtsKD(event)">
+          <div class="phrase-wrap" id="wf-pts-chips"></div>
+        </div>
+        <!-- Inline select -->
+        <div id="sec-inlinesel" style="display:none">
+          <label>문제 지시문 (선택)</label>
+          <input type="text" id="inlinesel-q" placeholder="예: 알맞은 단어를 선택하세요.">
+          <label>문장들 — 선택지는 (단어1/단어2/단어3) 형식으로 입력</label>
+          <p style="font-size:12px;color:var(--muted);margin-bottom:8px">예: (집/도서관)에는 책이 많습니다. &nbsp;·&nbsp; 저는 밥을 (먹어요/마셔요).</p>
+          <div id="inlinesel-sents">
+            <div class="sent-row"><span class="sent-num">1</span><input type="text" class="ils-s" placeholder="(집/도서관)에는 책이 많습니다."></div>
+            <div class="sent-row"><span class="sent-num">2</span><input type="text" class="ils-s" placeholder="문장 2 (선택 없으면 비워두세요)"></div>
+          </div>
+          <button class="rmv" onclick="addIlsSent()" style="color:var(--purple);font-size:13px;padding:5px 8px;margin-top:4px">＋ 문장 추가</button>
+          <label>각 선택지의 정답 — 순서대로 Enter 또는 쉼표로 구분</label>
+          <input type="text" id="inlinesel-ans-input" placeholder="예: 도서관, 먹어요" onkeydown="ilsAnsKD(event)">
+          <div class="phrase-wrap" id="inlinesel-ans-chips"></div>
+          <label>선택지별 배점 — 정답과 같은 순서로 Enter 또는 쉼표로 구분 (비우면 모두 1점)</label>
+          <input type="text" id="inlinesel-pts-input" placeholder="예: 2, 3 (첫 번째=2점, 두 번째=3점)" onkeydown="ilsPtsKD(event)">
+          <div class="phrase-wrap" id="inlinesel-pts-chips"></div>
+        </div>
         <div class="divider"></div>
-        <button class="btn-add" onclick="addQ()">＋ 이 문제 추가</button>
+        <div class="points-row" id="points-row-wrap"><label>이 문제 배점</label><input type="number" class="points-inp" id="q-points" value="1" min="1" max="100"><span class="points-hint">점</span></div>
+        <button class="btn-add" onclick="addQ()" style="margin-top:10px">＋ 이 문제 추가</button>
         <div class="smsg" id="amsg"></div>
       </div>
     </div>
@@ -396,12 +460,12 @@ textarea{min-height:52px;resize:vertical}
 
 <script>
 // ── State ────────────────────────────────────────────────────────────────────
-let qType='mc', questions=[], tfVal=null, phraseList=[];
+let qType='mc', questions=[], tfVal=null, phraseList=[], wfWords=[], wfAnswers=[], wfPts=[], ilsAnswers=[], ilsPts=[];
 let editingQuizCode=null;
 
-const typeIcons={mc:'🔘',tf:'⭕',match:'🔗',imgsel:'🖼',phrase:'🔀',order:'↕'};
-const typeLabels={mc:'객관식',tf:'O / X',match:'A↔B 연결',imgsel:'이미지 선택',phrase:'Phrase 순서',order:'문장 순서'};
-const tagClass={mc:'tag-mc',tf:'tag-tf',match:'tag-match',imgsel:'tag-imgsel',phrase:'tag-phrase',order:'tag-order'};
+const typeIcons={mc:'🔘',tf:'⭕',match:'🔗',imgsel:'🖼',phrase:'🔀',order:'↕',audio:'🎧',wordfill:'📝',inlinesel:'🔤'};
+const typeLabels={mc:'객관식',tf:'O / X',match:'A↔B 연결',imgsel:'이미지 선택',phrase:'Phrase 순서',order:'문장 순서',audio:'Audio 듣기',wordfill:'단어 빈칸',inlinesel:'문장 내 선택'};
+const tagClass={mc:'tag-mc',tf:'tag-tf',match:'tag-match',imgsel:'tag-imgsel',phrase:'tag-phrase',order:'tag-order',audio:'tag-phrase',wordfill:'tag-match',inlinesel:'tag-order'};
 
 // Storage via Firebase REST API — see helpers above
 
@@ -457,19 +521,26 @@ function goStep1Edit(){
 // ── Type ─────────────────────────────────────────────────────────────────────
 function setType(t){
   qType=t;
-  ['mc','tf','match','imgsel','phrase','order'].forEach(s=>{
+  ['mc','tf','match','imgsel','phrase','order','audio','wordfill','inlinesel'].forEach(s=>{
     document.getElementById('sec-'+s).style.display=s===t?'':'none';
     document.getElementById('tab-'+s).classList.toggle('active',s===t);
   });
   document.getElementById('form-hdr').textContent=typeIcons[t]+'  '+typeLabels[t]+' 문제 작성';
+  // Hide global points row for match/wordfill (they set their own)
+  document.getElementById('points-row-wrap').style.display=(t==='match'||t==='wordfill'||t==='inlinesel')?'none':'';
   tfVal=null; phraseList=[]; renderChips();
   ['tf-O','tf-X'].forEach(id=>document.getElementById(id).classList.remove('sel'));
   document.getElementById('amsg').textContent='';
 }
 
 function selC(btn,cid){
-  document.querySelectorAll('#'+cid+' .cbtn').forEach(b=>b.classList.remove('sel'));
-  btn.classList.add('sel');
+  // mc-opts allows multiple selections; others are single
+  if(cid==='mc-opts'||cid==='audio-opts'){
+    btn.classList.toggle('sel');
+  } else {
+    document.querySelectorAll('#'+cid+' .cbtn').forEach(b=>b.classList.remove('sel'));
+    btn.classList.add('sel');
+  }
 }
 function selTF(v){
   tfVal=v;
@@ -480,7 +551,7 @@ function addPair(){
   const c=document.getElementById('match-pairs').children.length;
   if(c>=6) return;
   const d=document.createElement('div');d.className='pair-row';
-  d.innerHTML=`<input type="text" class="ma" placeholder="A ${c+1}"><span class="pair-eq">→</span><input type="text" class="mb" placeholder="B ${c+1}"><button class="rmv" onclick="rmPair(this)">✕</button>`;
+  d.innerHTML=`<input type="text" class="ma" placeholder="A ${c+1}"><span class="pair-eq">→</span><input type="text" class="mb" placeholder="B ${c+1}"><input type="number" class="mp" value="1" min="1" max="100" style="width:54px;text-align:center;font-weight:700"><span style="font-size:12px;color:var(--amber)">점</span><button class="rmv" onclick="rmPair(this)">✕</button>`;
   document.getElementById('match-pairs').appendChild(d);
 }
 function rmPair(btn){if(document.getElementById('match-pairs').children.length>2) btn.closest('.pair-row').remove();}
@@ -498,6 +569,69 @@ function renderChips(){
 function rmPhrase(i){phraseList.splice(i,1);renderChips();}
 
 // ── Add question ─────────────────────────────────────────────────────────────
+
+function wfWordKD(e){
+  if(e.key==='Enter'||e.key===','){
+    e.preventDefault();
+    const v=e.target.value.replace(/,/g,'').trim();
+    if(v){wfWords.push(v);e.target.value='';renderWfChips();}
+  }
+}
+function wfAnsKD(e){
+  if(e.key==='Enter'||e.key===','){
+    e.preventDefault();
+    const v=e.target.value.replace(/,/g,'').trim();
+    if(v){wfAnswers.push(v);e.target.value='';renderWfChips();}
+  }
+}
+function renderWfChips(){
+  document.getElementById('wf-word-chips').innerHTML=wfWords.map((p,i)=>
+    `<span class="pchip">${p}<button onclick="wfWords.splice(${i},1);renderWfChips()">✕</button></span>`).join('');
+  document.getElementById('wf-ans-chips').innerHTML=wfAnswers.map((p,i)=>
+    `<span class="pchip" style="background:var(--teal-l);border-color:var(--teal);color:var(--teal)">${p}<button onclick="wfAnswers.splice(${i},1);renderWfChips()" style="color:var(--teal)">✕</button></span>`).join('');
+  document.getElementById('wf-pts-chips').innerHTML=wfPts.map((p,i)=>
+    `<span class="pchip" style="background:var(--amber-l);border-color:#BA7517;color:var(--amber)">${p}점<button onclick="wfPts.splice(${i},1);renderWfChips()" style="color:var(--amber)">✕</button></span>`).join('');
+}
+function wfPtsKD(e){
+  if(e.key==='Enter'||e.key===','){
+    e.preventDefault();
+    const v=parseInt(e.target.value.replace(/,/g,'').trim());
+    if(v>0){wfPts.push(v);e.target.value='';renderWfChips();}
+  }
+}
+function addWfSent(){
+  const c=document.getElementById('wf-sents').children.length+1;
+  const d=document.createElement('div');d.className='sent-row';
+  d.innerHTML=`<span class="sent-num">${c}</span><input type="text" class="wf-s" placeholder="예: ___에 가요.">`;
+  document.getElementById('wf-sents').appendChild(d);
+}
+
+function ilsAnsKD(e){
+  if(e.key==='Enter'||e.key===','){
+    e.preventDefault();
+    const v=e.target.value.replace(/,/g,'').trim();
+    if(v){ilsAnswers.push(v);e.target.value='';renderIlsChips();}
+  }
+}
+function ilsPtsKD(e){
+  if(e.key==='Enter'||e.key===','){
+    e.preventDefault();
+    const v=parseInt(e.target.value.replace(/,/g,'').trim());
+    if(v>0){ilsPts.push(v);e.target.value='';renderIlsChips();}
+  }
+}
+function renderIlsChips(){
+  document.getElementById('inlinesel-ans-chips').innerHTML=ilsAnswers.map((p,i)=>
+    `<span class="pchip" style="background:var(--teal-l);border-color:var(--teal);color:var(--teal)">${p}<button onclick="ilsAnswers.splice(${i},1);renderIlsChips()" style="color:var(--teal)">✕</button></span>`).join('');
+  document.getElementById('inlinesel-pts-chips').innerHTML=ilsPts.map((p,i)=>
+    `<span class="pchip" style="background:var(--amber-l);border-color:#BA7517;color:var(--amber)">${p}점<button onclick="ilsPts.splice(${i},1);renderIlsChips()" style="color:var(--amber)">✕</button></span>`).join('');
+}
+function addIlsSent(){
+  const c=document.getElementById('inlinesel-sents').children.length+1;
+  const d=document.createElement('div');d.className='sent-row';
+  d.innerHTML=`<span class="sent-num">${c}</span><input type="text" class="ils-s" placeholder="문장 ${c}">`;
+  document.getElementById('inlinesel-sents').appendChild(d);
+}
 function smsg(txt,cls){
   const el=document.getElementById('amsg');el.textContent=txt;el.className='smsg '+(cls||'');
   if(cls) setTimeout(()=>{if(el.textContent===txt){el.textContent='';el.className='smsg';}},2600);
@@ -510,9 +644,10 @@ function addQ(){
     if(!qt) return smsg('문제를 입력해주세요.','err');
     const opts=[...document.querySelectorAll('.mc-opt')].map(i=>i.value.trim());
     if(opts.some(o=>!o)) return smsg('모든 보기를 입력해주세요.','err');
-    const cb=document.querySelector('#mc-opts .cbtn.sel');
-    if(!cb) return smsg('정답을 선택해주세요 (✓).','err');
-    q={...q,text:qt,options:opts,correct:[...document.querySelectorAll('#mc-opts .cbtn')].indexOf(cb)};
+    const cbs=[...document.querySelectorAll('#mc-opts .cbtn')];
+    const correctArr=cbs.map((b,i)=>b.classList.contains('sel')?i:-1).filter(i=>i>=0);
+    if(!correctArr.length) return smsg('정답을 하나 이상 선택해주세요 (✓).','err');
+    q={...q,text:qt,options:opts,correct:correctArr,multiCorrect:correctArr.length>1};
     document.getElementById('mc-q').value='';
     document.querySelectorAll('.mc-opt').forEach(i=>i.value='');
     document.querySelectorAll('#mc-opts .cbtn').forEach(b=>b.classList.remove('sel'));
@@ -525,11 +660,13 @@ function addQ(){
     ['tf-O','tf-X'].forEach(id=>document.getElementById(id).classList.remove('sel'));
   } else if(qType==='match'){
     const rows=[...document.querySelectorAll('#match-pairs .pair-row')];
-    const pairs=rows.map(r=>({a:r.querySelector('.ma').value.trim(),b:r.querySelector('.mb').value.trim()})).filter(p=>p.a&&p.b);
+    const pairs=rows.map(r=>({a:r.querySelector('.ma').value.trim(),b:r.querySelector('.mb').value.trim(),pts:Math.max(1,parseInt(r.querySelector('.mp').value)||1)})).filter(p=>p.a&&p.b);
     if(pairs.length<2) return smsg('최소 2쌍을 입력해주세요.','err');
-    q={...q,text:document.getElementById('match-q').value.trim()||'Column A와 Column B를 연결하세요.',pairs};
+    const matchTotal=pairs.reduce((s,p)=>s+p.pts,0);
+    q={...q,text:document.getElementById('match-q').value.trim()||'Column A와 Column B를 연결하세요.',pairs,points:matchTotal,perPairPoints:true};
     document.getElementById('match-q').value='';
-    document.querySelectorAll('#match-pairs input').forEach(i=>i.value='');
+    document.querySelectorAll('#match-pairs input[type=text]').forEach(i=>i.value='');
+    document.querySelectorAll('#match-pairs input[type=number]').forEach(i=>i.value='1');
   } else if(qType==='imgsel'){
     const qt=document.getElementById('imgsel-q').value.trim();
     if(!qt) return smsg('문제를 입력해주세요.','err');
@@ -561,7 +698,64 @@ function addQ(){
     q={...q,text:qt,sentences:sents};
     document.getElementById('order-q').value='';
     document.querySelectorAll('.ord-s').forEach(i=>i.value='');
+  } else if(qType==='audio'){
+    const qt=document.getElementById('audio-q').value.trim();
+    const url=document.getElementById('audio-url').value.trim();
+    if(!url) return smsg('오디오 URL을 입력해주세요.','err');
+    if(!qt) return smsg('문제 지시문을 입력해주세요.','err');
+    const opts=[...document.querySelectorAll('.aud-opt')].map(i=>i.value.trim()).filter(o=>o);
+    if(opts.length<2) return smsg('최소 2개의 보기를 입력해주세요.','err');
+    const cb=document.querySelector('#audio-opts .cbtn.sel');
+    if(!cb) return smsg('정답을 선택해주세요.','err');
+    const ci=[...document.querySelectorAll('#audio-opts .cbtn')].indexOf(cb);
+    q={...q,text:qt,audioUrl:url,options:opts,correct:ci};
+    document.getElementById('audio-q').value='';document.getElementById('audio-url').value='';
+    document.querySelectorAll('.aud-opt').forEach(i=>i.value='');
+    document.querySelectorAll('#audio-opts .cbtn').forEach(b=>b.classList.remove('sel'));
+  } else if(qType==='wordfill'){
+    const sents=[...document.querySelectorAll('.wf-s')].map(i=>i.value.trim()).filter(s=>s);
+    if(!sents.length) return smsg('문장을 최소 1개 입력해주세요.','err');
+    const blanks=sents.reduce((n,s)=>n+(s.match(/___/g)||[]).length,0);
+    if(!blanks) return smsg('문장에 빈칸(___)을 표시해주세요.','err');
+    const inp=document.getElementById('wf-ans-input').value.replace(/,/g,'').trim();
+    if(inp) wfAnswers.push(inp);
+    if(wfAnswers.length<blanks) return smsg(`빈칸 ${blanks}개에 맞는 정답을 입력해주세요.`,'err');
+    const wordInp=document.getElementById('wf-word-input').value.replace(/,/g,'').trim();
+    if(wordInp) wfWords.push(wordInp);
+    if(wfWords.length<blanks) return smsg('제시 단어를 빈칸 수 이상 입력해주세요.','err');
+    const ptsInp=document.getElementById('wf-pts-input').value.replace(/,/g,'').trim();
+    if(ptsInp){const v=parseInt(ptsInp);if(v>0)wfPts.push(v);}
+    // Fill missing pts with 1
+    const finalPts=wfAnswers.map((_,i)=>wfPts[i]||1);
+    const wfTotal=finalPts.reduce((s,p)=>s+p,0);
+    q={...q,text:'다음 단어를 골라 빈칸을 채우세요.',words:wfWords.slice(),sentences:sents,answers:wfAnswers.slice(),blankPoints:finalPts,points:wfTotal,perBlankPoints:true};
+    document.querySelectorAll('.wf-s').forEach(i=>i.value='');
+    document.getElementById('wf-word-input').value='';document.getElementById('wf-ans-input').value='';
+    document.getElementById('wf-pts-input').value='';
+    wfWords=[];wfAnswers=[];wfPts=[];renderWfChips();
+  } else if(qType==='inlinesel'){
+    const qt=document.getElementById('inlinesel-q').value.trim()||'알맞은 단어를 선택하세요.';
+    const sents=[...document.querySelectorAll('.ils-s')].map(i=>i.value.trim()).filter(s=>s);
+    if(!sents.length) return smsg('문장을 최소 1개 입력해주세요.','err');
+    // Count all (x/y) groups across all sentences
+    const countSels=s=>{let n=0,i=0;while((i=s.indexOf('(',i))>=0){const j=s.indexOf(')',i);if(j>i&&s.slice(i,j).includes('/'))n++;i=j+1;}return n;};
+    const totalSels=sents.reduce((n,s)=>n+countSels(s),0);
+    if(!totalSels) return smsg('선택지를 (단어1/단어2) 형식으로 입력해주세요.','err');
+    const ansInp=document.getElementById('inlinesel-ans-input').value.replace(/,/g,'').trim();
+    if(ansInp) ilsAnswers.push(ansInp);
+    if(ilsAnswers.length<totalSels) return smsg(`선택지 ${totalSels}개의 정답을 입력해주세요.`,'err');
+    const ptsInp2=document.getElementById('inlinesel-pts-input').value.replace(/,/g,'').trim();
+    if(ptsInp2){const v=parseInt(ptsInp2);if(v>0)ilsPts.push(v);}
+    const finalIlsPts=ilsAnswers.map((_,i)=>ilsPts[i]||1);
+    const ilsTotal=finalIlsPts.reduce((s,p)=>s+p,0);
+    q={...q,text:qt,sentences:sents,answers:ilsAnswers.slice(),blankPoints:finalIlsPts,points:ilsTotal,perSelPoints:true};
+    document.querySelectorAll('.ils-s').forEach(i=>i.value='');
+    document.getElementById('inlinesel-ans-input').value='';
+    document.getElementById('inlinesel-pts-input').value='';
+    document.getElementById('inlinesel-q').value='';
+    ilsAnswers=[];ilsPts=[];renderIlsChips();
   }
+  if(qType!=='match'&&qType!=='wordfill'&&qType!=='inlinesel') q.points=Math.max(1,parseInt(document.getElementById('q-points').value)||1);
   questions.push(q);renderQList();
   smsg('문제 추가됨 (총 '+questions.length+'개) ✓','ok');
 }
@@ -585,7 +779,7 @@ function renderQList(){
         <div class="q-item">
           <span class="q-n">${i+1}</span>
           <span class="q-t">${q.text}</span>
-          <span class="q-tag ${tagClass[q.type]}">${typeLabels[q.type]}</span>
+          <span class="q-pts">${q.points||1}점</span><span class="q-tag ${tagClass[q.type]}">${typeLabels[q.type]}</span>
           <button class="rmv" onclick="rmQ(${i})">✕</button>
         </div>`).join('')}
     </div>`).join('');
@@ -711,8 +905,9 @@ async function loadAnswers(){
   const allAnswers=(await getAnswers(code)).sort((a,b)=>b.submittedAt-a.submittedAt);
 
   const total=quiz.questions.length;
-  const avgScore=allAnswers.length?Math.round(allAnswers.reduce((s,a)=>s+a.score,0)/allAnswers.length*10)/10:0;
-  const perfect=allAnswers.filter(a=>a.score===total).length;
+  const totalPoints=quiz.questions.reduce((s,q)=>s+(q.points||1),0);
+  const avgScore=allAnswers.length?Math.round(allAnswers.reduce((s,a)=>s+(a.score||0),0)/allAnswers.length*10)/10:0;
+  const perfect=allAnswers.filter(a=>a.score===totalPoints).length;
 
   const gradeReleased=quiz.gradeReleased||false;
   area.innerHTML=`
@@ -727,19 +922,19 @@ async function loadAnswers(){
     </div>
     <div class="stat-grid">
       <div class="stat-card stat-purple"><div class="stat-num">${allAnswers.length}</div><div class="stat-lbl">제출 학생 수</div></div>
-      <div class="stat-card stat-teal"><div class="stat-num">${total>0?Math.round(avgScore/total*100):0}점</div><div class="stat-lbl">평균 점수</div></div>
+      <div class="stat-card stat-teal"><div class="stat-num">${totalPoints>0?Math.round(avgScore/totalPoints*100):0}점</div><div class="stat-lbl">평균 점수</div></div>
       <div class="stat-card stat-amber"><div class="stat-num">${perfect}</div><div class="stat-lbl">100점 학생</div></div>
     </div>
     ${allAnswers.length===0?
       '<div class="empty-state"><div class="empty-icon">🕐</div><div class="empty-text">아직 제출한 학생이 없습니다</div></div>':
       allAnswers.map((a,ai)=>{
-        const pct=Math.round(a.score/total*100);
+        const pct=Math.round((a.score||0)/totalPoints*100);
         const sc=pct>=80?'hi':pct>=50?'mid':'lo';
         const dt=new Date(a.submittedAt).toLocaleString('ko-KR',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
         return `<div class="answer-row">
           <div class="answer-row-hdr" onclick="toggleDetail(${ai})">
             <span class="answer-name">${a.studentName||'학생 '+(ai+1)}</span>
-            <span class="answer-score ${sc}">${a.score} / ${total} (${pct}점)</span>
+            <span class="answer-score ${sc}">${a.score||0} / ${totalPoints}점 (${pct}%)</span>
             <span class="answer-time">${dt}</span>
             <span class="answer-chevron" id="chev-${ai}">▼</span>
           </div>
