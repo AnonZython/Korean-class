@@ -440,13 +440,14 @@ async function checkGrade(){
     const emoji=pct===100?'🎉':pct>=70?'👍':'💪';
     const msg=pct===100?'완벽합니다!':pct>=80?'아주 잘했어요!':pct>=60?'잘했어요!':'더 연습해봐요.';
     document.getElementById('grade-result').style.display='';
-    document.getElementById('grade-result').innerHTML=`<div class="grade-check-card">
-      <div class="grade-icon">\${emoji}</div>
-      <div class="grade-name">\${name} 학생 · 「\${quiz.name}」</div>
-      <div class="grade-score-big">\${myBest.score}<span style="font-size:22px;opacity:.5"> / \${total}</span></div>
-      <div class="grade-pct">\${pct}점</div>
-      <div style="font-size:14px;color:var(--teal);opacity:.8;margin-top:4px">\${msg}</div>
-    </div>`;
+    document.getElementById('grade-result').innerHTML=
+      '<div class="grade-check-card">'
+      +'<div class="grade-icon">'+emoji+'</div>'
+      +'<div class="grade-name">'+name+' 학생 · 「'+quiz.name+'」</div>'
+      +'<div class="grade-score-big">'+myBest.score+'<span style="font-size:22px;opacity:.5"> / '+total+'</span></div>'
+      +'<div class="grade-pct">'+pct+'점</div>'
+      +'<div style="font-size:14px;color:var(--teal);opacity:.8;margin-top:4px">'+msg+'</div>'
+      +'</div>';
     setGMsg('','');
   }catch(e){setGMsg('오류: '+e.message,'err');}
 }
