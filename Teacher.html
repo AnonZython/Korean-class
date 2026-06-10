@@ -103,6 +103,24 @@ input[type=text]:focus{border-color:var(--purple)}
 .nav-tabs-s{display:flex;background:var(--bg);border:1px solid var(--border);border-radius:20px;overflow:hidden;margin-bottom:20px}
 .nav-tab-s{flex:1;padding:9px 10px;font-size:13px;font-family:'Noto Sans KR',sans-serif;font-weight:500;border:none;background:none;color:var(--muted);cursor:pointer;transition:all .15s;text-align:center}
 .nav-tab-s.active{background:var(--purple);color:#fff;border-radius:20px;font-weight:700}
+
+.audio-player{background:var(--purple-l);border:1px solid #c8c4f0;border-radius:var(--rs);padding:12px 14px;margin-bottom:14px;display:flex;align-items:center;gap:12px}
+.audio-player audio{flex:1;height:36px}
+.audio-label{font-size:12px;font-weight:700;color:var(--purple);white-space:nowrap}
+.wf-words-box{display:flex;flex-wrap:wrap;gap:8px;padding:12px;background:var(--purple-l);border:1px solid #c8c4f0;border-radius:var(--rs);margin-bottom:12px}
+.wf-word-chip{padding:6px 14px;border:1.5px solid #c8c4f0;border-radius:20px;font-size:14px;cursor:pointer;background:var(--sur);color:var(--purple);font-family:'Noto Sans KR',sans-serif;transition:all .12s;user-select:none}
+.wf-word-chip:hover{border-color:var(--purple);background:var(--purple-l)}
+.wf-word-chip.used{opacity:.35;pointer-events:none;text-decoration:line-through}
+.wf-sentence{font-size:15px;line-height:2;margin-bottom:10px;color:var(--text)}
+.wf-blank{display:inline-block;min-width:80px;border-bottom:2px solid var(--purple);padding:2px 8px;margin:0 4px;text-align:center;cursor:pointer;color:var(--purple);font-weight:700;background:var(--purple-l);border-radius:4px;transition:all .12s}
+.wf-blank:hover{background:#d8d4f8}
+.wf-blank.filled{background:var(--purple-l);color:var(--purple-d)}
+.wf-blank.locked{pointer-events:none;background:var(--bg);color:var(--muted);border-color:var(--border)}
+.mc-multi-tag{font-size:11px;font-weight:700;color:var(--purple);background:var(--purple-l);padding:2px 8px;border-radius:20px;margin-left:6px}
+.ils-sentence{font-size:16px;line-height:2.2;margin-bottom:10px;color:var(--text)}
+.ils-btn{display:inline-block;padding:3px 14px;margin:0 3px;border:2px solid var(--purple);border-radius:20px;background:var(--purple-l);color:var(--purple);font-weight:700;cursor:pointer;font-size:15px;font-family:'Noto Sans KR',sans-serif;transition:all .15s;user-select:none}
+.ils-btn:hover{background:var(--purple);color:#fff}
+.ils-btn.locked{pointer-events:none;border-color:var(--border);background:var(--bg);color:var(--muted)}
 </style>
 </head>
 <body>
@@ -201,7 +219,7 @@ function setMsg(id,txt,cls){
 }
 
 const nums=['①','②','③','④','⑤','⑥'];
-const typeNames={mc:'객관식',tf:'O/X',match:'A↔B 연결',imgsel:'이미지 선택',phrase:'Phrase 순서',order:'문장 순서'};
+const typeNames={mc:'객관식',tf:'O/X',match:'A↔B 연결',imgsel:'이미지 선택',phrase:'Phrase 순서',order:'문장 순서',audio:'Audio 듣기',wordfill:'단어 빈칸',inlinesel:'문장 내 선택'};
 
 function renderQuiz(){
   document.getElementById('qcontainer').innerHTML=qdata.questions.map((q,qi)=>buildQ(q,qi)).join('');
@@ -252,18 +270,78 @@ function buildQ(q,qi){
         <span class="sent-txt">${s}</span>
       </div>`).join('')}</div>
     <div id="order-fb-${qi}"></div>`;
+  } else if(q.type==='audio'){
+    body=`<div class="audio-player"><span class="audio-label">🎧 듣기</span><audio controls src="${q.audioUrl}" preload="none"></audio></div>`
+      +q.options.map((o,oi)=>`
+      <div class="opt" id="opt-${qi}-${oi}" onclick="selMC(${qi},${oi})">
+        <span class="ocircle">${nums[oi]}</span><span class="otext">${o}</span>
+      </div>`).join('');
+  } else if(q.type==='wordfill'){
+    // Build word bank (shuffled)
+    const shuffled=[...q.words].sort(()=>Math.random()-.5);
+    body=`<p style="font-size:12px;color:var(--muted);margin-bottom:6px">단어를 클릭하여 빈칸을 채우고, 잘못 넣은 단어는 빈칸을 클릭하면 돌아옵니다</p>
+    <div class="wf-words-box" id="wfbank-${qi}">${shuffled.map((w,wi)=>`<span class="wf-word-chip" id="wfc-${qi}-${wi}" data-w="${w.replace(/"/g,'&quot;')}" onclick="clickWfWord(${qi},${wi})">${w}</span>`).join('')}</div>
+    <div id="wfsents-${qi}">${q.sentences.map((sent,si)=>{
+      let bi=0;
+      // Count blanks before this sentence for global blank index
+      const prevBlanks=q.sentences.slice(0,si).reduce((n,ss)=>n+(ss.match(/___/g)||[]).length,0);
+      return '<div class="wf-sentence">'+sent.replace(/___/g,()=>{
+        const gbi=prevBlanks+bi++;
+        return `<span class="wf-blank" id="wfblank-${qi}-${gbi}" data-bi="${gbi}" onclick="clickWfBlank(${qi},${gbi})">　　　</span>`;
+      })+'</div>';
+    }).join('')}</div>`;
+  } else if(q.type==='inlinesel'){
+    // Build sentences with clickable choice buttons
+    let globalSelIdx=0;
+    const sentHtml=q.sentences.map(sent=>{
+      let html='<div class="ils-sentence">';
+      let rest=sent;
+      let match;
+      const re2=/[(]([^)]+)[)]/g;
+      let last=0;
+      let m;
+      re2.lastIndex=0;
+      while((m=re2.exec(sent))!==null){
+        const parts=m[1].split('/');
+        if(parts.length>=2){
+          html+=sent.slice(last,m.index);
+          const si=globalSelIdx;
+          html+=`<button class="ils-btn" id="ilsb-${qi}-${si}" data-si="${si}" data-opts="${parts.join('|')}" data-cur="0" onclick="cycleIls(${qi},${si})">${parts[0]}</button>`;
+          globalSelIdx++;
+          last=m.index+m[0].length;
+        }
+      }
+      html+=sent.slice(last)+'</div>';
+      return html;
+    }).join('');
+    body=sentHtml;
   }
-  return `<div class="qcard"><p class="qnum">${qi+1}번 · ${typeNames[q.type]}</p><p class="qtext">${q.text}</p>${body}</div>`;
+    return `<div class="qcard"><p class="qnum">${qi+1}번 · ${typeNames[q.type]}</p><p class="qtext">${q.text}</p>${body}</div>`;
 }
 
 function initStates(){
   qdata.questions.forEach((q,qi)=>{
     if(q.type==='match') window['ms_'+qi]={selA:null,matched:{}};
     if(q.type==='phrase') window['ps_'+qi]=[];
+    if(q.type==='wordfill') window['wf_'+qi]={blanks:{},selectedWord:null,selectedChipId:null};
+    if(q.type==='inlinesel') window['ils_'+qi]={selections:{}};
   });
 }
 
-function selMC(qi,oi){qdata.questions[qi].options.forEach((_,i)=>document.getElementById('opt-'+qi+'-'+i).classList.remove('sel'));document.getElementById('opt-'+qi+'-'+oi).classList.add('sel');answers[qi]=oi;updateProg();}
+function selMC(qi,oi){
+  const q=qdata.questions[qi];
+  if(q.multiCorrect){
+    const el=document.getElementById('opt-'+qi+'-'+oi);
+    el.classList.toggle('sel');
+    const selected=q.options.map((_,i)=>document.getElementById('opt-'+qi+'-'+i).classList.contains('sel')?i:-1).filter(i=>i>=0);
+    answers[qi]=selected.length?selected:null;
+  } else {
+    q.options.forEach((_,i)=>document.getElementById('opt-'+qi+'-'+i).classList.remove('sel'));
+    document.getElementById('opt-'+qi+'-'+oi).classList.add('sel');
+    answers[qi]=oi;
+  }
+  updateProg();
+}
 function selTF(qi,v){['O','X'].forEach(x=>document.getElementById('opt-'+qi+'-'+x).classList.remove('sel'));document.getElementById('opt-'+qi+'-'+v).classList.add('sel');answers[qi]=v;updateProg();}
 function selImg(qi,oi){qdata.questions[qi].options.forEach((_,i)=>document.getElementById('iopt-'+qi+'-'+i).classList.remove('sel'));document.getElementById('iopt-'+qi+'-'+oi).classList.add('sel');answers[qi]=oi;updateProg();}
 
@@ -332,9 +410,68 @@ function moveSent(qi,si,dir){
   const idx=blocks.findIndex(b=>b.id==='sb-'+qi+'-'+si);
   const ni=idx+dir;
   if(ni<0||ni>=blocks.length) return;
-  if(dir===-1) list.insertBefore(blocks[idx],blocks[ni]);
-  else list.insertBefore(blocks[ni],blocks[idx]);
+  if(dir===-1){ list.insertBefore(blocks[idx],blocks[ni]); } else { list.insertBefore(blocks[ni],blocks[idx]); }
   answers[qi]=[...list.querySelectorAll('.sent-block')].map(b=>b.dataset.s);
+  updateProg();
+}
+
+function clickWfWord(qi,wi){
+  const st=window['wf_'+qi];
+  const chip=document.getElementById('wfc-'+qi+'-'+wi);
+  if(chip.classList.contains('used')) return;
+  // Deselect previous
+  if(st.selectedChipId && st.selectedChipId!=='wfc-'+qi+'-'+wi){
+    const prev=document.getElementById(st.selectedChipId);
+    if(prev) prev.style.outline='';
+  }
+  if(st.selectedChipId==='wfc-'+qi+'-'+wi){
+    // Deselect
+    chip.style.outline='';st.selectedChipId=null;st.selectedWord=null;return;
+  }
+  // Select this word
+  chip.style.outline='2px solid var(--purple)';
+  st.selectedWord=chip.dataset.w;st.selectedChipId='wfc-'+qi+'-'+wi;
+}
+
+function clickWfBlank(qi,bi){
+  const st=window['wf_'+qi];
+  const blank=document.getElementById('wfblank-'+qi+'-'+bi);
+  // If blank already filled — return word to bank
+  if(st.blanks[bi]){
+    const oldChipId=st.blanks[bi].chipId;
+    const oldChip=document.getElementById(oldChipId);
+    if(oldChip){oldChip.classList.remove('used');oldChip.style.outline='';}
+    delete st.blanks[bi];
+    blank.textContent='　　　';blank.classList.remove('filled');
+    answers[qi]=null;updateProg();return;
+  }
+  // Place selected word
+  if(!st.selectedWord) return;
+  st.blanks[bi]={word:st.selectedWord,chipId:st.selectedChipId};
+  const chip=document.getElementById(st.selectedChipId);
+  if(chip){chip.classList.add('used');chip.style.outline='';}
+  blank.textContent=st.selectedWord;blank.classList.add('filled');
+  st.selectedWord=null;st.selectedChipId=null;
+  // Check if all blanks filled
+  const totalBlanks=qdata.questions[qi].answers.length;
+  if(Object.keys(st.blanks).length===totalBlanks){
+    const ans=Array.from({length:totalBlanks},(_,i)=>st.blanks[i]?st.blanks[i].word:'');
+    answers[qi]=ans;
+  } else answers[qi]=null;
+  updateProg();
+}
+
+function cycleIls(qi,si){
+  const btn=document.getElementById('ilsb-'+qi+'-'+si);
+  const opts=btn.dataset.opts.split('|');
+  let cur=(parseInt(btn.dataset.cur)+1)%opts.length;
+  btn.dataset.cur=cur;
+  btn.textContent=opts[cur];
+  window['ils_'+qi].selections[si]=opts[cur];
+  // Check if all selections made (all cycled at least once from index 0)
+  const total=q&&q.answers?q.answers.length:Object.keys(window['ils_'+qi].selections).length;
+  const allDone=Object.keys(window['ils_'+qi].selections).length===qdata.questions[qi].answers.length;
+  answers[qi]=allDone?Object.values(window['ils_'+qi].selections):null;
   updateProg();
 }
 
@@ -351,12 +488,19 @@ async function submitAll(){
   qdata.questions.forEach((q,qi)=>{
     if(q.type==='mc'){
       const ans=answers[qi];
+      if(q.multiCorrect){
+        const selected=Array.isArray(ans)?ans:[];
+        const correct=Array.isArray(q.correct)?q.correct:[q.correct];
+        const isOk=selected.length===correct.length&&correct.every(c=>selected.includes(c));
+        if(isOk) score+=(q.points||1);
+      } else {
+        if(ans===q.correct) score+=(q.points||1);
+      }
       q.options.forEach((_,oi)=>{
         const el=document.getElementById('opt-'+qi+'-'+oi);if(!el) return;
         el.classList.remove('sel');el.style.pointerEvents='none';
         el.classList.add('disabled');
       });
-      if(ans===q.correct) score++;
     } else if(q.type==='tf'){
       const ans=answers[qi];
       ['O','X'].forEach(v=>{
@@ -364,7 +508,7 @@ async function submitAll(){
         el.classList.remove('sel');el.style.pointerEvents='none';
         el.classList.add('disabled');
       });
-      if(ans===q.correct) score++;
+      if(ans===q.correct) score+=(q.points||1);
     } else if(q.type==='imgsel'){
       const ans=answers[qi];
       q.options.forEach((_,oi)=>{
@@ -372,22 +516,66 @@ async function submitAll(){
         el.classList.remove('sel');el.style.pointerEvents='none';
         el.classList.add('disabled');
       });
-      if(ans===q.correct) score++;
+      if(ans===q.correct) score+=(q.points||1);
     } else if(q.type==='match'){
-      const st=window['ms_'+qi];let allOk=true;
-      q.pairs.forEach((pair,pi)=>{
-        const m=Object.values(st.matched||{}).find(x=>x.aIdx===pi);
-        if(m&&m.bVal===pair.b){}else{allOk=false;}
+      const st=window['ms_'+qi];
+      if(q.perPairPoints){
+        // Score each pair individually
+        q.pairs.forEach((pair,pi)=>{
+          const m=Object.values(st.matched||{}).find(x=>x.aIdx===pi);
+          if(m&&m.bVal===pair.b) score+=(pair.pts||1);
+        });
+      } else {
+        let allOk=true;
+        q.pairs.forEach((pair,pi)=>{
+          const m=Object.values(st.matched||{}).find(x=>x.aIdx===pi);
+          if(!(m&&m.bVal===pair.b)) allOk=false;
+        });
+        if(allOk) score+=(q.points||1);
+      }
+    } else if(q.type==='audio'){
+      const ans=answers[qi];
+      q.options.forEach((_,oi)=>{
+        const el=document.getElementById('opt-'+qi+'-'+oi);if(!el) return;
+        el.classList.remove('sel');el.style.pointerEvents='none';
+        el.classList.add('disabled');
       });
-      const fb=document.getElementById('match-fb-'+qi);
-      if(allOk) score++;
+      if(ans===q.correct) score+=(q.points||1);
+    } else if(q.type==='wordfill'){
+      const ans=answers[qi]||[];
+      if(q.perBlankPoints&&q.blankPoints){
+        // Score each blank individually
+        ans.forEach((v,i)=>{
+          if(v===q.answers[i]) score+=(q.blankPoints[i]||1);
+        });
+      } else {
+        const ok=ans.length===q.answers.length&&ans.every((v,i)=>v===q.answers[i]);
+        if(ok) score+=(q.points||1);
+      }
+      // Lock all blanks and chips
+      const totalB=q.answers.length;
+      for(let i=0;i<totalB;i++){
+        const bl=document.getElementById('wfblank-'+qi+'-'+i);
+        if(bl) bl.classList.add('locked');
+      }
+      document.querySelectorAll('#wfbank-'+qi+' .wf-word-chip').forEach(c=>c.style.pointerEvents='none');
+    } else if(q.type==='inlinesel'){
+      const st=window['ils_'+qi];
+      q.answers.forEach((ans,i)=>{
+        const sel=st.selections[i];
+        if(sel===ans) score+=((q.blankPoints&&q.blankPoints[i])||1);
+      });
+      // Lock all buttons
+      document.querySelectorAll('[id^="ilsb-'+qi+'-"]').forEach(b=>b.classList.add('locked'));
     } else if(q.type==='phrase'){
       const ans=answers[qi]||[];
       const ok=ans.length===q.phrases.length&&ans.every((v,i)=>v===q.phrases[i]);
+      if(ok) score+=(q.points||1);
       document.querySelectorAll('#pslot-'+qi+' .pchip').forEach(ch=>{ch.classList.remove('in-slot');ch.classList.add('disabled-chip');});
     } else if(q.type==='order'){
       const cur=[...document.querySelectorAll('#olist-'+qi+' .sent-block')].map(b=>b.dataset.s);
       const ok=cur.every((s,i)=>s===q.sentences[i]);
+      if(ok) score+=(q.points||1);
       document.querySelectorAll('#olist-'+qi+' .sent-block').forEach(b=>{
         b.querySelectorAll('.arr-btn').forEach(a=>a.disabled=true);b.classList.add('locked-s');
       });
@@ -395,7 +583,8 @@ async function submitAll(){
   });
 
   try{
-    const rec={quizCode:qdata.code,quizName:qdata.name,studentName,score,total:qdata.questions.length,answers,submittedAt:Date.now()};
+    const totalPts=qdata.questions.reduce((s,q)=>s+(q.points||1),0);
+    const rec={quizCode:qdata.code,quizName:qdata.name,studentName,score,total:qdata.questions.length,totalPoints:totalPts,answers,submittedAt:Date.now()};
     await fbPush('/answers',rec);
   }catch(e){console.error('저장 오류',e);}
 
@@ -436,7 +625,8 @@ async function checkGrade(){
     if(!myAnswers.length) return setGMsg('이름을 찾을 수 없습니다. 문제를 먼저 제출해주세요.','err');
     const myBest=myAnswers.sort((a,b)=>b.submittedAt-a.submittedAt)[0];
     const total=quiz.questions.length;
-    const pct=Math.round(myBest.score/total*100);
+    const totalPts=quiz.questions.reduce((s,q)=>s+(q.points||1),0);
+    const pct=Math.round((myBest.score||0)/totalPts*100);
     const emoji=pct===100?'🎉':pct>=70?'👍':'💪';
     const msg=pct===100?'완벽합니다!':pct>=80?'아주 잘했어요!':pct>=60?'잘했어요!':'더 연습해봐요.';
     document.getElementById('grade-result').style.display='';
@@ -444,7 +634,7 @@ async function checkGrade(){
       '<div class="grade-check-card">'
       +'<div class="grade-icon">'+emoji+'</div>'
       +'<div class="grade-name">'+name+' 학생 · 「'+quiz.name+'」</div>'
-      +'<div class="grade-score-big">'+myBest.score+'<span style="font-size:22px;opacity:.5"> / '+total+'</span></div>'
+      +'<div class="grade-score-big">'+myBest.score+'<span style="font-size:22px;opacity:.5"> / '+totalPts+'점</span></div>'
       +'<div class="grade-pct">'+pct+'점</div>'
       +'<div style="font-size:14px;color:var(--teal);opacity:.8;margin-top:4px">'+msg+'</div>'
       +'</div>';
