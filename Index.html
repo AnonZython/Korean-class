@@ -270,6 +270,7 @@ textarea{min-height:52px;resize:vertical}
         <button class="ttab" onclick="setType('audio')" id="tab-audio"><span class="ticon">🎧</span>Audio 듣기</button>
         <button class="ttab" onclick="setType('wordfill')" id="tab-wordfill"><span class="ticon">📝</span>단어 빈칸</button>
         <button class="ttab" onclick="setType('inlinesel')" id="tab-inlinesel"><span class="ticon">🔤</span>문장 내 선택</button>
+        <button class="ttab" onclick="setType('photoq')" id="tab-photoq"><span class="ticon">📷</span>사진 보고 답하기</button>
       </div>
 
       <div class="form-sec">
@@ -337,8 +338,15 @@ textarea{min-height:52px;resize:vertical}
 
         <!-- Audio -->
         <div id="sec-audio" style="display:none">
-          <label>오디오 파일 URL</label>
-          <input type="text" id="audio-url" placeholder="예: https://... .mp3 또는 .wav">
+          <label>오디오 파일 업로드 또는 URL</label>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <input type="file" id="audio-file" accept="audio/*" style="flex:1;min-width:0;font-size:13px" onchange="loadAudioFile(this)">
+            <span style="font-size:12px;color:var(--muted)">또는</span>
+            <input type="text" id="audio-url" placeholder="https://... .mp3" style="flex:1;min-width:160px">
+          </div>
+          <div id="audio-preview" style="margin-top:8px;display:none">
+            <audio id="audio-preview-player" controls style="width:100%;height:36px"></audio>
+          </div>
           <label>문제 지시문</label>
           <input type="text" id="audio-q" placeholder="예: 오디오를 듣고 알맞은 답을 고르세요.">
           <label>보기 — 정답 옆 ✓</label>
@@ -386,6 +394,34 @@ textarea{min-height:52px;resize:vertical}
           <label>선택지별 배점 — 정답과 같은 순서로 Enter 또는 쉼표로 구분 (비우면 모두 1점)</label>
           <input type="text" id="inlinesel-pts-input" placeholder="예: 2, 3 (첫 번째=2점, 두 번째=3점)" onkeydown="ilsPtsKD(event)">
           <div class="phrase-wrap" id="inlinesel-pts-chips"></div>
+        </div>
+        <div id="sec-photoq" style="display:none">
+          <label>사진 업로드 또는 URL</label>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
+            <input type="file" id="pq-file" accept="image/*" style="flex:1;font-size:13px" onchange="loadPqFile(this)">
+            <span style="font-size:12px;color:var(--muted)">또는</span>
+            <input type="text" id="pq-url" placeholder="https://... .jpg" style="flex:1;min-width:160px;margin:0">
+          </div>
+          <img id="pq-preview" style="display:none;width:100%;max-height:180px;object-fit:contain;border-radius:8px;margin-bottom:8px;border:1px solid var(--border)">
+          <label>문제 지시문</label>
+          <input type="text" id="pq-q" placeholder="예: 사진을 보고 알맞은 답을 고르세요.">
+          <label>답변 유형</label>
+          <div style="display:flex;gap:8px;margin:6px 0 10px">
+            <button class="cbtn sel" id="pq-type-mc" onclick="setPqType('mc')">객관식</button>
+            <button class="cbtn" id="pq-type-essay" onclick="setPqType('essay')">서술형</button>
+          </div>
+          <div id="pq-mc-area">
+            <label>보기 — 정답 옆 ✓</label>
+            <div id="pq-opts">
+              <div class="opt-row"><span class="opt-lbl">①</span><input type="text" class="pq-opt" placeholder="보기 1"><button class="cbtn" onclick="selC(this,'pq-opts')">✓</button></div>
+              <div class="opt-row"><span class="opt-lbl">②</span><input type="text" class="pq-opt" placeholder="보기 2"><button class="cbtn" onclick="selC(this,'pq-opts')">✓</button></div>
+              <div class="opt-row"><span class="opt-lbl">③</span><input type="text" class="pq-opt" placeholder="보기 3"><button class="cbtn" onclick="selC(this,'pq-opts')">✓</button></div>
+              <div class="opt-row"><span class="opt-lbl">④</span><input type="text" class="pq-opt" placeholder="보기 4"><button class="cbtn" onclick="selC(this,'pq-opts')">✓</button></div>
+            </div>
+          </div>
+          <div id="pq-essay-area" style="display:none">
+            <p style="font-size:12px;color:var(--amber);padding:10px;background:var(--amber-l);border-radius:8px;line-height:1.5">서술형은 학생이 100자 이하로 답을 씁니다.<br>채점은 학생 답 모음 탭에서 직접 점수를 입력하세요.</p>
+          </div>
         </div>
         <div class="divider"></div>
         <div class="points-row" id="points-row-wrap"><label>이 문제 배점</label><input type="number" class="points-inp" id="q-points" value="1" min="1" max="100"><span class="points-hint">점</span></div>
@@ -460,12 +496,12 @@ textarea{min-height:52px;resize:vertical}
 
 <script>
 // ── State ────────────────────────────────────────────────────────────────────
-let qType='mc', questions=[], tfVal=null, phraseList=[], wfWords=[], wfAnswers=[], wfPts=[], ilsAnswers=[], ilsPts=[];
+let qType='mc', questions=[], tfVal=null, phraseList=[], wfWords=[], wfAnswers=[], wfPts=[], ilsAnswers=[], ilsPts=[], pqSubType='mc';
 let editingQuizCode=null;
 
-const typeIcons={mc:'🔘',tf:'⭕',match:'🔗',imgsel:'🖼',phrase:'🔀',order:'↕',audio:'🎧',wordfill:'📝',inlinesel:'🔤'};
-const typeLabels={mc:'객관식',tf:'O / X',match:'A↔B 연결',imgsel:'이미지 선택',phrase:'Phrase 순서',order:'문장 순서',audio:'Audio 듣기',wordfill:'단어 빈칸',inlinesel:'문장 내 선택'};
-const tagClass={mc:'tag-mc',tf:'tag-tf',match:'tag-match',imgsel:'tag-imgsel',phrase:'tag-phrase',order:'tag-order',audio:'tag-phrase',wordfill:'tag-match',inlinesel:'tag-order'};
+const typeIcons={mc:'🔘',tf:'⭕',match:'🔗',imgsel:'🖼',phrase:'🔀',order:'↕',audio:'🎧',wordfill:'📝',inlinesel:'🔤',photoq:'📷'};
+const typeLabels={mc:'객관식',tf:'O / X',match:'A↔B 연결',imgsel:'이미지 선택',phrase:'Phrase 순서',order:'문장 순서',audio:'Audio 듣기',wordfill:'단어 빈칸',inlinesel:'문장 내 선택',photoq:'사진 보고 답하기'};
+const tagClass={mc:'tag-mc',tf:'tag-tf',match:'tag-match',imgsel:'tag-imgsel',phrase:'tag-phrase',order:'tag-order',audio:'tag-phrase',wordfill:'tag-match',inlinesel:'tag-order',photoq:'tag-imgsel'};
 
 // Storage via Firebase REST API — see helpers above
 
@@ -521,13 +557,14 @@ function goStep1Edit(){
 // ── Type ─────────────────────────────────────────────────────────────────────
 function setType(t){
   qType=t;
-  ['mc','tf','match','imgsel','phrase','order','audio','wordfill','inlinesel'].forEach(s=>{
+  ['mc','tf','match','imgsel','phrase','order','audio','wordfill','inlinesel','photoq'].forEach(s=>{
     document.getElementById('sec-'+s).style.display=s===t?'':'none';
     document.getElementById('tab-'+s).classList.toggle('active',s===t);
   });
   document.getElementById('form-hdr').textContent=typeIcons[t]+'  '+typeLabels[t]+' 문제 작성';
   // Hide global points row for match/wordfill (they set their own)
   document.getElementById('points-row-wrap').style.display=(t==='match'||t==='wordfill'||t==='inlinesel')?'none':'';
+  if(t==='photoq'){document.getElementById('points-row-wrap').style.display='';setPqType('mc');}
   tfVal=null; phraseList=[]; renderChips();
   ['tf-O','tf-X'].forEach(id=>document.getElementById(id).classList.remove('sel'));
   document.getElementById('amsg').textContent='';
@@ -632,6 +669,56 @@ function addIlsSent(){
   d.innerHTML=`<span class="sent-num">${c}</span><input type="text" class="ils-s" placeholder="문장 ${c}">`;
   document.getElementById('inlinesel-sents').appendChild(d);
 }
+
+// File → base64 helper
+function fileToBase64(file){
+  return new Promise((res,rej)=>{
+    const r=new FileReader();
+    r.onload=e=>res(e.target.result);
+    r.onerror=rej;
+    r.readAsDataURL(file);
+  });
+}
+
+async function loadAudioFile(inp){
+  if(!inp.files[0]) return;
+  const b64=await fileToBase64(inp.files[0]);
+  document.getElementById('audio-url').value='';
+  const player=document.getElementById('audio-preview-player');
+  player.src=b64;
+  document.getElementById('audio-preview').style.display='';
+  inp._b64=b64; // store for later use
+}
+
+async function loadImgFile(inp){
+  if(!inp.files[0]) return;
+  const b64=await fileToBase64(inp.files[0]);
+  const idx=inp.dataset.idx;
+  // Store in hidden text field
+  const optInputs=document.querySelectorAll('.img-opt');
+  optInputs[idx].value=b64;
+  // Show preview
+  const prev=document.querySelectorAll('.img-preview')[idx];
+  prev.src=b64;
+  prev.style.display='';
+}
+
+function setPqType(t){
+  pqSubType=t;
+  document.getElementById('pq-type-mc').classList.toggle('sel',t==='mc');
+  document.getElementById('pq-type-essay').classList.toggle('sel',t==='essay');
+  document.getElementById('pq-mc-area').style.display=t==='mc'?'':'none';
+  document.getElementById('pq-essay-area').style.display=t==='essay'?'':'none';
+  document.getElementById('points-row-wrap').style.display=t==='mc'?'':'none';
+}
+async function loadPqFile(inp){
+  if(!inp.files[0]) return;
+  const b64=await fileToBase64(inp.files[0]);
+  inp._b64=b64;
+  document.getElementById('pq-url').value='';
+  const prev=document.getElementById('pq-preview');
+  prev.src=b64; prev.style.display='';
+}
 function smsg(txt,cls){
   const el=document.getElementById('amsg');el.textContent=txt;el.className='smsg '+(cls||'');
   if(cls) setTimeout(()=>{if(el.textContent===txt){el.textContent='';el.className='smsg';}},2600);
@@ -700,8 +787,10 @@ function addQ(){
     document.querySelectorAll('.ord-s').forEach(i=>i.value='');
   } else if(qType==='audio'){
     const qt=document.getElementById('audio-q').value.trim();
-    const url=document.getElementById('audio-url').value.trim();
-    if(!url) return smsg('오디오 URL을 입력해주세요.','err');
+    const fileInp=document.getElementById('audio-file');
+    const fileB64=fileInp._b64||'';
+    const url=fileB64||document.getElementById('audio-url').value.trim();
+    if(!url) return smsg('오디오 파일을 업로드하거나 URL을 입력해주세요.','err');
     if(!qt) return smsg('문제 지시문을 입력해주세요.','err');
     const opts=[...document.querySelectorAll('.aud-opt')].map(i=>i.value.trim()).filter(o=>o);
     if(opts.length<2) return smsg('최소 2개의 보기를 입력해주세요.','err');
@@ -709,7 +798,11 @@ function addQ(){
     if(!cb) return smsg('정답을 선택해주세요.','err');
     const ci=[...document.querySelectorAll('#audio-opts .cbtn')].indexOf(cb);
     q={...q,text:qt,audioUrl:url,options:opts,correct:ci};
-    document.getElementById('audio-q').value='';document.getElementById('audio-url').value='';
+    document.getElementById('audio-q').value='';
+    document.getElementById('audio-url').value='';
+    document.getElementById('audio-file').value='';
+    document.getElementById('audio-file')._b64='';
+    document.getElementById('audio-preview').style.display='none';
     document.querySelectorAll('.aud-opt').forEach(i=>i.value='');
     document.querySelectorAll('#audio-opts .cbtn').forEach(b=>b.classList.remove('sel'));
   } else if(qType==='wordfill'){
@@ -754,6 +847,30 @@ function addQ(){
     document.getElementById('inlinesel-pts-input').value='';
     document.getElementById('inlinesel-q').value='';
     ilsAnswers=[];ilsPts=[];renderIlsChips();
+  } else if(qType==='photoq'){
+    const fileB64=(document.getElementById('pq-file')._b64)||'';
+    const imgSrc=fileB64||document.getElementById('pq-url').value.trim();
+    if(!imgSrc) return smsg('사진을 업로드하거나 URL을 입력해주세요.','err');
+    const qt=document.getElementById('pq-q').value.trim()||'사진을 보고 답하세요.';
+    if(pqSubType==='mc'){
+      const opts=[...document.querySelectorAll('.pq-opt')].map(i=>i.value.trim());
+      if(opts.some(o=>!o)) return smsg('모든 보기를 입력해주세요.','err');
+      const cb=document.querySelector('#pq-opts .cbtn.sel');
+      if(!cb) return smsg('정답을 선택해주세요.','err');
+      const ci=[...document.querySelectorAll('#pq-opts .cbtn')].indexOf(cb);
+      const pts=Math.max(1,parseInt(document.getElementById('q-points').value)||1);
+      q={...q,text:qt,imgSrc,answerType:'mc',options:opts,correct:ci,points:pts};
+    } else {
+      q={...q,text:qt,imgSrc,answerType:'essay',points:0,pendingGrade:true};
+    }
+    document.getElementById('pq-q').value='';
+    document.getElementById('pq-url').value='';
+    const pf=document.getElementById('pq-file');
+    pf.value=''; pf._b64='';
+    document.getElementById('pq-preview').style.display='none';
+    document.querySelectorAll('.pq-opt').forEach(i=>i.value='');
+    document.querySelectorAll('#pq-opts .cbtn').forEach(b=>b.classList.remove('sel'));
+    setPqType('mc');
   }
   if(qType!=='match'&&qType!=='wordfill'&&qType!=='inlinesel') q.points=Math.max(1,parseInt(document.getElementById('q-points').value)||1);
   questions.push(q);renderQList();
@@ -975,10 +1092,41 @@ async function toggleGradeRelease(code,btn){
   btn.textContent=on?'✓ 성적 공개 중':'성적 공개';
   btn.classList.toggle('icon-btn-on',on);
 }
+async function gradeEssay(quizCode,aiIdx,qi){
+  const pts=parseInt(document.getElementById('essay-pts-'+aiIdx+'-'+qi).value);
+  if(isNaN(pts)||pts<0){alert('올바른 점수를 입력해주세요.');return;}
+  try{
+    const allAns=await fbGet('/answers')||{};
+    const keys=Object.keys(allAns).filter(k=>allAns[k].quizCode===quizCode)
+      .sort((a,b)=>(allAns[b].submittedAt||0)-(allAns[a].submittedAt||0));
+    const targetKey=keys[aiIdx];
+    if(!targetKey){alert('답안을 찾을 수 없습니다.');return;}
+    const rec=JSON.parse(JSON.stringify(allAns[targetKey]));
+    if(!rec.answers) rec.answers={};
+    if(!rec.answers[qi]) rec.answers[qi]={};
+    rec.answers[qi].pts=pts; rec.answers[qi].graded=true;
+    const quiz=(await fbGet('/quizzes/'+quizCode))||{};
+    let newScore=0;
+    if(quiz.questions){
+      quiz.questions.forEach((q2,i)=>{
+        const a=rec.answers[i];
+        if(q2.type==='photoq'&&q2.answerType==='essay'){
+          if(a&&a.graded) newScore+=(a.pts||0);
+        } else { if(checkAnswer(q2,a)) newScore+=(q2.points||1); }
+      });
+    }
+    rec.score=newScore;
+    await fbSet('/answers/'+targetKey,rec);
+    alert('점수 저장 완료!');
+    loadAnswers();
+  }catch(e){alert('저장 실패: '+e.message);}
+}
+
 function checkAnswer(q,ans){
   if(ans==null) return false;
   if(q.type==='mc'||q.type==='imgsel') return ans===q.correct;
   if(q.type==='tf') return ans===q.correct;
+  if(q.type==='photoq') return q.answerType==='mc'?ans===q.correct:(ans&&ans.graded);
   if(q.type==='match'){
     if(typeof ans!=='object') return false;
     return q.pairs.every((pair,pi)=>Object.values(ans).some(m=>m.aIdx===pi&&m.bVal===pair.b));
