@@ -671,13 +671,27 @@ function addIlsSent(){
 }
 
 
-// Upload file to Firebase Storage, return download URL
+// Upload file to Firebase Storage via REST API (no SDK needed)
+const STORAGE_BUCKET = 'korean-quiz-bebeenbed-ef240.firebasestorage.app';
 async function uploadToStorage(base64DataUrl, path) {
+  // Convert base64 to blob
   const res = await fetch(base64DataUrl);
   const blob = await res.blob();
-  const ref = storage.ref(path);
-  await ref.put(blob);
-  return await ref.getDownloadURL();
+  // Upload via Firebase Storage REST API
+  const encodedPath = encodeURIComponent(path);
+  const uploadUrl = `https://firebasestorage.googleapis.com/v0/b/${STORAGE_BUCKET}/o?name=${encodedPath}`;
+  const uploadRes = await fetch(uploadUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': blob.type },
+    body: blob
+  });
+  if (!uploadRes.ok) {
+    const err = await uploadRes.text();
+    throw new Error('Storage 업로드 실패: ' + err);
+  }
+  const data = await uploadRes.json();
+  // Build download URL
+  return `https://firebasestorage.googleapis.com/v0/b/${STORAGE_BUCKET}/o/${encodedPath}?alt=media&token=${data.downloadTokens}`;
 }
 
 // File → base64 helper
