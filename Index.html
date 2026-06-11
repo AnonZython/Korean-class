@@ -670,6 +670,16 @@ function addIlsSent(){
   document.getElementById('inlinesel-sents').appendChild(d);
 }
 
+
+// Upload file to Firebase Storage, return download URL
+async function uploadToStorage(base64DataUrl, path) {
+  const res = await fetch(base64DataUrl);
+  const blob = await res.blob();
+  const ref = storage.ref(path);
+  await ref.put(blob);
+  return await ref.getDownloadURL();
+}
+
 // File → base64 helper
 function fileToBase64(file){
   return new Promise((res,rej)=>{
@@ -724,7 +734,7 @@ function smsg(txt,cls){
   if(cls) setTimeout(()=>{if(el.textContent===txt){el.textContent='';el.className='smsg';}},2600);
 }
 
-function addQ(){
+async function addQ(){
   let q={type:qType};
   if(qType==='mc'){
     const qt=document.getElementById('mc-q').value.trim();
@@ -789,8 +799,14 @@ function addQ(){
     const qt=document.getElementById('audio-q').value.trim();
     const fileInp=document.getElementById('audio-file');
     const fileB64=fileInp._b64||'';
-    const url=fileB64||document.getElementById('audio-url').value.trim();
-    if(!url) return smsg('오디오 파일을 업로드하거나 URL을 입력해주세요.','err');
+    const rawUrl=document.getElementById('audio-url').value.trim();
+    if(!fileB64&&!rawUrl) return smsg('오디오 파일을 업로드하거나 URL을 입력해주세요.','err');
+    let url=rawUrl;
+    if(fileB64){
+      smsg('파일 업로드 중...','');
+      try{ url=await uploadToStorage(fileB64,'audio/'+Date.now()+'_'+fileInp.files[0].name); }
+      catch(e){ return smsg('업로드 실패: '+e.message,'err'); }
+    }
     if(!qt) return smsg('문제 지시문을 입력해주세요.','err');
     const opts=[...document.querySelectorAll('.aud-opt')].map(i=>i.value.trim()).filter(o=>o);
     if(opts.length<2) return smsg('최소 2개의 보기를 입력해주세요.','err');
@@ -848,9 +864,18 @@ function addQ(){
     document.getElementById('inlinesel-q').value='';
     ilsAnswers=[];ilsPts=[];renderIlsChips();
   } else if(qType==='photoq'){
-    const fileB64=(document.getElementById('pq-file')._b64)||'';
-    const imgSrc=fileB64||document.getElementById('pq-url').value.trim();
-    if(!imgSrc) return smsg('사진을 업로드하거나 URL을 입력해주세요.','err');
+    const pqFileInp=document.getElementById('pq-file');
+    const fileB64pq=pqFileInp._b64||'';
+    const rawPqUrl=document.getElementById('pq-url').value.trim();
+    if(!fileB64pq&&!rawPqUrl) return smsg('사진을 업로드하거나 URL을 입력해주세요.','err');
+    let imgSrc=rawPqUrl;
+    if(fileB64pq){
+      smsg('사진 업로드 중...','');
+      try{
+        const pfname=pqFileInp.files[0]?pqFileInp.files[0].name:'photo.jpg';
+        imgSrc=await uploadToStorage(fileB64pq,'photos/'+Date.now()+'_'+pfname);
+      }catch(e){return smsg('사진 업로드 실패: '+e.message,'err');}
+    }
     const qt=document.getElementById('pq-q').value.trim()||'사진을 보고 답하세요.';
     if(pqSubType==='mc'){
       const opts=[...document.querySelectorAll('.pq-opt')].map(i=>i.value.trim());
