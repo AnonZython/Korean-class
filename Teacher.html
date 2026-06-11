@@ -118,10 +118,13 @@ input[type=text]:focus{border-color:var(--purple)}
 .wf-blank.locked{pointer-events:none;background:var(--bg);color:var(--muted);border-color:var(--border)}
 .mc-multi-tag{font-size:11px;font-weight:700;color:var(--purple);background:var(--purple-l);padding:2px 8px;border-radius:20px;margin-left:6px}
 .ils-sentence{font-size:16px;line-height:2.2;margin-bottom:10px;color:var(--text)}
-.ils-btn{display:inline-block;padding:3px 14px;margin:0 3px;border:2px solid var(--purple);border-radius:20px;background:var(--purple-l);color:var(--purple);font-weight:700;cursor:pointer;font-size:15px;font-family:'Noto Sans KR',sans-serif;transition:all .15s;user-select:none}
-.ils-btn:hover{background:var(--purple);color:#fff}
+.ils-group{display:inline-flex;gap:4px;margin:0 2px;vertical-align:middle;flex-wrap:wrap}
+.ils-btn{display:inline-block;padding:4px 14px;border:2px solid var(--border);border-radius:20px;background:var(--bg);color:var(--muted);font-weight:500;cursor:pointer;font-size:14px;font-family:'Noto Sans KR',sans-serif;transition:all .15s;user-select:none}
+.ils-btn:hover{border-color:var(--purple);color:var(--purple);background:var(--purple-l)}
+.ils-btn.selected{border-color:var(--purple);background:var(--purple);color:#fff;font-weight:700}
 .ils-btn.locked{pointer-events:none;border-color:var(--border);background:var(--bg);color:var(--muted)}
-.photoq-img{width:100%;max-height:220px;object-fit:contain;border-radius:var(--rs);margin-bottom:14px;border:1px solid var(--border)}
+.ils-btn.locked.selected{background:var(--purple-l);color:var(--purple);border-color:var(--purple)}
+.photoq-img{width:100%;height:auto;max-height:none;object-fit:contain;border-radius:var(--rs);margin-bottom:14px;border:1px solid var(--border);display:block}
 .essay-textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--rs);font-size:14px;font-family:'Noto Sans KR',sans-serif;resize:vertical;min-height:80px;line-height:1.6;outline:none;transition:border-color .15s}
 .essay-textarea:focus{border-color:var(--purple)}
 .essay-count{font-size:12px;color:var(--muted);text-align:right;margin-top:4px}
@@ -309,22 +312,21 @@ function buildQ(q,qi){
         +`<div class="essay-count" id="essay-count-${qi}">0 / 100자</div>`;
     }
   } else if(q.type==='inlinesel'){
-    // Build sentences with clickable choice buttons
     let globalSelIdx=0;
     const sentHtml=q.sentences.map(sent=>{
       let html='<div class="ils-sentence">';
-      let rest=sent;
-      let match;
       const re2=/[(]([^)]+)[)]/g;
-      let last=0;
-      let m;
+      let last=0; let m;
       re2.lastIndex=0;
       while((m=re2.exec(sent))!==null){
         const parts=m[1].split('/');
         if(parts.length>=2){
           html+=sent.slice(last,m.index);
           const si=globalSelIdx;
-          html+=`<button class="ils-btn" id="ilsb-${qi}-${si}" data-si="${si}" data-opts="${parts.join('|')}" data-cur="0" onclick="cycleIls(${qi},${si})">${parts[0]}</button>`;
+          // Show all options as separate buttons
+          html+='<span class="ils-group">'
+            +parts.map((p,pi)=>`<button class="ils-btn" id="ilsb-${qi}-${si}-${pi}" data-si="${si}" data-pi="${pi}" data-val="${p}" onclick="pickIls(${qi},${si},${pi})">${p}</button>`).join('')
+            +'</span>';
           globalSelIdx++;
           last=m.index+m[0].length;
         }
@@ -479,17 +481,26 @@ function clickWfBlank(qi,bi){
   updateProg();
 }
 
-function cycleIls(qi,si){
-  const btn=document.getElementById('ilsb-'+qi+'-'+si);
-  const opts=btn.dataset.opts.split('|');
-  let cur=(parseInt(btn.dataset.cur)+1)%opts.length;
-  btn.dataset.cur=cur;
-  btn.textContent=opts[cur];
-  window['ils_'+qi].selections[si]=opts[cur];
-  // Check if all selections made (all cycled at least once from index 0)
-  const total=q&&q.answers?q.answers.length:Object.keys(window['ils_'+qi].selections).length;
-  const allDone=Object.keys(window['ils_'+qi].selections).length===qdata.questions[qi].answers.length;
-  answers[qi]=allDone?Object.values(window['ils_'+qi].selections):null;
+function pickIls(qi,si,pi){
+  const q=qdata.questions[qi];
+  const st=window['ils_'+qi];
+  // Deselect all buttons for this selection group
+  const totalOpts=q.sentences.reduce((arr,sent)=>{
+    const re2=/[(]([^)]+)[)]/g; let m;
+    while((m=re2.exec(sent))!==null){ arr.push(m[1].split('/').length); }
+    return arr;
+  },[]);
+  const numOpts=totalOpts[si]||2;
+  for(let p=0;p<numOpts;p++){
+    const b=document.getElementById('ilsb-'+qi+'-'+si+'-'+p);
+    if(b) b.classList.remove('selected');
+  }
+  // Select clicked button
+  const clicked=document.getElementById('ilsb-'+qi+'-'+si+'-'+pi);
+  if(clicked){ clicked.classList.add('selected'); }
+  st.selections[si]=clicked?clicked.dataset.val:'';
+  const allDone=Object.keys(st.selections).length===q.answers.length;
+  answers[qi]=allDone?q.answers.map((_,i)=>st.selections[i]||''):null;
   updateProg();
 }
 
@@ -604,7 +615,7 @@ async function submitAll(){
         const sel=st.selections[i];
         if(sel===ans) score+=((q.blankPoints&&q.blankPoints[i])||1);
       });
-      // Lock all buttons
+      // Lock all buttons after submit
       document.querySelectorAll('[id^="ilsb-'+qi+'-"]').forEach(b=>b.classList.add('locked'));
     } else if(q.type==='phrase'){
       const ans=answers[qi]||[];
