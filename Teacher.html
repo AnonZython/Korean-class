@@ -121,6 +121,12 @@ input[type=text]:focus{border-color:var(--purple)}
 .ils-btn{display:inline-block;padding:3px 14px;margin:0 3px;border:2px solid var(--purple);border-radius:20px;background:var(--purple-l);color:var(--purple);font-weight:700;cursor:pointer;font-size:15px;font-family:'Noto Sans KR',sans-serif;transition:all .15s;user-select:none}
 .ils-btn:hover{background:var(--purple);color:#fff}
 .ils-btn.locked{pointer-events:none;border-color:var(--border);background:var(--bg);color:var(--muted)}
+.photoq-img{width:100%;max-height:220px;object-fit:contain;border-radius:var(--rs);margin-bottom:14px;border:1px solid var(--border)}
+.essay-textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--rs);font-size:14px;font-family:'Noto Sans KR',sans-serif;resize:vertical;min-height:80px;line-height:1.6;outline:none;transition:border-color .15s}
+.essay-textarea:focus{border-color:var(--purple)}
+.essay-count{font-size:12px;color:var(--muted);text-align:right;margin-top:4px}
+.essay-count.over{color:var(--red)}
+.essay-submitted{background:var(--bg);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;font-size:14px;color:var(--muted);line-height:1.6}
 </style>
 </head>
 <body>
@@ -219,7 +225,7 @@ function setMsg(id,txt,cls){
 }
 
 const nums=['①','②','③','④','⑤','⑥'];
-const typeNames={mc:'객관식',tf:'O/X',match:'A↔B 연결',imgsel:'이미지 선택',phrase:'Phrase 순서',order:'문장 순서',audio:'Audio 듣기',wordfill:'단어 빈칸',inlinesel:'문장 내 선택'};
+const typeNames={mc:'객관식',tf:'O/X',match:'A↔B 연결',imgsel:'이미지 선택',phrase:'Phrase 순서',order:'문장 순서',audio:'Audio 듣기',wordfill:'단어 빈칸',inlinesel:'문장 내 선택',photoq:'사진 보고 답하기'};
 
 function renderQuiz(){
   document.getElementById('qcontainer').innerHTML=qdata.questions.map((q,qi)=>buildQ(q,qi)).join('');
@@ -247,7 +253,7 @@ function buildQ(q,qi){
     </div>`;
   } else if(q.type==='imgsel'){
     body=`<div class="img-grid">${q.options.map((o,oi)=>{
-      const isUrl=/^https?:\/\//.test(o);
+      const isUrl=/^https?:\/\//.test(o)||o.startsWith('data:');
       return `<div class="img-opt" id="iopt-${qi}-${oi}" onclick="selImg(${qi},${oi})">
         ${isUrl?`<img src="${o}" alt="보기 ${nums[oi]}">`:`<div class="img-placeholder">${o}</div>`}
         <div class="img-lbl">${nums[oi]}</div></div>`;
@@ -290,6 +296,18 @@ function buildQ(q,qi){
         return `<span class="wf-blank" id="wfblank-${qi}-${gbi}" data-bi="${gbi}" onclick="clickWfBlank(${qi},${gbi})">　　　</span>`;
       })+'</div>';
     }).join('')}</div>`;
+  } else if(q.type==='photoq'){
+    const imgTag=`<img class="photoq-img" src="${q.imgSrc}" alt="문제 사진">`;
+    if(q.answerType==='mc'){
+      body=imgTag+q.options.map((o,oi)=>`
+      <div class="opt" id="opt-${qi}-${oi}" onclick="selMC(${qi},${oi})">
+        <span class="ocircle">${nums[oi]}</span><span class="otext">${o}</span>
+      </div>`).join('');
+    } else {
+      body=imgTag
+        +`<textarea class="essay-textarea" id="essay-${qi}" maxlength="100" placeholder="100자 이하로 답을 쓰세요." oninput="updateEssayCount(${qi},this)"></textarea>`
+        +`<div class="essay-count" id="essay-count-${qi}">0 / 100자</div>`;
+    }
   } else if(q.type==='inlinesel'){
     // Build sentences with clickable choice buttons
     let globalSelIdx=0;
@@ -475,6 +493,15 @@ function cycleIls(qi,si){
   updateProg();
 }
 
+function updateEssayCount(qi,ta){
+  const len=ta.value.length;
+  const el=document.getElementById('essay-count-'+qi);
+  el.textContent=len+' / 100자';
+  el.classList.toggle('over',len>100);
+  answers[qi]=len>0?{text:ta.value}:null;
+  updateProg();
+}
+
 function updateProg(){
   const total=qdata.questions.length;
   const done=qdata.questions.filter((_,qi)=>answers[qi]!=null).length;
@@ -559,7 +586,19 @@ async function submitAll(){
         if(bl) bl.classList.add('locked');
       }
       document.querySelectorAll('#wfbank-'+qi+' .wf-word-chip').forEach(c=>c.style.pointerEvents='none');
-    } else if(q.type==='inlinesel'){
+    } else if(q.type==='photoq'){
+    const imgTag=`<img class="photoq-img" src="${q.imgSrc}" alt="문제 사진">`;
+    if(q.answerType==='mc'){
+      body=imgTag+q.options.map((o,oi)=>`
+      <div class="opt" id="opt-${qi}-${oi}" onclick="selMC(${qi},${oi})">
+        <span class="ocircle">${nums[oi]}</span><span class="otext">${o}</span>
+      </div>`).join('');
+    } else {
+      body=imgTag
+        +`<textarea class="essay-textarea" id="essay-${qi}" maxlength="100" placeholder="100자 이하로 답을 쓰세요." oninput="updateEssayCount(${qi},this)"></textarea>`
+        +`<div class="essay-count" id="essay-count-${qi}">0 / 100자</div>`;
+    }
+  } else if(q.type==='inlinesel'){
       const st=window['ils_'+qi];
       q.answers.forEach((ans,i)=>{
         const sel=st.selections[i];
