@@ -195,7 +195,7 @@ textarea{min-height:52px;resize:vertical}
 
   <div id="step1">
     <div class="card" style="margin-top:10px">
-      <div class="card-hdr"><div class="card-icon ci-purple">📋</div>
+      <div class="card-hdr"><div class="card-icon ci-purple">&#128203;</div>
         <div><div class="card-ttl">퀴즈 이름</div><div class="card-sub">학생들에게 보여질 이름을 입력하세요</div></div>
       </div>
       <label>퀴즈 이름 *</label>
@@ -219,20 +219,21 @@ textarea{min-height:52px;resize:vertical}
 
     <div class="card">
       <div class="card-hdr" style="margin-bottom:12px">
-        <div class="card-icon ci-purple">🎯</div>
+        <div class="card-icon ci-purple">&#127919;</div>
         <div><div class="card-ttl">문제 유형 선택</div><div class="card-sub">유형 선택 후 작성 → 추가. 같은 유형 여러 개 가능</div></div>
       </div>
       <div class="type-grid">
-        <button class="ttab active" onclick="setType('mc')" id="tab-mc"><span class="ticon">🔘</span>객관식</button>
-        <button class="ttab" onclick="setType('tf')" id="tab-tf"><span class="ticon">⭕</span>O / X</button>
-        <button class="ttab" onclick="setType('match')" id="tab-match"><span class="ticon">🔗</span>A↔B 연결</button>
-        <button class="ttab" onclick="setType('imgsel')" id="tab-imgsel"><span class="ticon">🖼</span>이미지 선택</button>
-        <button class="ttab" onclick="setType('phrase')" id="tab-phrase"><span class="ticon">🔀</span>Phrase 순서</button>
-        <button class="ttab" onclick="setType('order')" id="tab-order"><span class="ticon">↕</span>문장 순서</button>
-        <button class="ttab" onclick="setType('audio')" id="tab-audio"><span class="ticon">🎧</span>Audio 듣기</button>
-        <button class="ttab" onclick="setType('wordfill')" id="tab-wordfill"><span class="ticon">📝</span>단어 빈칸</button>
-        <button class="ttab" onclick="setType('inlinesel')" id="tab-inlinesel"><span class="ticon">🔤</span>문장 내 선택</button>
-        <button class="ttab" onclick="setType('photoq')" id="tab-photoq"><span class="ticon">📷</span>사진 보고 답하기</button>
+        <button class="ttab active" onclick="setType('mc')" id="tab-mc"><span class="ticon">MC</span>객관식</button>
+        <button class="ttab" onclick="setType('tf')" id="tab-tf"><span class="ticon">OX</span>O / X</button>
+        <button class="ttab" onclick="setType('match')" id="tab-match"><span class="ticon">AB</span>A↔B 연결</button>
+        <button class="ttab" onclick="setType('imgsel')" id="tab-imgsel"><span class="ticon">IMG</span>이미지 선택</button>
+        <button class="ttab" onclick="setType('phrase')" id="tab-phrase"><span class="ticon">PH</span>Phrase 순서</button>
+        <button class="ttab" onclick="setType('order')" id="tab-order"><span class="ticon">ORD</span>문장 순서</button>
+        <button class="ttab" onclick="setType('audio')" id="tab-audio"><span class="ticon">AUD</span>Audio 듣기</button>
+        <button class="ttab" onclick="setType('wordfill')" id="tab-wordfill"><span class="ticon">WF</span>단어 빈칸</button>
+        <button class="ttab" onclick="setType('inlinesel')" id="tab-inlinesel"><span class="ticon">SEL</span>문장 내 선택</button>
+        <button class="ttab" onclick="setType('photoq')" id="tab-photoq"><span class="ticon">PHO</span>사진 보고 답하기</button>
+        <button class="ttab" onclick="setType('classify')" id="tab-classify"><span class="ticon">CLS</span>단어 분류</button>
       </div>
 
       <div class="form-sec">
@@ -391,6 +392,24 @@ textarea{min-height:52px;resize:vertical}
           </div>
         </div>
 
+        <div id="sec-classify" style="display:none">
+          <label>지시문 (선택)</label>
+          <input type="text" id="cls-q" placeholder="단어를 알맞은 종류로 분류하세요.">
+          <label>카테고리 입력 후 + 버튼 또는 Enter</label>
+          <div style="display:flex;gap:8px;margin-bottom:6px">
+            <input type="text" id="cls-cat-input" placeholder="예: 과일" style="flex:1;margin:0" onkeydown="clsCatKD(event)">
+            <button class="btn-sec" style="padding:9px 14px;font-size:13px;white-space:nowrap" onclick="addClsCat()">+ 추가</button>
+          </div>
+          <div class="chip-wrap" id="cls-cat-chips"></div>
+          <label>단어 추가 — 카테고리 선택 후 입력</label>
+          <div style="display:flex;gap:8px;margin-top:4px;align-items:center">
+            <select id="cls-word-cat" style="flex:1;padding:9px 12px;border:1.5px solid var(--border);border-radius:var(--rs);font-size:13px;font-family:'Noto Sans KR',sans-serif;background:var(--sur);outline:none"><option value="">카테고리를 먼저 추가하세요</option></select>
+            <input type="text" id="cls-word-input" placeholder="단어" style="flex:2;margin:0" onkeydown="if(event.key==='Enter') addClsWord()">
+            <button class="btn-sec" style="padding:9px 14px;font-size:13px" onclick="addClsWord()">추가</button>
+          </div>
+          <div id="cls-word-area" style="margin-top:10px"></div>
+          <p style="font-size:12px;color:var(--muted);margin-top:6px">각 단어 1점으로 자동 계산됩니다.</p>
+        </div>
         <div class="divider"></div>
         <div class="pts-row" id="pts-row-wrap">
           <label>이 문제 배점</label>
@@ -404,7 +423,7 @@ textarea{min-height:52px;resize:vertical}
 
     <div class="card" id="qlist-card" style="display:none">
       <div class="card-hdr" style="margin-bottom:10px">
-        <div class="card-icon ci-teal">📝</div>
+        <div class="card-icon ci-teal">&#128221;</div>
         <div><div class="card-ttl">추가된 문제</div><div class="card-sub" id="qlist-sub"></div></div>
       </div>
       <div id="q-list"></div>
@@ -458,9 +477,9 @@ textarea{min-height:52px;resize:vertical}
 <script>
 const DB='https://korean-quiz-bebeenbed-ef240-default-rtdb.firebaseio.com';
 const BUCKET='korean-quiz-bebeenbed-ef240.firebasestorage.app';
-async function fbGet(p){const r=await fetch(DB+p+'.json');if(!r.ok)throw new Error('읽기 실패');return r.json();}
-async function fbSet(p,d){const r=await fetch(DB+p+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});if(!r.ok)throw new Error('쓰기 실패');}
-async function fbPush(p,d){const r=await fetch(DB+p+'.json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});if(!r.ok)throw new Error('추가 실패');return r.json();}
+async function fbGet(p){const r=await fetch(DB+p+'.json');if(!r.ok)throw new Error('read failed');return r.json();}
+async function fbSet(p,d){const r=await fetch(DB+p+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});if(!r.ok)throw new Error('write failed');}
+async function fbPush(p,d){const r=await fetch(DB+p+'.json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});if(!r.ok)throw new Error('push failed');return r.json();}
 async function fbPatch(p,d){await fetch(DB+p+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});}
 async function fbDelete(p){await fetch(DB+p+'.json',{method:'DELETE'});}
 async function getQuizzes(){return(await fbGet('/quizzes'))||{};}
@@ -469,7 +488,7 @@ async function uploadFile(b64,path){
   const res=await fetch(b64);const blob=await res.blob();
   const enc=encodeURIComponent(path);
   const up=await fetch('https://firebasestorage.googleapis.com/v0/b/'+BUCKET+'/o?name='+enc,{method:'POST',headers:{'Content-Type':blob.type},body:blob});
-  if(!up.ok)throw new Error('파일 업로드 실패');
+  if(!up.ok)throw new Error('upload failed');
   const data=await up.json();
   return 'https://firebasestorage.googleapis.com/v0/b/'+BUCKET+'/o/'+enc+'?alt=media&token='+data.downloadTokens;
 }
@@ -477,10 +496,11 @@ async function uploadFile(b64,path){
 // State
 let qType='mc',questions=[],tfVal=null,phraseList=[],wfWords=[],wfAnswers=[],wfPts=[],ilsAnswers=[],ilsPts=[],pqSubType='mc';
 
+let clsCats=[], clsWords={};
 // Icons/Labels
-const TI={mc:'🔘',tf:'⭕',match:'🔗',imgsel:'🖼',phrase:'🔀',order:'↕',audio:'🎧',wordfill:'📝',inlinesel:'🔤',photoq:'📷'};
-const TL={mc:'객관식',tf:'O/X',match:'A↔B 연결',imgsel:'이미지 선택',phrase:'Phrase 순서',order:'문장 순서',audio:'Audio 듣기',wordfill:'단어 빈칸',inlinesel:'문장 내 선택',photoq:'사진 보고 답하기'};
-const TC={mc:'tag-mc',tf:'tag-tf',match:'tag-match',imgsel:'tag-imgsel',phrase:'tag-phrase',order:'tag-order',audio:'tag-audio',wordfill:'tag-wordfill',inlinesel:'tag-inlinesel',photoq:'tag-photoq'};
+const TI={mc:'MC',tf:'OX',match:'AB',imgsel:'IMG',phrase:'PH',order:'ORD',audio:'AUD',wordfill:'WF',inlinesel:'SEL',photoq:'PHO',classify:'CLS'};
+const TL={mc:'MC',tf:'OX',match:'AB',imgsel:'IMG',phrase:'PH',order:'ORD',audio:'AUD',wordfill:'WF',inlinesel:'SEL',photoq:'PHO',classify:'CLS'};
+const TC={mc:'tag-mc',tf:'tag-tf',match:'tag-match',imgsel:'tag-imgsel',phrase:'tag-phrase',order:'tag-order',audio:'tag-audio',wordfill:'tag-wordfill',inlinesel:'tag-inlinesel',photoq:'tag-photoq',classify:'tag-mc'};
 
 function showPage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -528,12 +548,12 @@ function goStep1Edit(){
 // Type
 function setType(t){
   qType=t;
-  ['mc','tf','match','imgsel','phrase','order','audio','wordfill','inlinesel','photoq'].forEach(s=>{
+  ['mc','tf','match','imgsel','phrase','order','audio','wordfill','inlinesel','photoq','classify'].forEach(s=>{
     document.getElementById('sec-'+s).style.display=s===t?'':'none';
     document.getElementById('tab-'+s).classList.toggle('active',s===t);
   });
   document.getElementById('form-hdr').textContent=TI[t]+' '+TL[t]+' 문제 작성';
-  const hidePts=t==='match'||t==='wordfill'||t==='inlinesel';
+  const hidePts=t==='match'||t==='wordfill'||t==='inlinesel'||t==='classify';
   document.getElementById('pts-row-wrap').style.display=hidePts?'none':'';
   if(t==='photoq'){setPqType('mc');}
   tfVal=null; phraseList=[]; renderChips();
@@ -589,6 +609,58 @@ async function loadAudioFile(inp){if(!inp.files[0]) return;inp._b64=await fileTo
 async function loadImgFile(inp){if(!inp.files[0]) return;const b64=await fileToB64(inp.files[0]);const idx=parseInt(inp.dataset.idx);document.querySelectorAll('.img-opt')[idx].value=b64;const prev=document.querySelectorAll('.img-preview')[idx];prev.src=b64;prev.style.display='';}
 async function loadPqFile(inp){if(!inp.files[0]) return;inp._b64=await fileToB64(inp.files[0]);document.getElementById('pq-url').value='';const p=document.getElementById('pq-preview');p.src=inp._b64;p.style.display='';}
 
+function addClsCat(){
+  const inp=document.getElementById('cls-cat-input');
+  const v=inp.value.replace(/,/g,'').trim();
+  if(v&&!clsCats.includes(v)){clsCats.push(v);clsWords[v]=[];inp.value='';renderClsUI();}
+  else if(!v) alert('카테고리 이름을 입력해주세요.');
+  else alert('이미 있는 카테고리입니다.');
+}
+function clsCatKD(e){
+  if(e.key==='Enter'){
+    e.preventDefault();
+    addClsCat();
+  }
+}
+function renderClsUI(){
+  var chips='';
+  clsCats.forEach(function(c,i){
+    chips+='<span class="chip chip-purple">'+c+'<button class="cls-rm-cat" data-i="'+i+'">x</button></span>';
+  });
+  document.getElementById('cls-cat-chips').innerHTML=chips;
+  document.querySelectorAll('.cls-rm-cat').forEach(function(btn){
+    btn.onclick=function(){rmClsCat(parseInt(this.dataset.i));};
+  });
+  var sel=document.getElementById('cls-word-cat');
+  sel.innerHTML=clsCats.length
+    ?clsCats.map(function(c){return '<option value="'+c+'">'+c+'</option>';}).join('')
+    :'<option value="">카테고리를 먼저 추가하세요</option>';
+  var wa='';
+  clsCats.forEach(function(cat,ci){
+    var words=clsWords[cat]||[];
+    var wchips='';
+    words.forEach(function(w,wi){
+      wchips+='<span class="chip chip-teal">'+w+'<button class="cls-rm-word" data-cat="'+ci+'" data-wi="'+wi+'">x</button></span>';
+    });
+    if(!wchips) wchips='<span style="font-size:12px;color:var(--muted)">단어 없음</span>';
+    wa+='<div style="margin-bottom:10px"><div style="font-size:12px;font-weight:700;color:var(--purple);margin-bottom:5px">'+cat+'</div><div class="chip-wrap" style="min-height:32px">'+wchips+'</div></div>';
+  });
+  document.getElementById('cls-word-area').innerHTML=wa;
+  document.querySelectorAll('.cls-rm-word').forEach(function(btn){
+    btn.onclick=function(){rmClsWord(clsCats[parseInt(this.dataset.cat)],parseInt(this.dataset.wi));};
+  });
+}
+function rmClsCat(i){const cat=clsCats[i];clsCats.splice(i,1);delete clsWords[cat];renderClsUI();}
+function rmClsWord(cat,i){if(clsWords[cat]) clsWords[cat].splice(i,1);renderClsUI();}
+function addClsWord(){
+  const cat=document.getElementById('cls-word-cat').value;
+  const w=document.getElementById('cls-word-input').value.trim();
+  if(!cat||!w) return;
+  if(!clsWords[cat]) clsWords[cat]=[];
+  clsWords[cat].push(w);
+  document.getElementById('cls-word-input').value='';
+  renderClsUI();
+}
 function smsg(txt,cls){const el=document.getElementById('amsg');el.textContent=txt;el.className='smsg '+(cls||'');if(cls) setTimeout(()=>{if(el.textContent===txt){el.textContent='';el.className='smsg';}},2600);}
 
 async function addQ(){
@@ -740,8 +812,18 @@ async function addQ(){
     document.querySelectorAll('.pq-opt').forEach(i=>i.value='');
     document.querySelectorAll('#pq-opts .cbtn').forEach(b=>b.classList.remove('sel'));
     setPqType('mc');
+  } else if(qType==='classify'){
+    if(clsCats.length<2) return smsg('카테고리를 최소 2개 입력해주세요.','err');
+    const totalWords=clsCats.reduce(function(n,c){return n+(clsWords[c]||[]).length;},0);
+    if(totalWords<2) return smsg('각 카테고리에 단어를 추가해주세요.','err');
+    const qt=document.getElementById('cls-q').value.trim()||'단어를 알맞은 종류로 분류하세요.';
+    const cats=clsCats.map(function(c){return {name:c,words:(clsWords[c]||[]).slice()};});
+    q={type:'classify',text:qt,cats:cats,points:totalWords};
+    document.getElementById('cls-q').value='';
+    document.getElementById('cls-cat-input').value='';
+    clsCats=[];clsWords={};renderClsUI();
   }
-  if(qType!=='match'&&qType!=='wordfill'&&qType!=='inlinesel'&&!(qType==='photoq'&&pqSubType==='essay'))
+  if(qType!=='match'&&qType!=='wordfill'&&qType!=='inlinesel'&&qType!=='classify'&&!(qType==='photoq'&&pqSubType==='essay'))
     q.points=Math.max(1,parseInt(document.getElementById('q-points').value)||1);
   questions.push(q);renderQList();
   smsg('문제 추가됨 (총 '+questions.length+'개) ✓','ok');
@@ -845,6 +927,7 @@ function checkAnswer(q,ans){
   if(q.type==='order') return Array.isArray(ans)&&ans.every((s,i)=>s===q.sentences[i]);
   if(q.type==='wordfill') return Array.isArray(ans)&&ans.every((v,i)=>v===q.answers[i]);
   if(q.type==='inlinesel') return Array.isArray(ans)&&ans.every((v,i)=>v===q.answers[i]);
+  if(q.type==='classify') return false;
   return false;
 }
 
@@ -987,6 +1070,18 @@ async function toggleRankReleaseFromAnswers(code,checkbox){
 
 setType('mc');
 updateBadges();
+</script>
+
+<script>
+// Display labels for question types (separate script to avoid encoding issues)
+var TL_DISPLAY = {
+  mc: '객관식', tf: 'O/X', match: 'A↔B 연결', imgsel: '이미지 선택',
+  phrase: 'Phrase 순서', order: '문장 순서', audio: 'Audio 듣기',
+  wordfill: '단어 빈칸', inlinesel: '문장 내 선택', photoq: '사진 보고 답하기',
+  classify: '단어 분류'
+};
+// Override TL at runtime
+Object.assign(TL, TL_DISPLAY);
 </script>
 </body>
 </html>
