@@ -130,6 +130,18 @@ input[type=text]:focus{border-color:var(--purple)}
 .essay-count{font-size:12px;color:var(--muted);text-align:right;margin-top:4px}
 .essay-count.over{color:var(--red)}
 .essay-submitted{background:var(--bg);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;font-size:14px;color:var(--muted);line-height:1.6}
+
+.cls-words-bank{display:flex;flex-wrap:wrap;gap:8px;padding:12px;background:var(--purple-l);border:1px solid #c8c4f0;border-radius:var(--rs);margin-bottom:14px;min-height:48px}
+.cls-word-chip{padding:7px 16px;border:2px solid #c8c4f0;border-radius:20px;font-size:14px;cursor:pointer;background:var(--sur);color:var(--purple);font-family:'Noto Sans KR',sans-serif;transition:all .15s;user-select:none;font-weight:500}
+.cls-word-chip:hover{border-color:var(--purple);background:var(--purple-l)}
+.cls-word-chip.placed{opacity:.35;pointer-events:none;text-decoration:line-through}
+.cls-word-chip.selected{background:var(--purple);color:white;border-color:var(--purple)}
+.cls-cat-box{border:2px dashed var(--border);border-radius:var(--rs);padding:10px 12px;margin-bottom:10px;min-height:64px;transition:border-color .15s}
+.cls-cat-box.drag-over{border-color:var(--purple);background:var(--purple-l)}
+.cls-cat-label{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.cls-placed-word{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;background:var(--purple-l);border:1.5px solid var(--purple);border-radius:20px;font-size:13px;color:var(--purple);margin:3px;font-weight:500;cursor:pointer}
+.cls-placed-word:hover{background:#d8d4f8}
+.cls-placed-word.locked{pointer-events:none;background:var(--bg);border-color:var(--border);color:var(--muted)}
 </style>
 </head>
 <body>
@@ -228,7 +240,7 @@ function setMsg(id,txt,cls){
 }
 
 const nums=['①','②','③','④','⑤','⑥'];
-const typeNames={mc:'객관식',tf:'O/X',match:'A↔B 연결',imgsel:'이미지 선택',phrase:'Phrase 순서',order:'문장 순서',audio:'Audio 듣기',wordfill:'단어 빈칸',inlinesel:'문장 내 선택',photoq:'사진 보고 답하기'};
+const typeNames={mc:'객관식',tf:'O/X',match:'A↔B 연결',imgsel:'이미지 선택',phrase:'Phrase 순서',order:'문장 순서',audio:'Audio 듣기',wordfill:'단어 빈칸',inlinesel:'문장 내 선택',photoq:'사진 보고 답하기',classify:'단어 분류'};
 
 function renderQuiz(){
   document.getElementById('qcontainer').innerHTML=qdata.questions.map((q,qi)=>buildQ(q,qi)).join('');
@@ -311,6 +323,26 @@ function buildQ(q,qi){
         +`<textarea class="essay-textarea" id="essay-${qi}" maxlength="100" placeholder="100자 이하로 답을 쓰세요." oninput="updateEssayCount(${qi},this)"></textarea>`
         +`<div class="essay-count" id="essay-count-${qi}">0 / 100자</div>`;
     }
+  } else if(q.type==='classify'){
+    // Shuffle all words
+    var allWords=[];
+    q.cats.forEach(function(cat,ci){
+      cat.words.forEach(function(w,wi){allWords.push({w:w,ci:ci,wi:wi,id:'clsw-'+qi+'-'+ci+'-'+wi});});
+    });
+    allWords.sort(function(){return Math.random()-.5;});
+    var bankHtml='<div class="cls-words-bank" id="clsbank-'+qi+'">';
+    allWords.forEach(function(item){
+      bankHtml+='<span class="cls-word-chip" id="'+item.id+'" data-ci="'+item.ci+'" data-wi="'+item.wi+'" data-w="'+item.w+'" onclick="clsWordClick('+qi+',this)">'+item.w+'</span>';
+    });
+    bankHtml+='</div>';
+    var catsHtml='';
+    q.cats.forEach(function(cat,ci){
+      catsHtml+='<div class="cls-cat-box" id="clscat-'+qi+'-'+ci+'" onclick="clsCatClick('+qi+','+ci+')">';
+      catsHtml+='<div class="cls-cat-label">'+cat.name+'</div>';
+      catsHtml+='<div id="clsplaced-'+qi+'-'+ci+'"></div>';
+      catsHtml+='</div>';
+    });
+    body='<p style="font-size:12px;color:var(--muted);margin-bottom:8px">단어를 클릭하여 선택한 후, 해당 카테고리 박스를 클릭해서 넣으세요. 잘못 넣은 단어는 박스에서 클릭하면 돌아옵니다.</p>'+bankHtml+catsHtml;
   } else if(q.type==='inlinesel'){
     let globalSelIdx=0;
     const sentHtml=q.sentences.map(sent=>{
@@ -345,6 +377,7 @@ function initStates(){
     if(q.type==='phrase') window['ps_'+qi]=[];
     if(q.type==='wordfill') window['wf_'+qi]={blanks:{},selectedWord:null,selectedChipId:null};
     if(q.type==='inlinesel') window['ils_'+qi]={selections:{}};
+    if(q.type==='classify') window['cls_'+qi]={selected:null,placed:{}}; // placed: {catIdx: [wordIds]}
   });
 }
 
@@ -513,6 +546,76 @@ function updateEssayCount(qi,ta){
   updateProg();
 }
 
+function clsWordClick(qi,chip){
+  const st=window['cls_'+qi];
+  if(chip.classList.contains('placed')) return;
+  // Deselect previous
+  if(st.selected&&st.selected!==chip.id){
+    const prev=document.getElementById(st.selected);
+    if(prev) prev.classList.remove('selected');
+  }
+  if(st.selected===chip.id){chip.classList.remove('selected');st.selected=null;return;}
+  chip.classList.add('selected');
+  st.selected=chip.id;
+}
+function clsCatClick(qi,ci){
+  const st=window['cls_'+qi];
+  if(!st.selected) return;
+  const chip=document.getElementById(st.selected);
+  if(!chip) return;
+  const w=chip.dataset.w;
+  const origCi=parseInt(chip.dataset.ci);
+  // Place word in category
+  chip.classList.remove('selected');
+  chip.classList.add('placed');
+  if(!st.placed[ci]) st.placed[ci]=[];
+  st.placed[ci].push({id:st.selected,w:w,origCi:origCi});
+  st.selected=null;
+  // Render placed words
+  var placedDiv=document.getElementById('clsplaced-'+qi+'-'+ci);
+  if(placedDiv){
+    placedDiv.innerHTML='';
+    st.placed[ci].forEach(function(item,idx){
+      var span=document.createElement('span');
+      span.className='cls-placed-word';
+      span.textContent=item.w+' ✕';
+      span.onclick=function(){clsRemoveWord(qi,ci,idx);};
+      placedDiv.appendChild(span);
+    });
+  }
+  // Update answers
+  updateClsAnswer(qi);
+}
+function clsRemoveWord(qi,ci,idx){
+  const st=window['cls_'+qi];
+  if(!st.placed[ci]||!st.placed[ci][idx]) return;
+  const item=st.placed[ci][idx];
+  const chip=document.getElementById(item.id);
+  if(chip) chip.classList.remove('placed');
+  st.placed[ci].splice(idx,1);
+  // Re-render
+  var placedDiv=document.getElementById('clsplaced-'+qi+'-'+ci);
+  if(placedDiv){
+    placedDiv.innerHTML='';
+    st.placed[ci].forEach(function(item2,idx2){
+      var span=document.createElement('span');
+      span.className='cls-placed-word';
+      span.textContent=item2.w+' ✕';
+      span.onclick=function(){clsRemoveWord(qi,ci,idx2);};
+      placedDiv.appendChild(span);
+    });
+  }
+  updateClsAnswer(qi);
+}
+function updateClsAnswer(qi){
+  const q=qdata.questions[qi];
+  const st=window['cls_'+qi];
+  var totalWords=q.cats.reduce(function(n,cat){return n+cat.words.length;},0);
+  var placedCount=Object.values(st.placed).reduce(function(n,arr){return n+arr.length;},0);
+  answers[qi]=placedCount===totalWords?JSON.parse(JSON.stringify(st.placed)):null;
+  updateProg();
+}
+
 function updateProg(){
   const total=qdata.questions.length;
   const done=qdata.questions.filter((_,qi)=>answers[qi]!=null).length;
@@ -609,6 +712,26 @@ async function submitAll(){
         +`<textarea class="essay-textarea" id="essay-${qi}" maxlength="100" placeholder="100자 이하로 답을 쓰세요." oninput="updateEssayCount(${qi},this)"></textarea>`
         +`<div class="essay-count" id="essay-count-${qi}">0 / 100자</div>`;
     }
+  } else if(q.type==='classify'){
+    // Shuffle all words
+    var allWords=[];
+    q.cats.forEach(function(cat,ci){
+      cat.words.forEach(function(w,wi){allWords.push({w:w,ci:ci,wi:wi,id:'clsw-'+qi+'-'+ci+'-'+wi});});
+    });
+    allWords.sort(function(){return Math.random()-.5;});
+    var bankHtml='<div class="cls-words-bank" id="clsbank-'+qi+'">';
+    allWords.forEach(function(item){
+      bankHtml+='<span class="cls-word-chip" id="'+item.id+'" data-ci="'+item.ci+'" data-wi="'+item.wi+'" data-w="'+item.w+'" onclick="clsWordClick('+qi+',this)">'+item.w+'</span>';
+    });
+    bankHtml+='</div>';
+    var catsHtml='';
+    q.cats.forEach(function(cat,ci){
+      catsHtml+='<div class="cls-cat-box" id="clscat-'+qi+'-'+ci+'" onclick="clsCatClick('+qi+','+ci+')">';
+      catsHtml+='<div class="cls-cat-label">'+cat.name+'</div>';
+      catsHtml+='<div id="clsplaced-'+qi+'-'+ci+'"></div>';
+      catsHtml+='</div>';
+    });
+    body='<p style="font-size:12px;color:var(--muted);margin-bottom:8px">단어를 클릭하여 선택한 후, 해당 카테고리 박스를 클릭해서 넣으세요. 잘못 넣은 단어는 박스에서 클릭하면 돌아옵니다.</p>'+bankHtml+catsHtml;
   } else if(q.type==='inlinesel'){
       const st=window['ils_'+qi];
       q.answers.forEach((ans,i)=>{
