@@ -937,9 +937,15 @@ function resetCls(){
   document.getElementById('cls-boxes').innerHTML='';
 }
 function clsUpdateCatName(i){
-  // sync name into clsCats
-  const v=document.getElementById('cls-cat-'+i).value.trim();
-  clsCats[i]=v;
+  // sync name into clsCats, migrating any words if category was renamed
+  const newName=document.getElementById('cls-cat-'+i).value.trim();
+  const oldName=clsCats[i];
+  if(oldName&&oldName!==newName&&clsWords[oldName]){
+    clsWords[newName]=clsWords[oldName];
+    delete clsWords[oldName];
+    clsRenderWordChips(i,newName);
+  }
+  clsCats[i]=newName;
 }
 function clsAddWord(i){
   const catName=document.getElementById('cls-cat-'+i).value.trim();
@@ -1122,15 +1128,23 @@ async function addQ(){
     document.querySelectorAll('#pq-opts .cbtn').forEach(b=>b.classList.remove('sel'));
     setPqType('mc');
   } else if(qType==='classify'){
-    if(clsCats.length<2) return smsg('카테고리를 최소 2개 입력해주세요.','err');
-    const totalWords=clsCats.reduce(function(n,c){return n+(clsWords[c]||[]).length;},0);
-    if(totalWords<2) return smsg('각 카테고리에 단어를 추가해주세요.','err');
+    const n=parseInt(document.getElementById('cls-num').value)||0;
+    if(n<2) return smsg('먼저 카테고리 수를 입력하고 확인 버튼을 눌러주세요.','err');
+    for(let ci=0;ci<n;ci++){
+      const el=document.getElementById('cls-cat-'+ci);
+      if(el) clsCats[ci]=el.value.trim();
+    }
+    const validCats=clsCats.filter(function(c){return c&&c.trim();});
+    if(validCats.length<2) return smsg('카테고리 이름을 최소 2개 입력해주세요.','err');
+    const totalWords=validCats.reduce(function(sum,c){return sum+(clsWords[c]||[]).length;},0);
+    if(totalWords<2) return smsg('각 카테고리에 단어를 최소 1개 이상 추가해주세요.','err');
     const qt=document.getElementById('cls-q').value.trim()||'단어를 알맞은 종류로 분류하세요.';
-    const cats=clsCats.map(function(c){return {name:c,words:(clsWords[c]||[]).slice()};});
+    const cats=validCats.map(function(c){return {name:c,words:(clsWords[c]||[]).slice()};});
     q={type:'classify',text:qt,cats:cats,points:totalWords};
     document.getElementById('cls-q').value='';
-    document.getElementById('cls-cat-input').value='';
-    clsCats=[];clsWords={};renderClsUI();
+    clsCats=[];clsWords={};
+    document.getElementById('cls-num').value=2;
+    document.getElementById('cls-boxes').innerHTML='';
   }
   if(qType!=='match'&&qType!=='wordfill'&&qType!=='inlinesel'&&qType!=='classify'&&!(qType==='photoq'&&pqSubType==='essay'))
     q.points=Math.max(1,parseInt(document.getElementById('q-points').value)||1);
