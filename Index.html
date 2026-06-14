@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>한국어 연습문제 — 선생님</title>
+<title>BeBeenBed Korean — 선생님</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -21,6 +21,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 .nav-top{display:flex;align-items:center;gap:10px;padding:0 20px;height:52px}
 .nav-badge{background:var(--purple-l);color:var(--purple);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px}
 .nav-title{font-size:15px;font-weight:700}
+.nav-sub{font-size:11px;color:var(--muted);margin-left:4px}
 .nav-tabs{display:flex;padding:0 16px}
 .ntab{padding:10px 18px;font-size:13px;font-family:'Noto Sans KR',sans-serif;font-weight:500;color:var(--muted);border:none;background:none;cursor:pointer;border-bottom:2.5px solid transparent;transition:all .15s;white-space:nowrap}
 .ntab:hover{color:var(--text)}
@@ -224,13 +225,19 @@ textarea{min-height:52px;resize:vertical}
 .exam-save-btn:hover{background:var(--purple-d)}
 .exam-clear-btn{padding:6px 10px;background:none;color:var(--red);border:1.5px solid var(--red-l);border-radius:var(--rs);font-size:12px;font-family:'Noto Sans KR',sans-serif;cursor:pointer}
 .exam-clear-btn:hover{background:var(--red-l)}
+
+.edit-banner{display:flex;align-items:center;gap:10px;background:var(--amber-l);border:1.5px solid #e8c882;border-radius:var(--rs);padding:10px 14px;margin-bottom:14px}
+.edit-banner span{flex:1;font-size:13px;color:var(--amber);font-weight:600}
+.edit-banner button{padding:5px 12px;font-size:12px;font-family:'Noto Sans KR',sans-serif;border:1px solid #e8c882;border-radius:6px;background:var(--sur);color:var(--amber);cursor:pointer}
+.edit-banner button:hover{background:var(--amber-l)}
 </style>
 </head>
 <body>
 <div class="nav">
   <div class="nav-top">
     <span class="nav-badge">선생님</span>
-    <span class="nav-title">한국어 연습문제</span>
+    <span class="nav-title">BeBeenBed Korean</span>
+    <span class="nav-sub">by Ko Zaw Myo</span>
   </div>
   <div class="nav-tabs">
     <button class="ntab active" onclick="showPage('make')" id="ntab-make">연습문제 만들기</button>
@@ -294,6 +301,10 @@ textarea{min-height:52px;resize:vertical}
   </div>
 
   <div id="step2" style="display:none">
+    <div id="edit-banner" class="edit-banner" style="display:none">
+      <span>✏️ 기존 퀴즈 수정 중 — 저장하면 같은 코드로 덮어씁니다</span>
+      <button onclick="cancelEdit()">취소</button>
+    </div>
     <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0 6px">
       <div>
         <div style="font-size:16px;font-weight:700" id="s2-name"></div>
@@ -574,6 +585,7 @@ async function uploadFile(b64,path){
 
 // State
 let qType='mc',questions=[],tfVal=null,phraseList=[],wfWords=[],wfAnswers=[],wfPts=[],ilsAnswers=[],ilsPts=[],pqSubType='mc';
+let editingQuizCode=null;
 
 let clsCats=[], clsWords={};
 
@@ -584,6 +596,50 @@ let fpTarget=null, fpYear=0, fpMonth=0, fpSelDate=null, fpSelH=9, fpSelM=0;
 let fpQuizCode=null;
 let qExamDates={};
 
+
+async function editQuiz(code){
+  const all=await getQuizzes();
+  const quiz=all[code];
+  if(!quiz){alert('퀴즈를 찾을 수 없습니다.');return;}
+  editingQuizCode=code;
+  questions=JSON.parse(JSON.stringify(quiz.questions||[]));
+  document.getElementById('qname').value=quiz.name||'';
+  document.getElementById('qdesc').value=quiz.desc||'';
+  // Exam period
+  examStart=quiz.examStart||null;
+  examEnd=quiz.examEnd||null;
+  const examToggle=document.getElementById('exam-toggle');
+  if(examStart&&examEnd){
+    examToggle.checked=true;
+    document.getElementById('exam-period-area').style.display='';
+    document.getElementById('dt-start-val').textContent=fmtDT(examStart);
+    document.getElementById('dt-end-val').textContent=fmtDT(examEnd);
+  } else {
+    examToggle.checked=false;
+    document.getElementById('exam-period-area').style.display='none';
+    document.getElementById('dt-start-val').textContent='날짜 선택';
+    document.getElementById('dt-end-val').textContent='날짜 선택';
+  }
+  // Go to step2
+  showPage('make');
+  document.getElementById('s2-name').textContent=quiz.name;
+  document.getElementById('s2-desc').textContent=quiz.desc||'';
+  document.getElementById('step1').style.display='none';
+  document.getElementById('step2').style.display='';
+  document.getElementById('step3').style.display='none';
+  document.getElementById('edit-banner').style.display='flex';
+  setStepUI(2);setType('mc');
+  renderQList();
+  document.getElementById('pub-btn').textContent='변경사항 저장 ✓';
+  document.getElementById('pub-bar').style.display='flex';
+}
+function cancelEdit(){
+  editingQuizCode=null;
+  document.getElementById('edit-banner').style.display='none';
+  document.getElementById('pub-btn').textContent='공유 코드 생성 →';
+  resetMake();
+  showPage('list');
+}
 function toggleExamEdit(code){
   const area=document.getElementById('exam-edit-'+code);
   if(!area) return;
@@ -1096,9 +1152,29 @@ function rmQ(i){questions.splice(i,1);renderQList();}
 async function publishQuiz(){
   if(!questions.length) return;
   document.getElementById('pub-btn').disabled=true;
+  const examOn=document.getElementById('exam-toggle').checked;
+  if(editingQuizCode){
+    document.getElementById('pub-btn').textContent='저장 중...';
+    const code=editingQuizCode;
+    try{
+      const all=await getQuizzes();
+      const existing=all[code]||{};
+      const quiz={...existing,code,name:document.getElementById('qname').value.trim(),desc:document.getElementById('qdesc').value.trim(),questions,examStart:examOn?examStart:null,examEnd:examOn?examEnd:null};
+      await fbSet('/quizzes/'+code,quiz);
+      editingQuizCode=null;
+      document.getElementById('edit-banner').style.display='none';
+      document.getElementById('pub-btn').textContent='공유 코드 생성 →';
+      document.getElementById('pub-btn').disabled=false;
+      document.getElementById('pub-bar').style.display='none';
+      questions=[];
+      alert('수정사항이 저장되었습니다! (코드: '+code+')');
+      resetMake();
+      showPage('list');
+    }catch(e){alert('저장 실패: '+e.message);document.getElementById('pub-btn').disabled=false;document.getElementById('pub-btn').textContent='변경사항 저장 ✓';}
+    return;
+  }
   document.getElementById('pub-btn').textContent='저장 중...';
   const code=Math.random().toString(36).slice(2,7).toUpperCase();
-  const examOn=document.getElementById('exam-toggle').checked;
   const quiz={code,name:document.getElementById('qname').value.trim(),desc:document.getElementById('qdesc').value.trim(),questions,createdAt:Date.now(),gradeReleased:false,rankReleased:false,examStart:examOn?examStart:null,examEnd:examOn?examEnd:null};
   try{
     await fbSet('/quizzes/'+code,quiz);
@@ -1111,7 +1187,7 @@ async function publishQuiz(){
   }catch(e){alert('저장 실패: '+e.message);document.getElementById('pub-btn').disabled=false;document.getElementById('pub-btn').textContent='공유 코드 생성 →';}
 }
 function copyCode(){navigator.clipboard.writeText(document.getElementById('scode').textContent).then(()=>{const e=document.getElementById('scode');const o=e.textContent;e.textContent='복사됨!';setTimeout(()=>e.textContent=o,1200);}).catch(()=>{});}
-function resetMake(){questions=[];examStart=null;examEnd=null;document.getElementById('exam-toggle').checked=false;document.getElementById('exam-period-area').style.display='none';document.getElementById('dt-start-val').textContent='날짜 선택';document.getElementById('dt-end-val').textContent='날짜 선택';document.getElementById('qname').value='';document.getElementById('qdesc').value='';document.getElementById('step1').style.display='';document.getElementById('step2').style.display='none';document.getElementById('step3').style.display='none';document.getElementById('pub-bar').style.display='none';document.getElementById('pub-btn').disabled=false;document.getElementById('pub-btn').textContent='공유 코드 생성 →';setStepUI(1);}
+function resetMake(){questions=[];examStart=null;examEnd=null;editingQuizCode=null;document.getElementById('edit-banner').style.display='none';document.getElementById('pub-btn').textContent='공유 코드 생성 →';document.getElementById('pub-btn').disabled=false;document.getElementById('exam-toggle').checked=false;document.getElementById('exam-period-area').style.display='none';document.getElementById('dt-start-val').textContent='날짜 선택';document.getElementById('dt-end-val').textContent='날짜 선택';document.getElementById('qname').value='';document.getElementById('qdesc').value='';document.getElementById('step1').style.display='';document.getElementById('step2').style.display='none';document.getElementById('step3').style.display='none';document.getElementById('pub-bar').style.display='none';document.getElementById('pub-btn').disabled=false;document.getElementById('pub-btn').textContent='공유 코드 생성 →';setStepUI(1);}
 
 // Quiz list
 async function renderQuizList(){
