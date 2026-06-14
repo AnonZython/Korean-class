@@ -166,6 +166,64 @@ textarea{min-height:52px;resize:vertical}
 .quiz-select-bar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
 .quiz-select-bar select{flex:1;min-width:180px;padding:9px 12px;border:1.5px solid var(--border);border-radius:var(--rs);font-size:13px;font-family:'Noto Sans KR',sans-serif;color:var(--text);background:var(--sur);outline:none}
 .quiz-select-bar select:focus{border-color:var(--purple)}
+
+/* ── Exam period & floating calendar ────────────────────────────── */
+.exam-toggle-row{display:flex;align-items:center;gap:10px;padding:12px 0;border-top:1px solid var(--border);margin-top:14px}
+.exam-toggle-label{flex:1;font-size:13px;font-weight:600;color:var(--text)}
+.exam-period-area{background:var(--purple-l);border:1.5px solid #c8c4f0;border-radius:var(--rs);padding:14px;margin-top:10px}
+.exam-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.exam-row:last-child{margin-bottom:0}
+.exam-lbl{font-size:12px;font-weight:700;color:var(--purple);min-width:40px}
+.dt-input-wrap{position:relative;display:inline-block}
+.dt-display{display:flex;align-items:center;gap:8px;padding:8px 12px;border:1.5px solid #c8c4f0;border-radius:var(--rs);background:var(--sur);cursor:pointer;font-size:13px;color:var(--text);min-width:180px;user-select:none}
+.dt-display:hover{border-color:var(--purple)}
+.dt-display .dt-icon{font-size:15px}
+.dt-display .dt-val{flex:1;font-family:'DM Mono',monospace;font-size:13px}
+.dt-display .dt-clear{font-size:11px;color:var(--muted);padding:2px 5px;border-radius:4px;background:var(--border)}
+.dt-display .dt-clear:hover{background:var(--red-l);color:var(--red)}
+/* Floating picker */
+.fp-overlay{position:fixed;inset:0;z-index:999;display:none}
+.fp-overlay.open{display:block}
+.fp{position:fixed;z-index:1000;background:var(--sur);border:1.5px solid var(--border);border-radius:14px;box-shadow:0 8px 40px rgba(80,70,180,.18);padding:0;min-width:300px;overflow:hidden}
+.fp-header{background:var(--purple);color:#fff;padding:14px 16px 12px;display:flex;align-items:center;justify-content:space-between}
+.fp-month{font-size:15px;font-weight:700;flex:1;text-align:center}
+.fp-nav{background:none;border:none;color:#fff;font-size:18px;cursor:pointer;padding:4px 10px;border-radius:6px}
+.fp-nav:hover{background:rgba(255,255,255,.2)}
+.fp-close{background:none;border:none;color:rgba(255,255,255,.8);font-size:16px;cursor:pointer;padding:4px 8px;border-radius:6px}
+.fp-close:hover{color:#fff}
+.fp-cal{padding:12px 12px 8px}
+.fp-dow{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px}
+.fp-dow span{text-align:center;font-size:11px;font-weight:700;color:var(--muted);padding:3px 0}
+.fp-days{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.fp-day{text-align:center;padding:7px 3px;font-size:13px;border-radius:8px;cursor:pointer;border:none;background:none;font-family:'Noto Sans KR',sans-serif;color:var(--text)}
+.fp-day:hover{background:var(--purple-l);color:var(--purple)}
+.fp-day.today{font-weight:700;color:var(--purple)}
+.fp-day.selected{background:var(--purple);color:#fff!important;font-weight:700}
+.fp-day.other-month{color:var(--border)}
+.fp-day:disabled{color:var(--border);cursor:default}
+.fp-day:disabled:hover{background:none}
+.fp-time{padding:10px 12px 14px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:center;gap:8px}
+.fp-time label{font-size:12px;font-weight:700;color:var(--muted)}
+.tp-sel{padding:7px 10px;border:1.5px solid var(--border);border-radius:var(--rs);font-size:14px;font-family:'DM Mono',monospace;font-weight:700;color:var(--purple);background:var(--sur);outline:none;cursor:pointer;min-width:60px;text-align:center}
+.tp-sel:focus{border-color:var(--purple)}
+.fp-confirm{display:block;width:calc(100% - 24px);margin:0 12px 12px;padding:9px;background:var(--purple);color:#fff;border:none;border-radius:var(--rs);font-size:13px;font-family:'Noto Sans KR',sans-serif;font-weight:700;cursor:pointer}
+.fp-confirm:hover{background:var(--purple-d)}
+.exam-badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;margin-left:6px}
+.badge-upcoming{background:var(--purple-l);color:var(--purple)}
+.badge-active{background:var(--teal-l);color:var(--teal)}
+.badge-ended{background:var(--bg);color:var(--muted);border:1px solid var(--border)}
+
+.exam-edit-area{background:var(--purple-l);border:1px solid #c8c4f0;border-radius:var(--rs);padding:10px 12px;margin-top:8px;display:none}
+.exam-edit-area.open{display:block}
+.exam-edit-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;flex-wrap:wrap}
+.exam-edit-row:last-child{margin-bottom:0}
+.exam-edit-lbl{font-size:11px;font-weight:700;color:var(--purple);min-width:36px}
+.exam-dt-btn{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border:1.5px solid #c8c4f0;border-radius:var(--rs);background:var(--sur);cursor:pointer;font-size:12px;color:var(--text);font-family:'Noto Sans KR',sans-serif}
+.exam-dt-btn:hover{border-color:var(--purple);color:var(--purple)}
+.exam-save-btn{padding:6px 14px;background:var(--purple);color:#fff;border:none;border-radius:var(--rs);font-size:12px;font-family:'Noto Sans KR',sans-serif;font-weight:700;cursor:pointer}
+.exam-save-btn:hover{background:var(--purple-d)}
+.exam-clear-btn{padding:6px 10px;background:none;color:var(--red);border:1.5px solid var(--red-l);border-radius:var(--rs);font-size:12px;font-family:'Noto Sans KR',sans-serif;cursor:pointer}
+.exam-clear-btn:hover{background:var(--red-l)}
 </style>
 </head>
 <body>
@@ -202,6 +260,33 @@ textarea{min-height:52px;resize:vertical}
       <input type="text" class="big-input" id="qname" placeholder="예: 1과 동사 복습" maxlength="60">
       <label>설명 (선택)</label>
       <input type="text" id="qdesc" placeholder="예: 교재 32~40쪽">
+      <div class="exam-toggle-row">
+        <span class="exam-toggle-label">📅 시험 기간 설정</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="exam-toggle" onchange="toggleExamPeriod(this)">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div id="exam-period-area" class="exam-period-area" style="display:none">
+        <div class="exam-row">
+          <span class="exam-lbl">시작</span>
+          <div class="dt-input-wrap">
+            <div class="dt-display" id="dt-start-display" onclick="openPicker('start')">
+              <span class="dt-icon">📅</span>
+              <span class="dt-val" id="dt-start-val">날짜 선택</span>
+            </div>
+          </div>
+        </div>
+        <div class="exam-row">
+          <span class="exam-lbl">종료</span>
+          <div class="dt-input-wrap">
+            <div class="dt-display" id="dt-end-display" onclick="openPicker('end')">
+              <span class="dt-icon">📅</span>
+              <span class="dt-val" id="dt-end-val">날짜 선택</span>
+            </div>
+          </div>
+        </div>
+      </div>
       <div style="margin-top:16px">
         <button class="btn-pri" onclick="goStep2()">다음 — 문제 만들기 →</button>
       </div>
@@ -491,6 +576,171 @@ async function uploadFile(b64,path){
 let qType='mc',questions=[],tfVal=null,phraseList=[],wfWords=[],wfAnswers=[],wfPts=[],ilsAnswers=[],ilsPts=[],pqSubType='mc';
 
 let clsCats=[], clsWords={};
+
+// ── Exam period state ───────────────────────────────────────────────────
+let examStart=null, examEnd=null; // ISO strings
+let fpTarget=null, fpYear=0, fpMonth=0, fpSelDate=null, fpSelH=9, fpSelM=0;
+
+let fpQuizCode=null;
+let qExamDates={};
+
+function toggleExamEdit(code){
+  const area=document.getElementById('exam-edit-'+code);
+  if(!area) return;
+  area.classList.toggle('open');
+  if(!qExamDates[code]) qExamDates[code]={start:null,end:null};
+}
+
+function openPickerForQuiz(code,target){
+  fpQuizCode=code;
+  if(!qExamDates[code]) qExamDates[code]={start:null,end:null};
+  const existing=target==='start'?qExamDates[code].start:qExamDates[code].end;
+  fpTarget='quiz-'+target;
+  const d=existing?new Date(existing):new Date();
+  fpYear=d.getFullYear();fpMonth=d.getMonth();
+  fpSelDate=existing?new Date(existing):null;
+  fpSelH=existing?d.getHours():9;fpSelM=existing?d.getMinutes():0;
+  renderPicker();
+  const allBtns=document.querySelectorAll('#exam-edit-'+code+' .exam-dt-btn');
+  const refBtn=allBtns[target==='start'?0:1];
+  const fp=document.getElementById('fp');
+  fp.style.display='';
+  if(refBtn){
+    const rect=refBtn.getBoundingClientRect();
+    const ph=fp.offsetHeight||380,pw=fp.offsetWidth||300;
+    let top=rect.bottom+6,left=rect.left;
+    if(top+ph>window.innerHeight-10) top=rect.top-ph-6;
+    if(left+pw>window.innerWidth-10) left=window.innerWidth-pw-10;
+    fp.style.top=Math.max(10,top)+'px';
+    fp.style.left=Math.max(10,left)+'px';
+  }
+  document.getElementById('fp-overlay').classList.add('open');
+}
+
+async function saveExamPeriod(code){
+  const dates=qExamDates[code]||{};
+  if(!dates.start||!dates.end){alert('시작과 종료 날짜를 모두 선택해주세요.');return;}
+  if(new Date(dates.start)>=new Date(dates.end)){alert('종료 시간이 시작 시간보다 늦어야 합니다.');return;}
+  const btn=document.getElementById('exam-save-'+code);
+  if(btn){btn.textContent='저장 중...';btn.disabled=true;}
+  try{
+    await fbSet('/quizzes/'+code+'/examStart',dates.start);
+    await fbSet('/quizzes/'+code+'/examEnd',dates.end);
+    alert('시험 기간 저장 완료!');
+    renderQuizList();
+  }catch(e){alert('저장 실패: '+e.message);}
+  finally{if(btn){btn.textContent='저장';btn.disabled=false;}}
+}
+
+async function clearExamPeriod(code){
+  if(!confirm('시험 기간을 삭제하시겠습니까? 퀴즈는 유지됩니다.')) return;
+  try{
+    await fbSet('/quizzes/'+code+'/examStart',null);
+    await fbSet('/quizzes/'+code+'/examEnd',null);
+    if(qExamDates[code]) qExamDates[code]={start:null,end:null};
+    renderQuizList();
+  }catch(e){alert('실패: '+e.message);}
+}
+function toggleExamPeriod(cb){
+  document.getElementById('exam-period-area').style.display=cb.checked?'':'none';
+  if(!cb.checked){examStart=null;examEnd=null;}
+}
+
+function openPicker(target){
+  fpTarget=target;
+  const existing=target==='start'?examStart:examEnd;
+  const d=existing?new Date(existing):new Date();
+  fpYear=d.getFullYear(); fpMonth=d.getMonth();
+  fpSelDate=existing?new Date(existing):null;
+  fpSelH=existing?d.getHours():9; fpSelM=existing?d.getMinutes():0;
+  renderPicker();
+  // Position near the button
+  const btn=document.getElementById('dt-'+(target)+'-display');
+  const rect=btn.getBoundingClientRect();
+  const fp=document.getElementById('fp');
+  fp.style.display='';
+  const ph=fp.offsetHeight||420, pw=fp.offsetWidth||300;
+  let top=rect.bottom+6, left=rect.left;
+  if(top+ph>window.innerHeight-10) top=rect.top-ph-6;
+  if(left+pw>window.innerWidth-10) left=window.innerWidth-pw-10;
+  fp.style.top=Math.max(10,top)+'px';
+  fp.style.left=Math.max(10,left)+'px';
+  document.getElementById('fp-overlay').classList.add('open');
+}
+function closePicker(){
+  document.getElementById('fp').style.display='none';
+  document.getElementById('fp-overlay').classList.remove('open');
+}
+function fpNav(d){fpMonth+=d;if(fpMonth>11){fpMonth=0;fpYear++;}else if(fpMonth<0){fpMonth=11;fpYear--;}renderPicker();}
+
+function renderPicker(){
+  const months=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+  document.getElementById('fp-month').textContent=fpYear+'년 '+months[fpMonth];
+  // Days
+  const first=new Date(fpYear,fpMonth,1).getDay();
+  const last=new Date(fpYear,fpMonth+1,0).getDate();
+  const today=new Date(); today.setHours(0,0,0,0);
+  let html='';
+  for(let i=0;i<first;i++){
+    const d=new Date(fpYear,fpMonth,0-(first-1-i));
+    html+='<button class="fp-day other-month" disabled>'+d.getDate()+'</button>';
+  }
+  for(let d=1;d<=last;d++){
+    const dt=new Date(fpYear,fpMonth,d);
+    const isToday=dt.getTime()===today.getTime();
+    const isSel=fpSelDate&&dt.toDateString()===fpSelDate.toDateString();
+    html+='<button class="fp-day'+(isToday?' today':'')+(isSel?' selected':'')+'" onclick="fpSelDay('+d+')">'+d+'</button>';
+  }
+  document.getElementById('fp-days').innerHTML=html;
+  // Hours
+  let hOpts=''; for(let h=0;h<24;h++) hOpts+='<option value="'+h+'"'+(h===fpSelH?' selected':'')+'>'+String(h).padStart(2,'0')+'</option>';
+  document.getElementById('fp-hour').innerHTML=hOpts;
+  // Minutes
+  let mOpts=''; for(let m=0;m<60;m+=5) mOpts+='<option value="'+m+'"'+(m===fpSelM?' selected':'')+'>'+String(m).padStart(2,'0')+'</option>';
+  document.getElementById('fp-min').innerHTML=mOpts;
+  document.getElementById('fp-hour').onchange=function(){fpSelH=parseInt(this.value);};
+  document.getElementById('fp-min').onchange=function(){fpSelM=parseInt(this.value);};
+  // AM/PM hint
+  document.getElementById('fp-ampm').textContent=fpSelH<12?'오전':'오후';
+  document.getElementById('fp-hour').onchange=function(){fpSelH=parseInt(this.value);document.getElementById('fp-ampm').textContent=fpSelH<12?'오전':'오후';};
+}
+function fpSelDay(d){
+  fpSelDate=new Date(fpYear,fpMonth,d);
+  renderPicker();
+}
+function confirmPicker(){
+  if(!fpSelDate){alert('날짜를 선택해주세요.');return;}
+  const dt=new Date(fpYear,fpMonth,fpSelDate.getDate(),fpSelH,fpSelM,0);
+  const iso=dt.toISOString();
+  const disp=fpYear+'.'+(fpMonth+1).toString().padStart(2,'0')+'.'+fpSelDate.getDate().toString().padStart(2,'0')+' '+(fpSelH<12?'오전':'오후')+' '+(fpSelH%12||12)+':'+String(fpSelM).padStart(2,'0');
+  if(fpTarget==='start'){
+    examStart=iso;
+    document.getElementById('dt-start-val').textContent=disp;
+    document.getElementById('dt-start-display').style.borderColor='var(--purple)';
+  } else if(fpTarget==='end'){
+    examEnd=iso;
+    document.getElementById('dt-end-val').textContent=disp;
+    document.getElementById('dt-end-display').style.borderColor='var(--purple)';
+  } else if(fpTarget==='quiz-start'&&fpQuizCode){
+    if(!qExamDates[fpQuizCode]) qExamDates[fpQuizCode]={};
+    qExamDates[fpQuizCode].start=iso;
+    const el=document.getElementById('qdt-start-'+fpQuizCode);
+    if(el) el.textContent=disp;
+  } else if(fpTarget==='quiz-end'&&fpQuizCode){
+    if(!qExamDates[fpQuizCode]) qExamDates[fpQuizCode]={};
+    qExamDates[fpQuizCode].end=iso;
+    const el=document.getElementById('qdt-end-'+fpQuizCode);
+    if(el) el.textContent=disp;
+  }
+  closePicker();
+}
+function getExamBadge(quiz){
+  if(!quiz.examStart||!quiz.examEnd) return '';
+  const now=Date.now(), s=new Date(quiz.examStart).getTime(), e=new Date(quiz.examEnd).getTime();
+  if(now<s) return '<span class="exam-badge badge-upcoming">예정</span>';
+  if(now<=e) return '<span class="exam-badge badge-active">진행중</span>';
+  return '<span class="exam-badge badge-ended">종료</span>';
+}
 // Icons/Labels
 const TI={mc:'MC',tf:'OX',match:'AB',imgsel:'IMG',phrase:'PH',order:'ORD',audio:'AUD',wordfill:'WF',inlinesel:'SEL',photoq:'PHO',classify:'CLS'};
 const TL={mc:'MC',tf:'OX',match:'AB',imgsel:'IMG',phrase:'PH',order:'ORD',audio:'AUD',wordfill:'WF',inlinesel:'SEL',photoq:'PHO',classify:'CLS'};
@@ -848,7 +1098,8 @@ async function publishQuiz(){
   document.getElementById('pub-btn').disabled=true;
   document.getElementById('pub-btn').textContent='저장 중...';
   const code=Math.random().toString(36).slice(2,7).toUpperCase();
-  const quiz={code,name:document.getElementById('qname').value.trim(),desc:document.getElementById('qdesc').value.trim(),questions,createdAt:Date.now(),gradeReleased:false,rankReleased:false};
+  const examOn=document.getElementById('exam-toggle').checked;
+  const quiz={code,name:document.getElementById('qname').value.trim(),desc:document.getElementById('qdesc').value.trim(),questions,createdAt:Date.now(),gradeReleased:false,rankReleased:false,examStart:examOn?examStart:null,examEnd:examOn?examEnd:null};
   try{
     await fbSet('/quizzes/'+code,quiz);
     document.getElementById('scode').textContent=code;
@@ -860,7 +1111,7 @@ async function publishQuiz(){
   }catch(e){alert('저장 실패: '+e.message);document.getElementById('pub-btn').disabled=false;document.getElementById('pub-btn').textContent='공유 코드 생성 →';}
 }
 function copyCode(){navigator.clipboard.writeText(document.getElementById('scode').textContent).then(()=>{const e=document.getElementById('scode');const o=e.textContent;e.textContent='복사됨!';setTimeout(()=>e.textContent=o,1200);}).catch(()=>{});}
-function resetMake(){questions=[];document.getElementById('qname').value='';document.getElementById('qdesc').value='';document.getElementById('step1').style.display='';document.getElementById('step2').style.display='none';document.getElementById('step3').style.display='none';document.getElementById('pub-bar').style.display='none';document.getElementById('pub-btn').disabled=false;document.getElementById('pub-btn').textContent='공유 코드 생성 →';setStepUI(1);}
+function resetMake(){questions=[];examStart=null;examEnd=null;document.getElementById('exam-toggle').checked=false;document.getElementById('exam-period-area').style.display='none';document.getElementById('dt-start-val').textContent='날짜 선택';document.getElementById('dt-end-val').textContent='날짜 선택';document.getElementById('qname').value='';document.getElementById('qdesc').value='';document.getElementById('step1').style.display='';document.getElementById('step2').style.display='none';document.getElementById('step3').style.display='none';document.getElementById('pub-bar').style.display='none';document.getElementById('pub-btn').disabled=false;document.getElementById('pub-btn').textContent='공유 코드 생성 →';setStepUI(1);}
 
 // Quiz list
 async function renderQuizList(){
@@ -868,6 +1119,7 @@ async function renderQuizList(){
   area.innerHTML='<div class="empty-state"><div class="empty-icon">⏳</div><div class="empty-text">불러오는 중...</div></div>';
   const all=await getQuizzes();
   const codes=Object.keys(all).sort((a,b)=>(all[b].createdAt||0)-(all[a].createdAt||0));
+  codes.forEach(function(code){if(!qExamDates[code]) qExamDates[code]={start:all[code].examStart||null,end:all[code].examEnd||null};});
   if(!codes.length){area.innerHTML='<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">아직 만든 퀴즈가 없습니다</div><button class="btn-pri" onclick="showPage(\'make\')">첫 퀴즈 만들기 →</button></div>';return;}
   const subCounts={};
   for(const c of codes){try{subCounts[c]=(await getAnswers(c)).length;}catch(e){subCounts[c]=0;}}
@@ -876,8 +1128,9 @@ async function renderQuizList(){
     const sub=subCounts[code]||0;
     const date=q.createdAt?new Date(q.createdAt).toLocaleDateString('ko-KR',{month:'short',day:'numeric'}):'';
     const grOn=q.gradeReleased?'on':'';
+    const examBadge=getExamBadge(q);
     const rkOn=q.rankReleased?'on':'';
-    return '<div class="quiz-card"><div class="quiz-card-body"><div class="quiz-card-name">'+q.name+'</div>'+(q.desc?'<div class="quiz-card-desc">'+q.desc+'</div>':'')+'<div class="quiz-card-meta"><span class="quiz-code" onclick="copyText(\''+code+'\',this)">'+code+'</span><span class="quiz-meta-tag">문제 '+q.questions.length+'개</span><span class="quiz-meta-tag">제출 '+sub+'명</span>'+(date?'<span class="quiz-meta-tag">'+date+'</span>':'')+'</div></div><div class="quiz-card-actions"><button class="icon-btn" onclick="viewAnswersFor(\''+code+'\')">답 보기</button><button class="icon-btn '+grOn+'" onclick="toggleGradeRelease(\''+code+'\',this)">'+(q.gradeReleased?'✓ 성적 공개':'성적 공개')+'</button><button class="icon-btn '+rkOn+'" onclick="toggleRankRelease(\''+code+'\',this)">'+(q.rankReleased?'✓ 순위 공개':'순위 공개')+'</button><button class="icon-btn danger" onclick="deleteQuiz(\''+code+'\')">삭제</button></div></div>';
+    return '<div class="quiz-card"><div class="quiz-card-body"><div class="quiz-card-name">'+q.name+examBadge+'</div>'+(q.desc?'<div class="quiz-card-desc">'+q.desc+'</div>':'')+'<div class="quiz-card-meta"><span class="quiz-code" onclick="copyText(\''+code+'\',this)">'+code+'</span><span class="quiz-meta-tag">문제 '+q.questions.length+'개</span><span class="quiz-meta-tag">제출 '+sub+'명</span>'+(date?'<span class="quiz-meta-tag">'+date+'</span>':'')+'</div></div><div class="quiz-card-actions"><button class="icon-btn" onclick="viewAnswersFor(\''+code+'\')">답 보기</button><button class="icon-btn '+grOn+'" onclick="toggleGradeRelease(\''+code+'\',this)">'+(q.gradeReleased?'✓ 성적 공개':'성적 공개')+'</button><button class="icon-btn '+rkOn+'" onclick="toggleRankRelease(\''+code+'\',this)">'+(q.rankReleased?'✓ 순위 공개':'순위 공개')+'</button><button class="icon-btn danger" onclick="deleteQuiz(\''+code+'\')">삭제</button></div></div>';
   }).join('');
 }
 function copyText(text,el){navigator.clipboard.writeText(text).then(()=>{const o=el.textContent;el.textContent='복사됨!';setTimeout(()=>el.textContent=o,1200);}).catch(()=>{});}
@@ -911,6 +1164,7 @@ async function initAnswersPage(){
   const sel=document.getElementById('ans-quiz-select');
   const cur=sel.value;
   const codes=Object.keys(all).sort((a,b)=>(all[b].createdAt||0)-(all[a].createdAt||0));
+  codes.forEach(function(code){if(!qExamDates[code]) qExamDates[code]={start:all[code].examStart||null,end:all[code].examEnd||null};});
   sel.innerHTML='<option value="">— 퀴즈를 선택하세요 —</option>'+codes.map(c=>'<option value="'+c+'">'+all[c].name+' ('+c+')</option>').join('');
   if(cur&&all[cur]) sel.value=cur;
   loadAnswers();
@@ -1086,5 +1340,30 @@ var TL_DISPLAY = {
 // Override TL at runtime
 Object.assign(TL, TL_DISPLAY);
 </script>
+
+<!-- Floating Date+Time Picker -->
+<div class="fp-overlay" id="fp-overlay" onclick="closePicker()"></div>
+<div class="fp" id="fp" style="display:none">
+  <div class="fp-header">
+    <button class="fp-nav" onclick="fpNav(-1)">&#8249;</button>
+    <span class="fp-month" id="fp-month"></span>
+    <button class="fp-nav" onclick="fpNav(1)">&#8250;</button>
+    <button class="fp-close" onclick="closePicker()">✕</button>
+  </div>
+  <div class="fp-cal">
+    <div class="fp-dow">
+      <span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span>
+    </div>
+    <div class="fp-days" id="fp-days"></div>
+  </div>
+  <div class="fp-time">
+    <label>시간</label>
+    <select class="tp-sel" id="fp-hour"></select>
+    <span style="font-weight:700;color:var(--muted)">:</span>
+    <select class="tp-sel" id="fp-min"></select>
+    <span style="font-size:12px;color:var(--muted);margin-left:4px" id="fp-ampm"></span>
+  </div>
+  <button class="fp-confirm" onclick="confirmPicker()">확인 ✓</button>
+</div>
 </body>
 </html>
