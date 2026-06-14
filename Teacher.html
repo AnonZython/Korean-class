@@ -224,6 +224,20 @@ async function loadQuiz(){
   try{
     const quiz=await fbGet('/quizzes/'+code);
     if(!quiz) return setMsg('lmsg','코드를 찾을 수 없습니다. 선생님께 확인해주세요.','err');
+    // Exam period check
+    if(quiz.examStart||quiz.examEnd){
+      const now=Date.now();
+      const s2=quiz.examStart?new Date(quiz.examStart).getTime():0;
+      const e2=quiz.examEnd?new Date(quiz.examEnd).getTime():Infinity;
+      if(now<s2){
+        const fmt=d=>new Date(d).toLocaleString('ko-KR',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+        return setMsg('lmsg','시험 기간이 아직 시작되지 않았습니다.\n시작: '+fmt(quiz.examStart),'err');
+      }
+      if(now>e2){
+        const fmt=d=>new Date(d).toLocaleString('ko-KR',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+        return setMsg('lmsg','시험 기간이 종료되었습니다.\n종료: '+fmt(quiz.examEnd),'err');
+      }
+    }
     qdata=quiz; answers={}; studentName=name;
     document.getElementById('entry-card').style.display='none';
     document.getElementById('prog-wrap').style.display='';
@@ -702,36 +716,29 @@ async function submitAll(){
       document.querySelectorAll('#wfbank-'+qi+' .wf-word-chip').forEach(c=>c.style.pointerEvents='none');
     } else if(q.type==='photoq'){
     const imgTag=`<img class="photoq-img" src="${q.imgSrc}" alt="문제 사진">`;
-    if(q.answerType==='mc'){
-      body=imgTag+q.options.map((o,oi)=>`
-      <div class="opt" id="opt-${qi}-${oi}" onclick="selMC(${qi},${oi})">
-        <span class="ocircle">${nums[oi]}</span><span class="otext">${o}</span>
-      </div>`).join('');
-    } else {
-      body=imgTag
-        +`<textarea class="essay-textarea" id="essay-${qi}" maxlength="100" placeholder="100자 이하로 답을 쓰세요." oninput="updateEssayCount(${qi},this)"></textarea>`
-        +`<div class="essay-count" id="essay-count-${qi}">0 / 100자</div>`;
-    }
-  } else if(q.type==='classify'){
-    // Shuffle all words
-    var allWords=[];
-    q.cats.forEach(function(cat,ci){
-      cat.words.forEach(function(w,wi){allWords.push({w:w,ci:ci,wi:wi,id:'clsw-'+qi+'-'+ci+'-'+wi});});
-    });
-    allWords.sort(function(){return Math.random()-.5;});
-    var bankHtml='<div class="cls-words-bank" id="clsbank-'+qi+'">';
-    allWords.forEach(function(item){
-      bankHtml+='<span class="cls-word-chip" id="'+item.id+'" data-ci="'+item.ci+'" data-wi="'+item.wi+'" data-w="'+item.w+'" onclick="clsWordClick('+qi+',this)">'+item.w+'</span>';
-    });
-    bankHtml+='</div>';
-    var catsHtml='';
-    q.cats.forEach(function(cat,ci){
-      catsHtml+='<div class="cls-cat-box" id="clscat-'+qi+'-'+ci+'" onclick="clsCatClick('+qi+','+ci+')">';
-      catsHtml+='<div class="cls-cat-label">'+cat.name+'</div>';
-      catsHtml+='<div id="clsplaced-'+qi+'-'+ci+'"></div>';
-      catsHtml+='</div>';
-    });
-    body='<p style="font-size:12px;color:var(--muted);margin-bottom:8px">단어를 클릭하여 선택한 후, 해당 카테고리 박스를 클릭해서 넣으세요. 잘못 넣은 단어는 박스에서 클릭하면 돌아옵니다.</p>'+bankHtml+catsHtml;
+    } else if(q.type==='photoq'){
+      if(q.answerType==='mc'){
+        const ans=answers[qi];
+        if(ans===q.correct) score+=(q.points||1);
+        q.options.forEach(function(_,oi){
+          var el=document.getElementById('opt-'+qi+'-'+oi);
+          if(el){el.classList.remove('sel');el.style.pointerEvents='none';el.classList.add('disabled');}
+        });
+      } else {
+        var ta=document.getElementById('essay-'+qi);
+        if(ta) ta.disabled=true;
+      }
+    } else if(q.type==='classify'){
+      var stcls=window['cls_'+qi]||{placed:{}};
+      q.cats.forEach(function(cat,ci){
+        cat.words.forEach(function(correctWord){
+          var placed=stcls.placed[ci]||[];
+          if(placed.some(function(item){return item.w===correctWord;})) score+=1;
+        });
+      });
+      document.querySelectorAll('[id^="clsw-'+qi+'-"]').forEach(function(c){c.style.pointerEvents='none';});
+      document.querySelectorAll('[id^="clscat-'+qi+'-"]').forEach(function(c){c.style.pointerEvents='none';});
+      document.querySelectorAll('.cls-placed-word').forEach(function(c){c.classList.add('locked');});
   } else if(q.type==='inlinesel'){
       const st=window['ils_'+qi];
       q.answers.forEach((ans,i)=>{
