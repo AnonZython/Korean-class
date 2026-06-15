@@ -54,8 +54,9 @@ input[type=text]:focus{border-color:var(--purple)}
 .fb{font-size:13px;font-weight:700;padding:8px 12px;border-radius:var(--rs);margin-top:10px}
 .fb.ok{background:var(--teal-l);color:var(--teal)}.fb.err{background:var(--red-l);color:var(--red)}
 .match-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;position:relative}
-.match-lines{position:absolute;top:0;left:0;pointer-events:none;z-index:1}
 .match-col{position:relative;z-index:2}
+.match-line{position:absolute;height:2.5px;border-radius:2px;transform-origin:0 50%;pointer-events:none;z-index:1}
+.match-dot{position:absolute;width:8px;height:8px;border-radius:50%;pointer-events:none;z-index:1;transform:translate(-50%,-50%)}
 .match-col{display:flex;flex-direction:column;gap:7px}
 .m-item{padding:9px 12px;border:1.5px solid var(--border);border-radius:var(--rs);font-size:13px;cursor:pointer;background:var(--sur);text-align:center;transition:all .12s;user-select:none}
 .m-item:hover{border-color:var(--purple)}.m-item.active{background:var(--purple-l);border-color:var(--purple);color:var(--purple);font-weight:700}
@@ -297,7 +298,6 @@ function buildQ(q,qi){
     const shB=[...q.pairs.map(p=>p.b)].sort(()=>Math.random()-.5);
     body=`<p class="match-hint">A 항목 클릭 → B 항목 클릭으로 연결 · 연결된 항목을 다시 클릭하면 취소</p>
     <div class="match-grid" id="mgrid-${qi}">
-      <svg class="match-lines" id="mlines-${qi}"></svg>
       <div class="match-col" id="colA-${qi}">${q.pairs.map((p,pi)=>`<div class="m-item" id="mA-${qi}-${pi}" onclick="clickA(${qi},${pi})">${p.a}</div>`).join('')}</div>
       <div class="match-col" id="colB-${qi}">${shB.map((b,bi)=>`<div class="m-item" id="mB-${qi}-${bi}" data-val="${b.replace(/"/g,'&quot;')}" onclick="clickB(${qi},${bi})">${b}</div>`).join('')}</div>
     </div>`;
@@ -439,16 +439,12 @@ function selImg(qi,oi){qdata.questions[qi].options.forEach((_,i)=>document.getEl
 
 const PAIR_COLORS=['#534AB7','#0F6E56','#BA7517','#D4537E','#378ADD','#639922'];
 function drawMatchLines(qi){
-  const svg=document.getElementById('mlines-'+qi);
   const grid=document.getElementById('mgrid-'+qi);
-  if(!svg||!grid) return;
+  if(!grid) return;
+  grid.querySelectorAll('.match-line,.match-dot').forEach(function(el){el.remove();});
   const gridRect=grid.getBoundingClientRect();
-  svg.setAttribute('width',gridRect.width);
-  svg.setAttribute('height',gridRect.height);
-  svg.setAttribute('viewBox','0 0 '+gridRect.width+' '+gridRect.height);
   const st=window['ms_'+qi];
-  let html='';
-  Object.keys(st.matched).forEach(bi=>{
+  Object.keys(st.matched).forEach(function(bi){
     const m=st.matched[bi];
     const aEl=document.getElementById('mA-'+qi+'-'+m.aIdx);
     const bEl=document.getElementById('mB-'+qi+'-'+bi);
@@ -459,13 +455,28 @@ function drawMatchLines(qi){
     const y1=aRect.top+aRect.height/2-gridRect.top;
     const x2=bRect.left-gridRect.left;
     const y2=bRect.top+bRect.height/2-gridRect.top;
+    const dx=x2-x1,dy=y2-y1;
+    const len=Math.sqrt(dx*dx+dy*dy);
+    const angle=Math.atan2(dy,dx)*180/Math.PI;
     const colorIdx=parseInt(m.color.split('-')[1])%PAIR_COLORS.length;
     const color=PAIR_COLORS[colorIdx];
-    html+='<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+color+'" stroke-width="2.5" stroke-linecap="round"/>';
-    html+='<circle cx="'+x1+'" cy="'+y1+'" r="4" fill="'+color+'"/>';
-    html+='<circle cx="'+x2+'" cy="'+y2+'" r="4" fill="'+color+'"/>';
+    const line=document.createElement('div');
+    line.className='match-line';
+    line.style.width=len+'px';
+    line.style.background=color;
+    line.style.left=x1+'px';
+    line.style.top=y1+'px';
+    line.style.transform='rotate('+angle+'deg)';
+    grid.appendChild(line);
+    [[x1,y1],[x2,y2]].forEach(function(p){
+      const dot=document.createElement('div');
+      dot.className='match-dot';
+      dot.style.left=p[0]+'px';
+      dot.style.top=p[1]+'px';
+      dot.style.background=color;
+      grid.appendChild(dot);
+    });
   });
-  svg.innerHTML=html;
 }
 window.addEventListener('resize',function(){
   if(!qdata||!qdata.questions) return;
