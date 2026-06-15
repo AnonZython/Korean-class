@@ -66,6 +66,13 @@ input[type=text]:focus{border-color:var(--purple)}
 .img-opt.correct{pointer-events:none}
 .img-opt.wrong{pointer-events:none}
 .img-opt img{width:100%;height:140px;object-fit:contain;background:var(--bg);border-radius:6px;display:block;margin-bottom:7px}
+.img-opt{position:relative}
+.img-zoom-btn{position:absolute;top:6px;right:6px;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;border:none;font-size:15px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2}
+.img-zoom-btn:hover{background:rgba(0,0,0,.8)}
+.img-lightbox{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:2000;display:none;align-items:center;justify-content:center;padding:20px}
+.img-lightbox.open{display:flex}
+.img-lightbox img{max-width:100%;max-height:100%;object-fit:contain;border-radius:8px}
+.img-lightbox-close{position:absolute;top:16px;right:20px;color:#fff;font-size:28px;background:none;border:none;cursor:pointer;line-height:1}
 .img-placeholder{width:100%;height:90px;background:var(--bg);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--muted);margin-bottom:7px;text-align:center;padding:8px;line-height:1.4}
 .img-lbl{font-size:12px;font-weight:700;color:var(--muted)}
 .phrase-slot{display:flex;flex-wrap:wrap;gap:7px;padding:12px;border:1.5px dashed var(--border);border-radius:var(--rs);min-height:50px;margin-bottom:10px}
@@ -289,6 +296,7 @@ function buildQ(q,qi){
       const isUrl=/^https?:\/\//.test(o)||o.startsWith('data:');
       return `<div class="img-opt" id="iopt-${qi}-${oi}" onclick="selImg(${qi},${oi})">
         ${isUrl?`<img src="${o}" alt="보기 ${nums[oi]}">`:`<div class="img-placeholder">${o}</div>`}
+        ${isUrl?`<button class="img-zoom-btn" onclick="event.stopPropagation();openImgZoom('${o.replace(/'/g,"\\'")}')">🔍</button>`:''}
         <div class="img-lbl">${nums[oi]}</div></div>`;
     }).join('')}</div>`;
   } else if(q.type==='phrase'){
@@ -414,6 +422,14 @@ function selMC(qi,oi){
   updateProg();
 }
 function selTF(qi,v){['O','X'].forEach(x=>document.getElementById('opt-'+qi+'-'+x).classList.remove('sel'));document.getElementById('opt-'+qi+'-'+v).classList.add('sel');answers[qi]=v;updateProg();}
+
+function openImgZoom(src){
+  document.getElementById('img-lightbox-img').src=src;
+  document.getElementById('img-lightbox').classList.add('open');
+}
+function closeImgZoom(){
+  document.getElementById('img-lightbox').classList.remove('open');
+}
 function selImg(qi,oi){qdata.questions[qi].options.forEach((_,i)=>document.getElementById('iopt-'+qi+'-'+i).classList.remove('sel'));document.getElementById('iopt-'+qi+'-'+oi).classList.add('sel');answers[qi]=oi;updateProg();}
 
 function clickA(qi,pi){
@@ -837,5 +853,10 @@ async function fbGet(path){const r=await fetch(DB+path+'.json');if(!r.ok)throw n
 async function fbSet(path,data){const r=await fetch(DB+path+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});if(!r.ok)throw new Error('쓰기 실패');}
 async function fbPush(path,data){const r=await fetch(DB+path+'.json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});if(!r.ok)throw new Error('추가 실패');}
 </script>
+
+<div class="img-lightbox" id="img-lightbox" onclick="closeImgZoom()">
+  <button class="img-lightbox-close" onclick="closeImgZoom()">✕</button>
+  <img id="img-lightbox-img" src="" alt="확대 이미지" onclick="event.stopPropagation()">
+</div>
 </body>
 </html>
