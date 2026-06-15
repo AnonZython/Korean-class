@@ -88,6 +88,13 @@ input[type=text]:focus{border-color:var(--purple)}
 .arr-btn{background:var(--bg);border:1px solid var(--border);border-radius:5px;width:26px;height:22px;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center}
 .arr-btn:hover{background:var(--purple-l);border-color:var(--purple)}
 .arr-btn:disabled{opacity:.3;cursor:default}
+.order-slot{display:flex;flex-direction:column;gap:7px;padding:12px;border:1.5px dashed var(--border);border-radius:var(--rs);min-height:50px;margin-bottom:10px}
+.order-bank{display:flex;flex-direction:column;gap:7px;padding:12px;background:var(--bg);border-radius:var(--rs);min-height:50px}
+.sent-card{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid var(--border);border-radius:var(--rs);background:var(--sur);cursor:pointer;font-size:14px;color:var(--text);font-family:'Noto Sans KR',sans-serif;transition:all .12s}
+.sent-card:hover{border-color:var(--purple)}
+.sent-card.in-slot{background:var(--purple-l);border-color:var(--purple);color:var(--purple);font-weight:500}
+.sent-card.disabled-card{background:var(--bg);border-color:var(--border);color:var(--muted);pointer-events:none;opacity:.7}
+.sent-num{font-weight:700;color:var(--purple);min-width:22px;flex-shrink:0;font-family:'DM Mono',monospace}
 .score-box{background:var(--purple-l);border:2px solid var(--purple);border-radius:var(--r);padding:30px 20px;text-align:center;margin-top:8px}
 .score-num{font-family:'DM Mono',monospace;font-size:54px;font-weight:500;color:var(--purple-d);line-height:1}
 .score-pct{font-size:20px;color:var(--purple);margin:6px 0 4px;font-weight:700}
@@ -307,15 +314,9 @@ function buildQ(q,qi){
     <div id="phrase-fb-${qi}"></div>`;
   } else if(q.type==='order'){
     const sh=[...q.sentences].sort(()=>Math.random()-.5);
-    body=`<p class="slot-hint">위아래 화살표로 올바른 순서를 맞추세요</p>
-    <div id="olist-${qi}">${sh.map((s,si)=>`
-      <div class="sent-block" id="sb-${qi}-${si}" data-s="${s.replace(/"/g,'&quot;')}">
-        <div class="arr-col">
-          <button class="arr-btn" onclick="moveSent(${qi},${si},-1)">▲</button>
-          <button class="arr-btn" onclick="moveSent(${qi},${si},1)">▼</button>
-        </div>
-        <span class="sent-txt">${s}</span>
-      </div>`).join('')}</div>
+    body=`<p class="slot-hint">문장을 순서대로 클릭하세요</p>
+    <div class="order-slot" id="oslot-${qi}"></div>
+    <div class="order-bank" id="obank-${qi}">${sh.map((s,si)=>`<div class="sent-card" id="oc-${qi}-${si}" data-val="${s.replace(/"/g,'&quot;')}" onclick="clickOrderSent(${qi},this)">${s}</div>`).join('')}</div>
     <div id="order-fb-${qi}"></div>`;
   } else if(q.type==='audio'){
     body=`<div class="audio-player"><span class="audio-label">🎧 듣기</span><audio controls src="${q.audioUrl}" preload="none"></audio></div>`
@@ -401,6 +402,7 @@ function initStates(){
   qdata.questions.forEach((q,qi)=>{
     if(q.type==='match') window['ms_'+qi]={selA:null,matched:{}};
     if(q.type==='phrase') window['ps_'+qi]=[];
+    if(q.type==='order') window['os_'+qi]=[];
     if(q.type==='wordfill') window['wf_'+qi]={blanks:{},selectedWord:null,selectedChipId:null};
     if(q.type==='inlinesel') window['ils_'+qi]={selections:{}};
     if(q.type==='classify') window['cls_'+qi]={selected:null,placed:{}}; // placed: {catIdx: [wordIds]}
@@ -477,6 +479,32 @@ function clickB(qi,bi){
   bEl.classList.add(pairColor);
   st.selA=null;
   if(Object.keys(st.matched).length===qdata.questions[qi].pairs.length){answers[qi]=st.matched;updateProg();}
+}
+function clickOrderSent(qi,card){
+  const slot=document.getElementById('oslot-'+qi);
+  const bank=document.getElementById('obank-'+qi);
+  const arr=window['os_'+qi];
+  if(card.classList.contains('in-slot')){
+    card.classList.remove('in-slot');
+    const numEl=card.querySelector('.sent-num');
+    if(numEl) numEl.remove();
+    bank.appendChild(card);
+    const idx=arr.indexOf(card.dataset.val);if(idx>=0) arr.splice(idx,1);
+  } else {
+    card.classList.add('in-slot');
+    const numEl=document.createElement('span');
+    numEl.className='sent-num';
+    card.insertBefore(numEl,card.firstChild);
+    slot.appendChild(card);
+    arr.push(card.dataset.val);
+  }
+  [...slot.querySelectorAll('.sent-card')].forEach((c,i)=>{
+    const n=c.querySelector('.sent-num');
+    if(n) n.textContent=(i+1)+'.';
+  });
+  const q=qdata.questions[qi];
+  answers[qi]=arr.length===q.sentences.length?[...arr]:null;
+  updateProg();
 }
 function clickPhrase(qi,chip){
   const slot=document.getElementById('pslot-'+qi);
@@ -773,11 +801,11 @@ async function submitAll(){
       if(ok) score+=(q.points||1);
       document.querySelectorAll('#pslot-'+qi+' .pchip').forEach(ch=>{ch.classList.remove('in-slot');ch.classList.add('disabled-chip');});
     } else if(q.type==='order'){
-      const cur=[...document.querySelectorAll('#olist-'+qi+' .sent-block')].map(b=>b.dataset.s);
-      const ok=cur.every((s,i)=>s===q.sentences[i]);
+      const arr=window['os_'+qi]||[];
+      const ok=arr.length===q.sentences.length&&arr.every((s,i)=>s===q.sentences[i]);
       if(ok) score+=(q.points||1);
-      document.querySelectorAll('#olist-'+qi+' .sent-block').forEach(b=>{
-        b.querySelectorAll('.arr-btn').forEach(a=>a.disabled=true);b.classList.add('locked-s');
+      document.querySelectorAll('#oslot-'+qi+' .sent-card, #obank-'+qi+' .sent-card').forEach(c=>{
+        c.classList.add('disabled-card');c.onclick=null;
       });
     }
   });
