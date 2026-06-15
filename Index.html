@@ -230,14 +230,34 @@ textarea{min-height:52px;resize:vertical}
 .edit-banner span{flex:1;font-size:13px;color:var(--amber);font-weight:600}
 .edit-banner button{padding:5px 12px;font-size:12px;font-family:'Noto Sans KR',sans-serif;border:1px solid #e8c882;border-radius:6px;background:var(--sur);color:var(--amber);cursor:pointer}
 .edit-banner button:hover{background:var(--amber-l)}
+
+.auth-gate{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999}
+.auth-gate.hidden{display:none}
+.auth-box{background:var(--sur);border:1.5px solid var(--border);border-radius:var(--r);padding:32px 28px;width:90%;max-width:340px;text-align:center;box-shadow:0 8px 30px rgba(80,70,180,.10)}
+.auth-title{font-size:20px;font-weight:700;color:var(--purple);margin-bottom:2px}
+.auth-by{font-size:11px;color:var(--muted);margin-bottom:18px}
+.auth-sub{font-size:13px;color:var(--text);margin-bottom:14px}
+#auth-pw{margin-bottom:10px;text-align:center;font-size:15px}
+.auth-err{font-size:12px;color:var(--red);min-height:16px;margin-top:2px}
 </style>
 </head>
 <body>
+<div class="auth-gate" id="auth-gate">
+  <div class="auth-box">
+    <div class="auth-title">BeBeenBed Korean</div>
+    <div class="auth-by">by Ko Zaw Myo</div>
+    <div class="auth-sub">선생님 계정으로 로그인하세요</div>
+    <input type="email" id="auth-email" placeholder="이메일" autocomplete="username" style="margin-bottom:10px;text-align:center;font-size:14px" onkeydown="if(event.key==='Enter') document.getElementById('auth-pw').focus()">
+    <input type="password" id="auth-pw" placeholder="비밀번호" autocomplete="current-password" onkeydown="if(event.key==='Enter') checkAuth()">
+    <button class="btn-pri" style="width:100%" onclick="checkAuth()">로그인</button>
+    <div class="auth-err" id="auth-err"></div>
+  </div>
+</div>
 <div class="nav">
   <div class="nav-top">
     <span class="nav-badge">선생님</span>
     <span class="nav-title">BeBeenBed Korean</span>
-    <span class="nav-sub">by Ko Zaw Myo</span>
+    <span class="nav-sub">by Ko Zaw Myo</span><button class="icon-btn" style="margin-left:auto" onclick="signOutTeacher()">로그아웃</button>
   </div>
   <div class="nav-tabs">
     <button class="ntab active" onclick="showPage('make')" id="ntab-make">연습문제 만들기</button>
@@ -565,13 +585,79 @@ textarea{min-height:52px;resize:vertical}
 </div>
 
 <script>
+
+// ── Teacher Firebase Authentication (email/password, real server-side auth) ──
+const FIREBASE_API_KEY='AIzaSyCtdCgE8Kl0DFF4BmztiLprb0A18VJqGyM';
 const DB='https://korean-quiz-bebeenbed-ef240-default-rtdb.firebaseio.com';
 const BUCKET='korean-quiz-bebeenbed-ef240.firebasestorage.app';
-async function fbGet(p){const r=await fetch(DB+p+'.json');if(!r.ok)throw new Error('read failed');return r.json();}
-async function fbSet(p,d){const r=await fetch(DB+p+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});if(!r.ok)throw new Error('write failed');}
-async function fbPush(p,d){const r=await fetch(DB+p+'.json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});if(!r.ok)throw new Error('push failed');return r.json();}
-async function fbPatch(p,d){await fetch(DB+p+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});}
-async function fbDelete(p){await fetch(DB+p+'.json',{method:'DELETE'});}
+
+(function(){
+  if(sessionStorage.getItem('bbb_idToken')&&sessionStorage.getItem('bbb_refreshToken')){
+    document.getElementById('auth-gate').classList.add('hidden');
+  }
+})();
+
+async function checkAuth(){
+  const email=document.getElementById('auth-email').value.trim();
+  const pw=document.getElementById('auth-pw').value;
+  const errEl=document.getElementById('auth-err');
+  errEl.textContent='로그인 중...';
+  try{
+    const res=await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key='+FIREBASE_API_KEY,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email,password:pw,returnSecureToken:true})
+    });
+    const data=await res.json();
+    if(!res.ok) throw new Error(data.error&&data.error.message||'login failed');
+    sessionStorage.setItem('bbb_idToken',data.idToken);
+    sessionStorage.setItem('bbb_refreshToken',data.refreshToken);
+    sessionStorage.setItem('bbb_tokenExpiry',String(Date.now()+(parseInt(data.expiresIn)*1000)-60000));
+    errEl.textContent='';
+    document.getElementById('auth-gate').classList.add('hidden');
+  } catch(e){
+    errEl.textContent='로그인 실패: 이메일/비밀번호를 확인하세요.';
+    document.getElementById('auth-pw').value='';
+  }
+}
+
+async function ensureToken(){
+  const expiry=parseInt(sessionStorage.getItem('bbb_tokenExpiry')||'0');
+  const cur=sessionStorage.getItem('bbb_idToken');
+  if(cur&&Date.now()<expiry) return cur;
+  const refreshToken=sessionStorage.getItem('bbb_refreshToken');
+  if(!refreshToken) return null;
+  try{
+    const res=await fetch('https://securetoken.googleapis.com/v1/token?key='+FIREBASE_API_KEY,{
+      method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},
+      body:'grant_type=refresh_token&refresh_token='+refreshToken
+    });
+    const data=await res.json();
+    if(!res.ok) return null;
+    sessionStorage.setItem('bbb_idToken',data.id_token);
+    sessionStorage.setItem('bbb_refreshToken',data.refresh_token);
+    sessionStorage.setItem('bbb_tokenExpiry',String(Date.now()+(parseInt(data.expires_in)*1000)-60000));
+    return data.id_token;
+  }catch(e){return null;}
+}
+
+function signOutTeacher(){
+  sessionStorage.removeItem('bbb_idToken');
+  sessionStorage.removeItem('bbb_refreshToken');
+  sessionStorage.removeItem('bbb_tokenExpiry');
+  document.getElementById('auth-gate').classList.remove('hidden');
+}
+
+async function authQS(){
+  const t=await ensureToken();
+  if(!t){signOutTeacher();throw new Error('로그인이 필요합니다.');}
+  return '?auth='+t;
+}
+
+async function fbGet(p){const a=await authQS();const r=await fetch(DB+p+'.json'+a);if(!r.ok)throw new Error('read failed');return r.json();}
+async function fbSet(p,d){const a=await authQS();const r=await fetch(DB+p+'.json'+a,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});if(!r.ok)throw new Error('write failed');}
+async function fbPush(p,d){const a=await authQS();const r=await fetch(DB+p+'.json'+a,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});if(!r.ok)throw new Error('push failed');return r.json();}
+async function fbPatch(p,d){const a=await authQS();await fetch(DB+p+'.json'+a,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});}
+async function fbDelete(p){const a=await authQS();await fetch(DB+p+'.json'+a,{method:'DELETE'});}
 async function getQuizzes(){return(await fbGet('/quizzes'))||{};}
 async function getAnswers(code){const all=(await fbGet('/answers'))||{};return Object.values(all).filter(a=>a.quizCode===code);}
 async function uploadFile(b64,path){
