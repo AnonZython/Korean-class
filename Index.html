@@ -239,32 +239,6 @@ textarea{min-height:52px;resize:vertical}
 .auth-sub{font-size:13px;color:var(--text);margin-bottom:14px}
 #auth-pw{margin-bottom:10px;text-align:center;font-size:15px}
 .auth-err{font-size:12px;color:var(--red);min-height:16px;margin-top:2px}
-
-/* ── 지시문 & 텍스트 서식 ──────────────────────────────── */
-.instr-block{background:var(--bg);border-left:3px solid var(--purple);padding:8px 12px;margin-bottom:4px;font-size:13px}
-.instr-tag{display:inline-block;font-size:10px;font-weight:700;background:var(--purple);color:#fff;padding:1px 7px;border-radius:10px;margin-right:6px;vertical-align:middle}
-.rich-toolbar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
-.rich-btn{padding:4px 10px;border:1.5px solid var(--border);border-radius:5px;font-size:13px;background:var(--sur);cursor:pointer;font-family:'Noto Sans KR',sans-serif}
-.rich-btn:hover{border-color:var(--purple);color:var(--purple)}
-.rich-btn.active{background:var(--purple-l);border-color:var(--purple);color:var(--purple);font-weight:700}
-.rich-input{border:1.5px solid var(--border);border-radius:var(--rs);padding:9px 12px;font-size:14px;font-family:'Noto Sans KR',sans-serif;color:var(--text);width:100%;box-sizing:border-box;min-height:42px;outline:none;line-height:1.6}
-.rich-input:focus{border-color:var(--purple)}
-.rich-input u{text-decoration:underline}
-.rich-input b{font-weight:700}
-.q-item-instr{background:var(--purple-l);border-left:3px solid var(--purple)}
-
-.paste-zone{border:2px dashed var(--border);border-radius:var(--rs);padding:8px 12px;font-size:12px;color:var(--muted);text-align:center;cursor:pointer;transition:all .15s;background:var(--bg);position:relative;min-height:36px;display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:4px}
-.paste-zone:hover,.paste-zone.drag-over{border-color:var(--purple);background:var(--purple-l);color:var(--purple)}
-.paste-zone.has-img{border-color:var(--teal);background:var(--teal-l);color:var(--teal)}
-.paste-zone img{width:60px;height:45px;object-fit:cover;border-radius:4px}
-.paste-zone .pz-clear{position:absolute;top:4px;right:6px;font-size:11px;cursor:pointer;color:var(--red);background:var(--red-l);border:none;border-radius:4px;padding:1px 5px}
-
-.pz-wrap{position:relative;margin-bottom:4px}
-.pz-edit{border:2px dashed var(--border);border-radius:var(--rs);padding:10px 12px;font-size:12px;color:var(--muted);text-align:center;background:var(--bg);min-height:52px;cursor:pointer;outline:none;caret-color:transparent;user-select:none}
-.pz-edit:focus{border-color:var(--purple);background:var(--purple-l);color:var(--purple)}
-.pz-edit.has-img{border-color:var(--teal);background:var(--teal-l);color:var(--teal)}
-.pz-edit img{width:70px;height:52px;object-fit:cover;border-radius:4px;pointer-events:none;vertical-align:middle;margin-right:8px}
-.pz-clear-btn{position:absolute;top:4px;right:6px;font-size:11px;cursor:pointer;color:var(--red);background:var(--red-l);border:none;border-radius:4px;padding:1px 6px;display:none}
 </style>
 </head>
 <body>
@@ -376,7 +350,6 @@ textarea{min-height:52px;resize:vertical}
         <button class="ttab" onclick="setType('inlinesel')" id="tab-inlinesel"><span class="ticon">SEL</span>문장 내 선택</button>
         <button class="ttab" onclick="setType('photoq')" id="tab-photoq"><span class="ticon">PHO</span>사진 보고 답하기</button>
         <button class="ttab" onclick="setType('classify')" id="tab-classify"><span class="ticon">CLS</span>단어 분류</button>
-        <button class="ttab" onclick="setType('instr')" id="tab-instr"><span class="ticon" style="font-size:10px">※지시</span>지시문</button>
       </div>
 
       <div class="form-sec">
@@ -418,69 +391,13 @@ textarea{min-height:52px;resize:vertical}
 
         <!-- Image select -->
         <div id="sec-imgsel" style="display:none">
-          <label>문제 <span style="font-size:11px;color:var(--muted)">(선택)</span></label><input type="text" id="imgsel-q" placeholder="'도서관'을 나타내는 이미지는? (선택)">
+          <label>문제</label><input type="text" id="imgsel-q" placeholder="'도서관'을 나타내는 이미지는?">
           <label>보기 — 이미지 파일 또는 URL (정답 옆 ✓)</label>
           <div id="imgsel-opts">
-            <div class="opt-row" style="align-items:flex-start;flex-wrap:wrap;gap:6px">
-              <span class="opt-lbl" style="margin-top:8px">①</span>
-              <div style="flex:1;min-width:0">
-                <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
-                  <button class="btn-sec" style="padding:5px 10px;font-size:12px;white-space:nowrap;background:var(--purple-l);color:var(--purple);border-color:#c8c4f0" onclick="pasteFromClipboard(0)">📷 스크린샷</button>
-                  <button class="btn-sec" style="padding:5px 10px;font-size:12px;white-space:nowrap" onclick="toggleUrlInput(0)">🔗 URL</button>
-                  <button class="btn-sec" style="padding:5px 10px;font-size:12px;white-space:nowrap" onclick="document.querySelector('.img-file-inp[data-idx=&quot;0&quot;]').click()">📁 파일</button>
-                  <button class="btn-sec" style="padding:5px 10px;font-size:12px;color:var(--red)" onclick="clearImgSlot(0)">✕</button>
-                </div>
-                <input type="file" class="img-file-inp" accept="image/*" data-idx="0" onchange="loadImgFile(this)" style="display:none">
-                <input type="text" class="img-opt" placeholder="이미지 URL" style="margin:0;display:none" id="img-url-0" onchange="loadImgUrl(this,0)">
-                <img class="img-preview" data-idx="0" style="display:none;width:100%;max-height:120px;object-fit:contain;border-radius:6px;margin-top:6px;background:var(--bg)">
-              </div>
-              <button class="cbtn" onclick="selC(this,'imgsel-opts')" style="margin-top:8px">✓</button>
-            </div>
-            <div class="opt-row" style="align-items:flex-start;flex-wrap:wrap;gap:6px">
-              <span class="opt-lbl" style="margin-top:8px">②</span>
-              <div style="flex:1;min-width:0">
-                <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
-                  <button class="btn-sec" style="padding:5px 10px;font-size:12px;white-space:nowrap;background:var(--purple-l);color:var(--purple);border-color:#c8c4f0" onclick="pasteFromClipboard(1)">📷 스크린샷</button>
-                  <button class="btn-sec" style="padding:5px 10px;font-size:12px;white-space:nowrap" onclick="toggleUrlInput(1)">🔗 URL</button>
-                  <button class="btn-sec" style="padding:5px 10px;font-size:12px;white-space:nowrap" onclick="document.querySelector('.img-file-inp[data-idx=&quot;1&quot;]').click()">📁 파일</button>
-                  <button class="btn-sec" style="padding:5px 10px;font-size:12px;color:var(--red)" onclick="clearImgSlot(1)">✕</button>
-                </div>
-                <input type="file" class="img-file-inp" accept="image/*" data-idx="1" onchange="loadImgFile(this)" style="display:none">
-                <input type="text" class="img-opt" placeholder="이미지 URL" style="margin:0;display:none" id="img-url-1" onchange="loadImgUrl(this,1)">
-                <img class="img-preview" data-idx="1" style="display:none;width:100%;max-height:120px;object-fit:contain;border-radius:6px;margin-top:6px;background:var(--bg)">
-              </div>
-              <button class="cbtn" onclick="selC(this,'imgsel-opts')" style="margin-top:8px">✓</button>
-            </div>
-            <div class="opt-row" style="align-items:flex-start;flex-wrap:wrap;gap:6px">
-              <span class="opt-lbl" style="margin-top:8px">③</span>
-              <div style="flex:1;min-width:0">
-                <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
-                  <button class="btn-sec" style="padding:5px 10px;font-size:12px;white-space:nowrap;background:var(--purple-l);color:var(--purple);border-color:#c8c4f0" onclick="pasteFromClipboard(2)">📷 스크린샷</button>
-                  <button class="btn-sec" style="padding:5px 10px;font-size:12px;white-space:nowrap" onclick="toggleUrlInput(2)">🔗 URL</button>
-                  <button class="btn-sec" style="padding:5px 10px;font-size:12px;white-space:nowrap" onclick="document.querySelector('.img-file-inp[data-idx=&quot;2&quot;]').click()">📁 파일</button>
-                  <button class="btn-sec" style="padding:5px 10px;font-size:12px;color:var(--red)" onclick="clearImgSlot(2)">✕</button>
-                </div>
-                <input type="file" class="img-file-inp" accept="image/*" data-idx="2" onchange="loadImgFile(this)" style="display:none">
-                <input type="text" class="img-opt" placeholder="이미지 URL" style="margin:0;display:none" id="img-url-2" onchange="loadImgUrl(this,2)">
-                <img class="img-preview" data-idx="2" style="display:none;width:100%;max-height:120px;object-fit:contain;border-radius:6px;margin-top:6px;background:var(--bg)">
-              </div>
-              <button class="cbtn" onclick="selC(this,'imgsel-opts')" style="margin-top:8px">✓</button>
-            </div>
-            <div class="opt-row" style="align-items:flex-start;flex-wrap:wrap;gap:6px">
-              <span class="opt-lbl" style="margin-top:8px">④</span>
-              <div style="flex:1;min-width:0">
-                <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
-                  <button class="btn-sec" style="padding:5px 10px;font-size:12px;white-space:nowrap;background:var(--purple-l);color:var(--purple);border-color:#c8c4f0" onclick="pasteFromClipboard(3)">📷 스크린샷</button>
-                  <button class="btn-sec" style="padding:5px 10px;font-size:12px;white-space:nowrap" onclick="toggleUrlInput(3)">🔗 URL</button>
-                  <button class="btn-sec" style="padding:5px 10px;font-size:12px;white-space:nowrap" onclick="document.querySelector('.img-file-inp[data-idx=&quot;3&quot;]').click()">📁 파일</button>
-                  <button class="btn-sec" style="padding:5px 10px;font-size:12px;color:var(--red)" onclick="clearImgSlot(3)">✕</button>
-                </div>
-                <input type="file" class="img-file-inp" accept="image/*" data-idx="3" onchange="loadImgFile(this)" style="display:none">
-                <input type="text" class="img-opt" placeholder="이미지 URL" style="margin:0;display:none" id="img-url-3" onchange="loadImgUrl(this,3)">
-                <img class="img-preview" data-idx="3" style="display:none;width:100%;max-height:120px;object-fit:contain;border-radius:6px;margin-top:6px;background:var(--bg)">
-              </div>
-              <button class="cbtn" onclick="selC(this,'imgsel-opts')" style="margin-top:8px">✓</button>
-            </div>
+            <div class="opt-row" style="align-items:flex-start;flex-wrap:wrap;gap:6px"><span class="opt-lbl" style="margin-top:8px">①</span><div style="flex:1;min-width:0"><input type="file" class="img-file-inp" accept="image/*" data-idx="0" onchange="loadImgFile(this)" style="width:100%;font-size:12px;margin-bottom:4px"><input type="text" class="img-opt" placeholder="또는 이미지 URL" style="margin:0"><img class="img-preview" data-idx="0" style="display:none;width:80px;height:60px;object-fit:cover;border-radius:6px;margin-top:4px"></div><button class="cbtn" onclick="selC(this,'imgsel-opts')" style="margin-top:8px">✓</button></div>
+            <div class="opt-row" style="align-items:flex-start;flex-wrap:wrap;gap:6px"><span class="opt-lbl" style="margin-top:8px">②</span><div style="flex:1;min-width:0"><input type="file" class="img-file-inp" accept="image/*" data-idx="1" onchange="loadImgFile(this)" style="width:100%;font-size:12px;margin-bottom:4px"><input type="text" class="img-opt" placeholder="또는 이미지 URL" style="margin:0"><img class="img-preview" data-idx="1" style="display:none;width:80px;height:60px;object-fit:cover;border-radius:6px;margin-top:4px"></div><button class="cbtn" onclick="selC(this,'imgsel-opts')" style="margin-top:8px">✓</button></div>
+            <div class="opt-row" style="align-items:flex-start;flex-wrap:wrap;gap:6px"><span class="opt-lbl" style="margin-top:8px">③</span><div style="flex:1;min-width:0"><input type="file" class="img-file-inp" accept="image/*" data-idx="2" onchange="loadImgFile(this)" style="width:100%;font-size:12px;margin-bottom:4px"><input type="text" class="img-opt" placeholder="또는 이미지 URL" style="margin:0"><img class="img-preview" data-idx="2" style="display:none;width:80px;height:60px;object-fit:cover;border-radius:6px;margin-top:4px"></div><button class="cbtn" onclick="selC(this,'imgsel-opts')" style="margin-top:8px">✓</button></div>
+            <div class="opt-row" style="align-items:flex-start;flex-wrap:wrap;gap:6px"><span class="opt-lbl" style="margin-top:8px">④</span><div style="flex:1;min-width:0"><input type="file" class="img-file-inp" accept="image/*" data-idx="3" onchange="loadImgFile(this)" style="width:100%;font-size:12px;margin-bottom:4px"><input type="text" class="img-opt" placeholder="또는 이미지 URL" style="margin:0"><img class="img-preview" data-idx="3" style="display:none;width:80px;height:60px;object-fit:cover;border-radius:6px;margin-top:4px"></div><button class="cbtn" onclick="selC(this,'imgsel-opts')" style="margin-top:8px">✓</button></div>
           </div>
         </div>
 
@@ -564,20 +481,14 @@ textarea{min-height:52px;resize:vertical}
         <!-- Photo Q -->
         <div id="sec-photoq" style="display:none">
           <label>사진 파일 또는 URL</label>
-          <div style="margin-bottom:10px">
-            <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px">
-              <button class="btn-sec" style="padding:6px 12px;font-size:12px;white-space:nowrap;background:var(--purple-l);color:var(--purple);border-color:#c8c4f0" onclick="pqPasteScreenshot()">📷 스크린샷</button>
-              <button class="btn-sec" style="padding:6px 12px;font-size:12px;white-space:nowrap" onclick="document.getElementById('pq-url-wrap').style.display=document.getElementById('pq-url-wrap').style.display==='none'?'flex':'none'">🔗 URL</button>
-              <button class="btn-sec" style="padding:6px 12px;font-size:12px;white-space:nowrap" onclick="document.getElementById('pq-file').click()">📁 파일</button>
-              <button class="btn-sec" style="padding:6px 12px;font-size:12px;color:var(--red)" onclick="clearPqPaste()">✕</button>
-            </div>
-            <input type="file" id="pq-file" accept="image/*" style="display:none" onchange="loadPqFile(this)">
-            <div id="pq-url-wrap" style="display:none;gap:8px;align-items:center;margin-bottom:6px">
-              <input type="text" id="pq-url" placeholder="https://... .jpg" style="flex:1;margin:0" onchange="pqLoadUrl()">
-            </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
+            <input type="file" id="pq-file" accept="image/*" style="flex:1;font-size:13px" onchange="loadPqFile(this)">
+            <span style="font-size:12px;color:var(--muted)">또는</span>
+            <input type="text" id="pq-url" placeholder="https://... .jpg" style="flex:1;min-width:160px;margin:0">
+          </div>
           <img id="pq-preview" style="display:none;width:100%;max-height:180px;object-fit:contain;border-radius:8px;margin-bottom:8px;border:1px solid var(--border)">
-          <label>문제 지시문 <span style="font-size:11px;color:var(--muted)">(선택)</span></label>
-          <input type="text" id="pq-q" placeholder="사진을 보고 알맞은 답을 고르세요. (선택)">
+          <label>문제 지시문</label>
+          <input type="text" id="pq-q" placeholder="사진을 보고 알맞은 답을 고르세요.">
           <label>답변 유형</label>
           <div style="display:flex;gap:8px;margin:6px 0 10px">
             <button class="cbtn sel" id="pq-type-mc" onclick="setPqType('mc')">객관식</button>
@@ -608,12 +519,6 @@ textarea{min-height:52px;resize:vertical}
           </div>
           <div id="cls-boxes"></div>
           <p style="font-size:12px;color:var(--muted);margin-top:8px">각 단어 1점 자동 계산 · 총점 = 전체 단어 수</p>
-        </div>
-        <div id="sec-instr" style="display:none">
-          <label>※ 지시문 내용</label>
-          <div style="font-size:12px;color:var(--muted);margin-bottom:6px">예: [1~2] ( )에 들어갈 말로 가장 알맞은 것을 고르십시오. (각 2점)</div>
-          <input type="text" id="instr-text" placeholder="※ [1~2] ( )에 들어갈 말로 가장 알맞은 것을 고르십시오. (각 2점)">
-          <p style="font-size:12px;color:var(--muted);margin-top:6px">지시문은 점수 없이 문제지에 구분선으로 표시됩니다. 번호는 이어서 계속됩니다.</p>
         </div>
         <div class="divider"></div>
         <div class="pts-row" id="pts-row-wrap">
@@ -979,9 +884,9 @@ function getExamBadge(quiz){
   return '<span class="exam-badge badge-ended">종료</span>';
 }
 // Icons/Labels
-const TI={mc:'MC',tf:'OX',match:'AB',imgsel:'IMG',phrase:'PH',order:'ORD',audio:'AUD',wordfill:'WF',inlinesel:'SEL',photoq:'PHO',classify:'CLS',instr:'※'};
-const TL={mc:'MC',tf:'OX',match:'AB',imgsel:'IMG',phrase:'PH',order:'ORD',audio:'AUD',wordfill:'WF',inlinesel:'SEL',photoq:'PHO',classify:'CLS',instr:'지시문'};
-const TC={mc:'tag-mc',tf:'tag-tf',match:'tag-match',imgsel:'tag-imgsel',phrase:'tag-phrase',order:'tag-order',audio:'tag-audio',wordfill:'tag-wordfill',inlinesel:'tag-inlinesel',photoq:'tag-photoq',classify:'tag-mc',instr:'tag-mc'};
+const TI={mc:'MC',tf:'OX',match:'AB',imgsel:'IMG',phrase:'PH',order:'ORD',audio:'AUD',wordfill:'WF',inlinesel:'SEL',photoq:'PHO',classify:'CLS'};
+const TL={mc:'MC',tf:'OX',match:'AB',imgsel:'IMG',phrase:'PH',order:'ORD',audio:'AUD',wordfill:'WF',inlinesel:'SEL',photoq:'PHO',classify:'CLS'};
+const TC={mc:'tag-mc',tf:'tag-tf',match:'tag-match',imgsel:'tag-imgsel',phrase:'tag-phrase',order:'tag-order',audio:'tag-audio',wordfill:'tag-wordfill',inlinesel:'tag-inlinesel',photoq:'tag-photoq',classify:'tag-mc'};
 
 function showPage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -1029,12 +934,12 @@ function goStep1Edit(){
 // Type
 function setType(t){
   qType=t;
-  ['mc','tf','match','imgsel','phrase','order','audio','wordfill','inlinesel','photoq','classify','instr'].forEach(s=>{
+  ['mc','tf','match','imgsel','phrase','order','audio','wordfill','inlinesel','photoq','classify'].forEach(s=>{
     document.getElementById('sec-'+s).style.display=s===t?'':'none';
     document.getElementById('tab-'+s).classList.toggle('active',s===t);
   });
   document.getElementById('form-hdr').textContent=TI[t]+' '+TL[t]+' 문제 작성';
-  const hidePts=t==='match'||t==='wordfill'||t==='inlinesel'||t==='classify'||t==='instr';
+  const hidePts=t==='match'||t==='wordfill'||t==='inlinesel'||t==='classify';
   document.getElementById('pts-row-wrap').style.display=hidePts?'none':'';
   if(t==='photoq'){setPqType('mc');}
   tfVal=null; phraseList=[]; renderChips();
@@ -1087,149 +992,8 @@ function setPqType(t){
 // File helpers
 function fileToB64(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=rej;r.readAsDataURL(file);});}
 async function loadAudioFile(inp){if(!inp.files[0]) return;inp._b64=await fileToB64(inp.files[0]);document.getElementById('audio-url').value='';document.getElementById('audio-player').src=inp._b64;document.getElementById('audio-preview').style.display='';}
-async 
-// ── Image paste / drop helpers ──────────────────────────────────────────
-let activePasteTarget=null; // 'imgsel-N' or 'photoq'
-
-function getImgFile(e){
-  const cd=e.clipboardData||e.dataTransfer;
-  if(!cd) return null;
-  const items=[...cd.items||[]];
-  for(const item of items){ if(item.kind==='file'&&item.type.startsWith('image/')) return item.getAsFile(); }
-  const files=[...cd.files||[]];
-  for(const f of files){ if(f.type.startsWith('image/')) return f; }
-  return null;
-}
-
-async function handleImgPaste(e,idx){
-  const f=getImgFile(e);
-  if(!f) return;
-  e.preventDefault();
-  e.stopPropagation();
-  document.getElementById('pz-'+idx).innerHTML='<span id="pz-label-'+idx+'">⏳ 처리 중...</span>';
-  await applyImgToSlot(f,idx);
-}
-
-async function handlePqPaste(e){
-  const f=getImgFile(e);
-  if(!f) return;
-  e.preventDefault();
-  e.stopPropagation();
-  await applyPqImg(await fileToB64(f));
-}
-
-function toggleUrlInput(idx){
-  const el=document.getElementById('img-url-'+idx);
-  if(el) el.style.display=el.style.display==='none'?'':'none';
-}
-async function pqPasteScreenshot(){
-  try{
-    const items=await navigator.clipboard.read();
-    let found=false;
-    for(const item of items){
-      const imgType=item.types.find(function(tp){return tp.startsWith('image/');});
-      if(imgType){
-        const blob=await item.getType(imgType);
-        const b64=await fileToB64(new File([blob],'img.png',{type:imgType}));
-        const p=document.getElementById('pq-preview');
-        if(p){p.src=b64;p.style.display='';}
-        const pqInp=document.getElementById('pq-file');
-        if(pqInp) pqInp._b64=b64;
-        smsg('사진 적용됨 ✓','ok');
-        found=true; break;
-      }
-    }
-    if(!found) alert('클립보드에 이미지가 없습니다.\nWin+Shift+S로 캡처 후 다시 시도해주세요.');
-  }catch(err){alert('클립보드 접근 실패: '+err.message+'\n\n브라우저 주소창 🔒 → 클립보드 → 허용');}
-}
-function pqLoadUrl(){
-  const url=document.getElementById('pq-url').value.trim();
-  if(!url) return;
-  const p=document.getElementById('pq-preview');
-  if(p){p.src=url;p.style.display='';}
-}
-async function pasteFromClipboard(idx){
-  try{
-    const items=await navigator.clipboard.read();
-    let found=false;
-    for(const item of items){
-      const imgType=item.types.find(function(tp){return tp.startsWith('image/');});
-      if(imgType){
-        const blob=await item.getType(imgType);
-        const b64=await fileToB64(new File([blob],'img.png',{type:imgType}));
-        const opts=document.querySelectorAll('.img-opt');
-        if(opts[idx]) opts[idx].value=b64;
-        const prev=document.querySelector('.img-preview[data-idx="'+idx+'"]');
-        if(prev){prev.src=b64;prev.style.display='';}
-        smsg('이미지 '+(idx+1)+' 적용됨 ✓','ok');
-        found=true; break;
-      }
-    }
-    if(!found) alert('클립보드에 이미지가 없습니다.\nWin+Shift+S로 캡처 후 다시 시도해주세요.');
-  }catch(err){
-    alert('클립보드 접근 실패: '+err.message+'\n\n브라우저 주소창 왼쪽 🔒 → 클립보드 → 허용 후 다시 시도해주세요.');
-  }
-}
-function clearImgSlot(idx){
-  const prev=document.querySelector('.img-preview[data-idx="'+idx+'"]');
-  if(prev){prev.src='';prev.style.display='none';}
-  const fi=document.querySelector('.img-file-inp[data-idx="'+idx+'"]');
-  if(fi){fi.value='';fi._b64Override=null;}
-  const opts=document.querySelectorAll('.img-opt');
-  if(opts[idx]) opts[idx].value='';
-}
-async function applyImgToSlot(file,idx){
-  if(!file) return;
-  const b64=await fileToB64(file);
-  // 미리보기 표시
-  const prev=document.querySelector('.img-preview[data-idx="'+idx+'"]');
-  if(prev){prev.src=b64;prev.style.display='';}
-  // _b64Override 저장
-  const fi=document.querySelector('.img-file-inp[data-idx="'+idx+'"]');
-  if(fi) fi._b64Override=b64;
-  // img-opt value에도 저장 → allV가 확실히 b64를 잡음
-  const opts=document.querySelectorAll('.img-opt');
-  if(opts[idx]) opts[idx].value=b64;
-  smsg('이미지 '+((idx*1)+1)+' 적용됨 ✓','ok');
-}
-
-function setPasteTarget(target){ activePasteTarget=target; }
-
-function handleImgDrop(e,idx){ e.preventDefault(); const f=getImgFile(e); if(f) applyImgToSlot(f,idx); }
-
-function clearPasteZone(idx){
-  const pz=document.getElementById('pz-'+idx);
-  if(pz){pz.classList.remove('has-img');pz.innerHTML='<span id="pz-label-'+idx+'">클릭 후 Ctrl+V 붙여넣기 / 파일 선택은 아래 버튼</span>';}
-  const cl=document.getElementById('pz-clear-'+idx);if(cl) cl.style.display='none';
-  const prev=document.querySelector('.img-preview[data-idx="'+idx+'"]');
-  if(prev){prev.src='';prev.style.display='none';}
-  const inp=document.querySelector('.img-file-inp[data-idx="'+idx+'"]');
-  if(inp){inp.value='';inp._b64Override=null;}
-}
-
-async function handlePqDrop(e){ e.preventDefault(); const f=getImgFile(e); if(f) await applyPqImg(await fileToB64(f)); }
-
-async function applyPqImg(b64){
-  const p=document.getElementById('pq-preview');if(p){p.src=b64;p.style.display='';}
-  const pqInp=document.getElementById('pq-file');if(pqInp) pqInp._b64=b64;
-  smsg('사진 적용됨 ✓','ok');
-}
-
-function clearPqPaste(){
-  const p=document.getElementById('pq-preview');if(p){p.src='';p.style.display='none';}
-  const pqInp=document.getElementById('pq-file');if(pqInp){pqInp.value='';pqInp._b64=null;}
-  const urlInp=document.getElementById('pq-url');if(urlInp) urlInp.value='';
-}
-
-function loadImgUrl(inp,idx){
-  const url=inp.value.trim();
-  if(!url) return;
-  const prev=document.querySelector('.img-preview[data-idx="'+idx+'"]');
-  if(prev){prev.src=url;prev.style.display='';}
-}
-
-async function loadImgFile(inp){if(!inp.files[0]&&!inp._b64Override) return;const b64=inp._b64Override||(await fileToB64(inp.files[0]));const idx=parseInt(inp.dataset.idx);document.querySelectorAll('.img-opt')[idx].value=b64;const prev=document.querySelectorAll('.img-preview')[idx];prev.src=b64;prev.style.display='';}
-async function loadPqFile(inp){if(!inp.files[0]&&!inp._b64) return;const b64=inp._b64||(await fileToB64(inp.files[0]));document.getElementById('pq-url').value='';const p=document.getElementById('pq-preview');if(p){p.src=b64;p.style.display='';}inp._b64=b64;}
+async function loadImgFile(inp){if(!inp.files[0]) return;const b64=await fileToB64(inp.files[0]);const idx=parseInt(inp.dataset.idx);document.querySelectorAll('.img-opt')[idx].value=b64;const prev=document.querySelectorAll('.img-preview')[idx];prev.src=b64;prev.style.display='';}
+async function loadPqFile(inp){if(!inp.files[0]) return;inp._b64=await fileToB64(inp.files[0]);document.getElementById('pq-url').value='';const p=document.getElementById('pq-preview');p.src=inp._b64;p.style.display='';}
 
 // ── Classify helpers ────────────────────────────────────────────────────────
 function initClsBoxes(){
@@ -1343,7 +1107,7 @@ async function addQ(){
     const resolved=[];
     for(let i=0;i<allV.length;i++){
       if(allV[i]&&allV[i].startsWith('data:')){
-        try{resolved.push(await uploadFile(allV[i],'images/img-'+Date.now()+'-'+i+'.png'));}
+        try{const fn=fileInps[i]&&fileInps[i].files[0]?fileInps[i].files[0].name:'img'+i+'.jpg';resolved.push(await uploadFile(allV[i],'images/'+Date.now()+'_'+fn));}
         catch(e){return smsg('이미지 업로드 실패: '+e.message,'err');}
       } else resolved.push(allV[i]);
     }
@@ -1383,7 +1147,7 @@ async function addQ(){
     const cb=document.querySelector('#audio-opts .cbtn.sel');
     if(!cb) return smsg('정답을 선택해주세요.','err');
     let url=rawUrl;
-    if(fb){smsg('오디오 업로드 중...','');try{url=await uploadFile(fb,'audio/'+Date.now()+'.mp3');}catch(e){return smsg('업로드 실패: '+e.message,'err');}}
+    if(fb){smsg('오디오 업로드 중...','');try{url=await uploadFile(fb,'audio/'+Date.now()+'_'+fi.files[0].name);}catch(e){return smsg('업로드 실패: '+e.message,'err');}}
     const ci=[...document.querySelectorAll('#audio-opts .cbtn')].indexOf(cb);
     q={...q,text:qt,audioUrl:url,options:opts,correct:ci};
     document.getElementById('audio-q').value='';document.getElementById('audio-url').value='';
@@ -1432,7 +1196,7 @@ async function addQ(){
     if(!fb2&&!rawPqUrl) return smsg('사진을 업로드하거나 URL을 입력해주세요.','err');
     const qt=document.getElementById('pq-q').value.trim()||'사진을 보고 답하세요.';
     let imgSrc=rawPqUrl;
-    if(fb2&&fb2._b64){smsg('사진 업로드 중...','');try{imgSrc=await uploadFile(fb2._b64,'photos/'+Date.now()+'.png');}catch(e){return smsg('업로드 실패: '+e.message,'err');}}
+    if(fb2){smsg('사진 업로드 중...','');try{imgSrc=await uploadFile(fb2,'photos/'+Date.now()+'_'+pf.files[0].name);}catch(e){return smsg('업로드 실패: '+e.message,'err');}}
     if(pqSubType==='mc'){
       const opts=[...document.querySelectorAll('.pq-opt')].map(i=>i.value.trim());
       if(opts.some(o=>!o)) return smsg('모든 보기를 입력해주세요.','err');
@@ -1467,13 +1231,8 @@ async function addQ(){
     clsCats=[];clsWords={};
     document.getElementById('cls-num').value=2;
     document.getElementById('cls-boxes').innerHTML='';
-  } else if(qType==='instr'){
-    const txt=document.getElementById('instr-text').value.trim();
-    if(!txt) return smsg('지시문 내용을 입력해주세요.','err');
-    q={type:'instr',text:txt,points:0};
-    document.getElementById('instr-text').value='';
   }
-  if(qType!=='match'&&qType!=='wordfill'&&qType!=='inlinesel'&&qType!=='classify'&&qType!=='instr'&&!(qType==='photoq'&&pqSubType==='essay'))
+  if(qType!=='match'&&qType!=='wordfill'&&qType!=='inlinesel'&&qType!=='classify'&&!(qType==='photoq'&&pqSubType==='essay'))
     q.points=Math.max(1,parseInt(document.getElementById('q-points').value)||1);
   questions.push(q);renderQList();
   smsg('문제 추가됨 (총 '+questions.length+'개) ✓','ok');
@@ -1485,14 +1244,8 @@ function renderQList(){
   document.getElementById('pub-count').textContent=questions.length;
   document.getElementById('qlist-sub').textContent='총 '+questions.length+'개';
   const groups={};const order=[];
-  let qNum=0;
-  document.getElementById('q-list').innerHTML=questions.map(function(q,i){
-    if(q.type==='instr'){
-      return '<div class="q-item q-item-instr"><span class="instr-tag">※지시</span><span class="q-t">'+q.text+'</span><button class="rmv" onclick="rmQ('+i+')">✕</button></div>';
-    }
-    qNum++;
-    return '<div class="q-item"><span class="q-n">'+qNum+'</span><span class="q-t">'+q.text+'</span><span class="q-pts">'+(q.points||0)+'점</span><span class="q-tag '+TC[q.type]+'">'+TL[q.type]+'</span><button class="rmv" onclick="rmQ('+i+')">✕</button></div>';
-  }).join('');
+  questions.forEach((q,i)=>{if(!groups[q.type]){groups[q.type]=[];order.push(q.type);}groups[q.type].push({q,i});});
+  document.getElementById('q-list').innerHTML=order.map(t=>'<div style="margin-bottom:10px"><div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;padding:3px 0;border-bottom:1px solid var(--border);margin-bottom:6px;display:flex;justify-content:space-between"><span>'+TI[t]+' '+TL[t]+'</span><span style="font-weight:400">'+groups[t].length+'개</span></div>'+groups[t].map(function(obj){const q=obj.q;const i=obj.i;return '<div class="q-item"><span class="q-n">'+(i+1)+'</span><span class="q-t">'+q.text+'</span><span class="q-pts">'+(q.points||0)+'점</span><span class="q-tag '+TC[q.type]+'">'+TL[q.type]+'</span><button class="rmv" onclick="rmQ('+i+')">✕</button></div>';}).join('')+'</div>').join('');
 }
 function rmQ(i){questions.splice(i,1);renderQList();}
 
