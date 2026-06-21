@@ -424,10 +424,10 @@ textarea{min-height:52px;resize:vertical}
             <div class="opt-row" style="align-items:flex-start;flex-wrap:wrap;gap:6px">
               <span class="opt-lbl" style="margin-top:8px">①</span>
               <div style="flex:1;min-width:0">
-                <div style="display:flex;gap:6px;align-items:center;margin-bottom:4px">
-                  <button class="btn-sec" style="padding:6px 12px;font-size:12px;white-space:nowrap" onclick="document.querySelector('.img-file-inp[data-idx=\"0\"]').click()">📁 파일 선택</button>
+                <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
+                  <button class="btn-sec" style="padding:6px 12px;font-size:12px;white-space:nowrap" onclick="document.querySelector('.img-file-inp[data-idx=&quot;0&quot;]').click()">📁 파일 선택</button>
                   <button class="btn-sec" style="padding:6px 12px;font-size:12px;white-space:nowrap;background:var(--purple-l);color:var(--purple);border-color:#c8c4f0" onclick="pasteFromClipboard(0)">📋 붙여넣기</button>
-                  <button class="btn-sec" style="padding:6px 10px;font-size:12px;color:var(--red)" onclick="clearImgSlot(0)" id="clear-slot-0" style="display:none">✕</button>
+                  <button class="btn-sec" style="padding:6px 10px;font-size:12px;color:var(--red)" onclick="clearImgSlot(0)">✕ 삭제</button>
                 </div>
                 <input type="file" class="img-file-inp" accept="image/*" data-idx="0" onchange="loadImgFile(this)" style="display:none">
                 <input type="text" class="img-opt" placeholder="또는 이미지 URL 직접 입력" style="margin:0" onchange="loadImgUrl(this,0)">
@@ -438,10 +438,10 @@ textarea{min-height:52px;resize:vertical}
             <div class="opt-row" style="align-items:flex-start;flex-wrap:wrap;gap:6px">
               <span class="opt-lbl" style="margin-top:8px">②</span>
               <div style="flex:1;min-width:0">
-                <div style="display:flex;gap:6px;align-items:center;margin-bottom:4px">
-                  <button class="btn-sec" style="padding:6px 12px;font-size:12px;white-space:nowrap" onclick="document.querySelector('.img-file-inp[data-idx=\"1\"]').click()">📁 파일 선택</button>
+                <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
+                  <button class="btn-sec" style="padding:6px 12px;font-size:12px;white-space:nowrap" onclick="document.querySelector('.img-file-inp[data-idx=&quot;1&quot;]').click()">📁 파일 선택</button>
                   <button class="btn-sec" style="padding:6px 12px;font-size:12px;white-space:nowrap;background:var(--purple-l);color:var(--purple);border-color:#c8c4f0" onclick="pasteFromClipboard(1)">📋 붙여넣기</button>
-                  <button class="btn-sec" style="padding:6px 10px;font-size:12px;color:var(--red)" onclick="clearImgSlot(1)" id="clear-slot-1" style="display:none">✕</button>
+                  <button class="btn-sec" style="padding:6px 10px;font-size:12px;color:var(--red)" onclick="clearImgSlot(1)">✕ 삭제</button>
                 </div>
                 <input type="file" class="img-file-inp" accept="image/*" data-idx="1" onchange="loadImgFile(this)" style="display:none">
                 <input type="text" class="img-opt" placeholder="또는 이미지 URL 직접 입력" style="margin:0" onchange="loadImgUrl(this,1)">
@@ -452,10 +452,10 @@ textarea{min-height:52px;resize:vertical}
             <div class="opt-row" style="align-items:flex-start;flex-wrap:wrap;gap:6px">
               <span class="opt-lbl" style="margin-top:8px">③</span>
               <div style="flex:1;min-width:0">
-                <div style="display:flex;gap:6px;align-items:center;margin-bottom:4px">
-                  <button class="btn-sec" style="padding:6px 12px;font-size:12px;white-space:nowrap" onclick="document.querySelector('.img-file-inp[data-idx=\"2\"]').click()">📁 파일 선택</button>
+                <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
+                  <button class="btn-sec" style="padding:6px 12px;font-size:12px;white-space:nowrap" onclick="document.querySelector('.img-file-inp[data-idx=&quot;2&quot;]').click()">📁 파일 선택</button>
                   <button class="btn-sec" style="padding:6px 12px;font-size:12px;white-space:nowrap;background:var(--purple-l);color:var(--purple);border-color:#c8c4f0" onclick="pasteFromClipboard(2)">📋 붙여넣기</button>
-                  <button class="btn-sec" style="padding:6px 10px;font-size:12px;color:var(--red)" onclick="clearImgSlot(2)" id="clear-slot-2" style="display:none">✕</button>
+                  <button class="btn-sec" style="padding:6px 10px;font-size:12px;color:var(--red)" onclick="clearImgSlot(2)">✕ 삭제</button>
                 </div>
                 <input type="file" class="img-file-inp" accept="image/*" data-idx="2" onchange="loadImgFile(this)" style="display:none">
                 <input type="text" class="img-opt" placeholder="또는 이미지 URL 직접 입력" style="margin:0" onchange="loadImgUrl(this,2)">
@@ -466,10 +466,10 @@ textarea{min-height:52px;resize:vertical}
             <div class="opt-row" style="align-items:flex-start;flex-wrap:wrap;gap:6px">
               <span class="opt-lbl" style="margin-top:8px">④</span>
               <div style="flex:1;min-width:0">
-                <div style="display:flex;gap:6px;align-items:center;margin-bottom:4px">
-                  <button class="btn-sec" style="padding:6px 12px;font-size:12px;white-space:nowrap" onclick="document.querySelector('.img-file-inp[data-idx=\"3\"]').click()">📁 파일 선택</button>
+                <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
+                  <button class="btn-sec" style="padding:6px 12px;font-size:12px;white-space:nowrap" onclick="document.querySelector('.img-file-inp[data-idx=&quot;3&quot;]').click()">📁 파일 선택</button>
                   <button class="btn-sec" style="padding:6px 12px;font-size:12px;white-space:nowrap;background:var(--purple-l);color:var(--purple);border-color:#c8c4f0" onclick="pasteFromClipboard(3)">📋 붙여넣기</button>
-                  <button class="btn-sec" style="padding:6px 10px;font-size:12px;color:var(--red)" onclick="clearImgSlot(3)" id="clear-slot-3" style="display:none">✕</button>
+                  <button class="btn-sec" style="padding:6px 10px;font-size:12px;color:var(--red)" onclick="clearImgSlot(3)">✕ 삭제</button>
                 </div>
                 <input type="file" class="img-file-inp" accept="image/*" data-idx="3" onchange="loadImgFile(this)" style="display:none">
                 <input type="text" class="img-opt" placeholder="또는 이미지 URL 직접 입력" style="margin:0" onchange="loadImgUrl(this,3)">
@@ -1134,18 +1134,23 @@ async function pasteFromClipboard(idx){
 function clearImgSlot(idx){
   const prev=document.querySelector('.img-preview[data-idx="'+idx+'"]');
   if(prev){prev.src='';prev.style.display='none';}
-  const inp=document.querySelector('.img-file-inp[data-idx="'+idx+'"]');
-  if(inp){inp.value='';inp._b64Override=null;}
-  const optInp=document.querySelectorAll('.img-opt')[idx];
-  if(optInp) optInp.value='';
+  const fi=document.querySelector('.img-file-inp[data-idx="'+idx+'"]');
+  if(fi){fi.value='';fi._b64Override=null;}
+  const opts=document.querySelectorAll('.img-opt');
+  if(opts[idx]) opts[idx].value='';
 }
 async function applyImgToSlot(file,idx){
   if(!file) return;
   const b64=await fileToB64(file);
+  // 미리보기 표시
   const prev=document.querySelector('.img-preview[data-idx="'+idx+'"]');
   if(prev){prev.src=b64;prev.style.display='';}
-  const inp=document.querySelector('.img-file-inp[data-idx="'+idx+'"]');
-  if(inp) inp._b64Override=b64;
+  // _b64Override 저장
+  const fi=document.querySelector('.img-file-inp[data-idx="'+idx+'"]');
+  if(fi) fi._b64Override=b64;
+  // img-opt value에도 저장 → allV가 확실히 b64를 잡음
+  const opts=document.querySelectorAll('.img-opt');
+  if(opts[idx]) opts[idx].value=b64;
   smsg('이미지 '+((idx*1)+1)+' 적용됨 ✓','ok');
 }
 
@@ -1292,12 +1297,7 @@ async function addQ(){
   } else if(qType==='imgsel'){
     const qt=document.getElementById('imgsel-q').value.trim();
     if(!qt) return smsg('문제를 입력해주세요.','err');
-    const allOpts=[...document.querySelectorAll('.img-opt')];
-    const allV=allOpts.map(function(inp,idx){
-      const fi=document.querySelector('.img-file-inp[data-idx="'+idx+'"]');
-      if(fi&&fi._b64Override) return fi._b64Override;
-      return inp.value.trim();
-    });
+    const allV=[...document.querySelectorAll('.img-opt')].map(i=>i.value.trim());
     if(allV.filter(o=>o).length<2) return smsg('최소 2개의 보기를 입력해주세요.','err');
     const cbs=[...document.querySelectorAll('#imgsel-opts .cbtn')];
     const si=cbs.findIndex(b=>b.classList.contains('sel'));
@@ -1307,7 +1307,7 @@ async function addQ(){
     const resolved=[];
     for(let i=0;i<allV.length;i++){
       if(allV[i]&&allV[i].startsWith('data:')){
-        try{const fi=fileInps[i];const fn=(fi&&fi.files&&fi.files[0])?fi.files[0].name:(fi&&fi._b64Override?'pasted-img-'+i+'.jpg':'img'+i+'.jpg');resolved.push(await uploadFile(allV[i],'images/'+Date.now()+'_'+fn));}
+        try{const fi=fileInps[i];const hasFile=fi&&fi.files&&fi.files[0];const fn=hasFile?fi.files[0].name:'img-'+Date.now()+'-'+i+'.png';resolved.push(await uploadFile(allV[i],'images/'+fn));}
         catch(e){return smsg('이미지 업로드 실패: '+e.message,'err');}
       } else resolved.push(allV[i]);
     }
