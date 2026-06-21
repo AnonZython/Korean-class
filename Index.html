@@ -265,21 +265,6 @@ textarea{min-height:52px;resize:vertical}
 .pz-edit.has-img{border-color:var(--teal);background:var(--teal-l);color:var(--teal)}
 .pz-edit img{width:70px;height:52px;object-fit:cover;border-radius:4px;pointer-events:none;vertical-align:middle;margin-right:8px}
 .pz-clear-btn{position:absolute;top:4px;right:6px;font-size:11px;cursor:pointer;color:var(--red);background:var(--red-l);border:none;border-radius:4px;padding:1px 6px;display:none}
-
-.rich-editor-wrap{margin-bottom:10px}
-.rich-toolbar{display:flex;gap:4px;flex-wrap:wrap;padding:6px 8px;background:var(--bg);border:1.5px solid var(--border);border-bottom:none;border-radius:var(--rs) var(--rs) 0 0;align-items:center}
-.rtb{padding:3px 8px;border:1.5px solid var(--border);border-radius:5px;font-size:12px;background:var(--sur);cursor:pointer;font-family:'Noto Sans KR',sans-serif;line-height:1.4;min-width:28px;text-align:center}
-.rtb:hover{border-color:var(--purple);background:var(--purple-l)}
-.rtb.active{background:var(--purple);color:#fff;border-color:var(--purple)}
-.rtb-sep{width:1px;height:18px;background:var(--border);margin:0 2px;flex-shrink:0}
-.color-dot{width:16px;height:16px;border-radius:50%;border:2px solid rgba(0,0,0,.15);cursor:pointer;flex-shrink:0;display:inline-block;vertical-align:middle}
-.color-dot:hover{transform:scale(1.2)}
-.color-dot.active{border-color:#333;transform:scale(1.15)}
-.rich-content{border:1.5px solid var(--border);border-radius:0 0 var(--rs) var(--rs);padding:9px 12px;min-height:42px;font-size:14px;font-family:'Noto Sans KR',sans-serif;color:var(--text);outline:none;line-height:1.6;background:var(--sur)}
-.rich-content:focus{border-color:var(--purple)}
-.rich-content:empty::before{content:attr(data-placeholder);color:var(--muted);pointer-events:none}
-.rich-content b,.rich-content strong{font-weight:700}
-.rich-content u{text-decoration:underline}
 </style>
 </head>
 <body>
@@ -399,17 +384,7 @@ textarea{min-height:52px;resize:vertical}
 
         <!-- MC -->
         <div id="sec-mc">
-          <label>문제</label><div class="rich-editor-wrap" id="mc-q-wrap">
-          <div class="rich-toolbar">
-            <button class="rtb" title="굵게" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('mc-q','bold')"><b>B</b></button>
-            <button class="rtb" title="밑줄" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('mc-q','underline')"><u>U</u></button>
-            <div class="rtb-sep"></div>
-            <span class="color-dot" style="background:#1a1830" title="검정" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('mc-q','#1a1830')"></span><span class="color-dot" style="background:#534AB7" title="보라" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('mc-q','#534AB7')"></span><span class="color-dot" style="background:#0F6E56" title="초록" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('mc-q','#0F6E56')"></span><span class="color-dot" style="background:#A32D2D" title="빨강" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('mc-q','#A32D2D')"></span><span class="color-dot" style="background:#854F0B" title="주황" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('mc-q','#854F0B')"></span><span class="color-dot" style="background:#1565C0" title="파랑" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('mc-q','#1565C0')"></span><span class="color-dot" style="background:#6A1B9A" title="자주" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('mc-q','#6A1B9A')"></span><span class="color-dot" style="background:#00838F" title="청록" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('mc-q','#00838F')"></span>
-            <div class="rtb-sep"></div>
-            <button class="rtb" title="서식 지우기" onmousedown="event.preventDefault();saveSelection()" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('mc-q','removeFormat')" style="font-size:11px">✕서식</button>
-          </div>
-          <div class="rich-content" onmouseup="saveSelection()" onkeyup="saveSelection()" id="mc-q" contenteditable="true" data-placeholder="다음 중 '가다'의 과거형은?" onkeydown="if(event.key==='Enter'){event.preventDefault();}"></div>
-        </div>
+          <label>문제</label><input type="text" id="mc-q" placeholder="다음 중 '가다'의 과거형은?">
           <label>보기 — 정답 ✓ (여러 개 선택 가능)</label>
           <div id="mc-opts">
             <div class="opt-row"><span class="opt-lbl">①</span><input type="text" class="mc-opt" placeholder="보기 1"><button class="cbtn" onclick="selC(this,'mc-opts')">✓</button></div>
@@ -421,17 +396,7 @@ textarea{min-height:52px;resize:vertical}
 
         <!-- TF -->
         <div id="sec-tf" style="display:none">
-          <label>문제</label><div class="rich-editor-wrap" id="tf-q-wrap">
-          <div class="rich-toolbar">
-            <button class="rtb" title="굵게" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('tf-q','bold')"><b>B</b></button>
-            <button class="rtb" title="밑줄" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('tf-q','underline')"><u>U</u></button>
-            <div class="rtb-sep"></div>
-            <span class="color-dot" style="background:#1a1830" title="검정" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('tf-q','#1a1830')"></span><span class="color-dot" style="background:#534AB7" title="보라" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('tf-q','#534AB7')"></span><span class="color-dot" style="background:#0F6E56" title="초록" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('tf-q','#0F6E56')"></span><span class="color-dot" style="background:#A32D2D" title="빨강" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('tf-q','#A32D2D')"></span><span class="color-dot" style="background:#854F0B" title="주황" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('tf-q','#854F0B')"></span><span class="color-dot" style="background:#1565C0" title="파랑" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('tf-q','#1565C0')"></span><span class="color-dot" style="background:#6A1B9A" title="자주" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('tf-q','#6A1B9A')"></span><span class="color-dot" style="background:#00838F" title="청록" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('tf-q','#00838F')"></span>
-            <div class="rtb-sep"></div>
-            <button class="rtb" title="서식 지우기" onmousedown="event.preventDefault();saveSelection()" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('tf-q','removeFormat')" style="font-size:11px">✕서식</button>
-          </div>
-          <div class="rich-content" onmouseup="saveSelection()" onkeyup="saveSelection()" id="tf-q" contenteditable="true" data-placeholder="'먹었어요'는 과거형이다." onkeydown="if(event.key==='Enter'){event.preventDefault();}"></div>
-        </div>
+          <label>문제</label><input type="text" id="tf-q" placeholder="'먹었어요'는 과거형이다.">
           <label>정답</label>
           <div style="display:flex;gap:8px;margin-top:5px">
             <button class="cbtn" id="tf-O" onclick="selTF('O')">O (맞다)</button>
@@ -453,17 +418,7 @@ textarea{min-height:52px;resize:vertical}
 
         <!-- Image select -->
         <div id="sec-imgsel" style="display:none">
-          <label>문제 <span style="font-size:11px;color:var(--muted)">(선택)</span></label><div class="rich-editor-wrap" id="imgsel-q-wrap">
-          <div class="rich-toolbar">
-            <button class="rtb" title="굵게" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('imgsel-q','bold')"><b>B</b></button>
-            <button class="rtb" title="밑줄" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('imgsel-q','underline')"><u>U</u></button>
-            <div class="rtb-sep"></div>
-            <span class="color-dot" style="background:#1a1830" title="검정" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('imgsel-q','#1a1830')"></span><span class="color-dot" style="background:#534AB7" title="보라" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('imgsel-q','#534AB7')"></span><span class="color-dot" style="background:#0F6E56" title="초록" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('imgsel-q','#0F6E56')"></span><span class="color-dot" style="background:#A32D2D" title="빨강" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('imgsel-q','#A32D2D')"></span><span class="color-dot" style="background:#854F0B" title="주황" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('imgsel-q','#854F0B')"></span><span class="color-dot" style="background:#1565C0" title="파랑" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('imgsel-q','#1565C0')"></span><span class="color-dot" style="background:#6A1B9A" title="자주" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('imgsel-q','#6A1B9A')"></span><span class="color-dot" style="background:#00838F" title="청록" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('imgsel-q','#00838F')"></span>
-            <div class="rtb-sep"></div>
-            <button class="rtb" title="서식 지우기" onmousedown="event.preventDefault();saveSelection()" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('imgsel-q','removeFormat')" style="font-size:11px">✕서식</button>
-          </div>
-          <div class="rich-content" onmouseup="saveSelection()" onkeyup="saveSelection()" id="imgsel-q" contenteditable="true" data-placeholder="'도서관'을 나타내는 이미지는? (선택)" onkeydown="if(event.key==='Enter'){event.preventDefault();}"></div>
-        </div>
+          <label>문제 <span style="font-size:11px;color:var(--muted)">(선택)</span></label><input type="text" id="imgsel-q" placeholder="'도서관'을 나타내는 이미지는? (선택)">
           <label>보기 — 이미지 파일 또는 URL (정답 옆 ✓)</label>
           <div id="imgsel-opts">
             <div class="opt-row" style="align-items:flex-start;flex-wrap:wrap;gap:6px">
@@ -531,17 +486,7 @@ textarea{min-height:52px;resize:vertical}
 
         <!-- Phrase -->
         <div id="sec-phrase" style="display:none">
-          <label>지시문</label><div class="rich-editor-wrap" id="phrase-q-wrap">
-          <div class="rich-toolbar">
-            <button class="rtb" title="굵게" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('phrase-q','bold')"><b>B</b></button>
-            <button class="rtb" title="밑줄" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('phrase-q','underline')"><u>U</u></button>
-            <div class="rtb-sep"></div>
-            <span class="color-dot" style="background:#1a1830" title="검정" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('phrase-q','#1a1830')"></span><span class="color-dot" style="background:#534AB7" title="보라" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('phrase-q','#534AB7')"></span><span class="color-dot" style="background:#0F6E56" title="초록" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('phrase-q','#0F6E56')"></span><span class="color-dot" style="background:#A32D2D" title="빨강" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('phrase-q','#A32D2D')"></span><span class="color-dot" style="background:#854F0B" title="주황" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('phrase-q','#854F0B')"></span><span class="color-dot" style="background:#1565C0" title="파랑" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('phrase-q','#1565C0')"></span><span class="color-dot" style="background:#6A1B9A" title="자주" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('phrase-q','#6A1B9A')"></span><span class="color-dot" style="background:#00838F" title="청록" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('phrase-q','#00838F')"></span>
-            <div class="rtb-sep"></div>
-            <button class="rtb" title="서식 지우기" onmousedown="event.preventDefault();saveSelection()" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('phrase-q','removeFormat')" style="font-size:11px">✕서식</button>
-          </div>
-          <div class="rich-content" onmouseup="saveSelection()" onkeyup="saveSelection()" id="phrase-q" contenteditable="true" data-placeholder="단어를 올바른 순서로 배열하세요." onkeydown="if(event.key==='Enter'){event.preventDefault();}"></div>
-        </div>
+          <label>지시문</label><input type="text" id="phrase-q" placeholder="단어를 올바른 순서로 배열하세요.">
           <label>Phrase — 올바른 순서, Enter/쉼표로 구분</label>
           <input type="text" id="phrase-input" placeholder="나는, 학교에, 갑니다" onkeydown="phraseKD(event)">
           <div class="chip-wrap" id="phrase-chips"></div>
@@ -549,17 +494,7 @@ textarea{min-height:52px;resize:vertical}
 
         <!-- Order -->
         <div id="sec-order" style="display:none">
-          <label>지시문</label><div class="rich-editor-wrap" id="order-q-wrap">
-          <div class="rich-toolbar">
-            <button class="rtb" title="굵게" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('order-q','bold')"><b>B</b></button>
-            <button class="rtb" title="밑줄" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('order-q','underline')"><u>U</u></button>
-            <div class="rtb-sep"></div>
-            <span class="color-dot" style="background:#1a1830" title="검정" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('order-q','#1a1830')"></span><span class="color-dot" style="background:#534AB7" title="보라" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('order-q','#534AB7')"></span><span class="color-dot" style="background:#0F6E56" title="초록" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('order-q','#0F6E56')"></span><span class="color-dot" style="background:#A32D2D" title="빨강" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('order-q','#A32D2D')"></span><span class="color-dot" style="background:#854F0B" title="주황" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('order-q','#854F0B')"></span><span class="color-dot" style="background:#1565C0" title="파랑" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('order-q','#1565C0')"></span><span class="color-dot" style="background:#6A1B9A" title="자주" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('order-q','#6A1B9A')"></span><span class="color-dot" style="background:#00838F" title="청록" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('order-q','#00838F')"></span>
-            <div class="rtb-sep"></div>
-            <button class="rtb" title="서식 지우기" onmousedown="event.preventDefault();saveSelection()" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('order-q','removeFormat')" style="font-size:11px">✕서식</button>
-          </div>
-          <div class="rich-content" onmouseup="saveSelection()" onkeyup="saveSelection()" id="order-q" contenteditable="true" data-placeholder="문장을 올바른 순서로 배열하세요." onkeydown="if(event.key==='Enter'){event.preventDefault();}"></div>
-        </div>
+          <label>지시문</label><input type="text" id="order-q" placeholder="문장을 올바른 순서로 배열하세요.">
           <label>문장 — 올바른 순서대로</label>
           <div id="order-sents">
             <div class="sent-row"><span class="sent-num">1</span><input type="text" class="ord-s" placeholder="첫 번째 문장"></div>
@@ -578,17 +513,7 @@ textarea{min-height:52px;resize:vertical}
             <input type="text" id="audio-url" placeholder="https://... .mp3" style="flex:1;min-width:160px;margin:0">
           </div>
           <div id="audio-preview" style="display:none"><audio id="audio-player" controls style="width:100%;height:36px"></audio></div>
-          <label>문제</label><div class="rich-editor-wrap" id="audio-q-wrap">
-          <div class="rich-toolbar">
-            <button class="rtb" title="굵게" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('audio-q','bold')"><b>B</b></button>
-            <button class="rtb" title="밑줄" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('audio-q','underline')"><u>U</u></button>
-            <div class="rtb-sep"></div>
-            <span class="color-dot" style="background:#1a1830" title="검정" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('audio-q','#1a1830')"></span><span class="color-dot" style="background:#534AB7" title="보라" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('audio-q','#534AB7')"></span><span class="color-dot" style="background:#0F6E56" title="초록" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('audio-q','#0F6E56')"></span><span class="color-dot" style="background:#A32D2D" title="빨강" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('audio-q','#A32D2D')"></span><span class="color-dot" style="background:#854F0B" title="주황" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('audio-q','#854F0B')"></span><span class="color-dot" style="background:#1565C0" title="파랑" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('audio-q','#1565C0')"></span><span class="color-dot" style="background:#6A1B9A" title="자주" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('audio-q','#6A1B9A')"></span><span class="color-dot" style="background:#00838F" title="청록" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('audio-q','#00838F')"></span>
-            <div class="rtb-sep"></div>
-            <button class="rtb" title="서식 지우기" onmousedown="event.preventDefault();saveSelection()" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('audio-q','removeFormat')" style="font-size:11px">✕서식</button>
-          </div>
-          <div class="rich-content" onmouseup="saveSelection()" onkeyup="saveSelection()" id="audio-q" contenteditable="true" data-placeholder="오디오를 듣고 알맞은 답을 고르세요." onkeydown="if(event.key==='Enter'){event.preventDefault();}"></div>
-        </div>
+          <label>문제</label><input type="text" id="audio-q" placeholder="오디오를 듣고 알맞은 답을 고르세요.">
           <label>보기 — 정답 옆 ✓</label>
           <div id="audio-opts">
             <div class="opt-row"><span class="opt-lbl">①</span><input type="text" class="aud-opt" placeholder="보기 1"><button class="cbtn" onclick="selC(this,'audio-opts')">✓</button></div>
@@ -652,17 +577,7 @@ textarea{min-height:52px;resize:vertical}
             </div>
           <img id="pq-preview" style="display:none;width:100%;max-height:180px;object-fit:contain;border-radius:8px;margin-bottom:8px;border:1px solid var(--border)">
           <label>문제 지시문 <span style="font-size:11px;color:var(--muted)">(선택)</span></label>
-          <div class="rich-editor-wrap" id="pq-q-wrap">
-          <div class="rich-toolbar">
-            <button class="rtb" title="굵게" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('pq-q','bold')"><b>B</b></button>
-            <button class="rtb" title="밑줄" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('pq-q','underline')"><u>U</u></button>
-            <div class="rtb-sep"></div>
-            <span class="color-dot" style="background:#1a1830" title="검정" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('pq-q','#1a1830')"></span><span class="color-dot" style="background:#534AB7" title="보라" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('pq-q','#534AB7')"></span><span class="color-dot" style="background:#0F6E56" title="초록" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('pq-q','#0F6E56')"></span><span class="color-dot" style="background:#A32D2D" title="빨강" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('pq-q','#A32D2D')"></span><span class="color-dot" style="background:#854F0B" title="주황" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('pq-q','#854F0B')"></span><span class="color-dot" style="background:#1565C0" title="파랑" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('pq-q','#1565C0')"></span><span class="color-dot" style="background:#6A1B9A" title="자주" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('pq-q','#6A1B9A')"></span><span class="color-dot" style="background:#00838F" title="청록" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('pq-q','#00838F')"></span>
-            <div class="rtb-sep"></div>
-            <button class="rtb" title="서식 지우기" onmousedown="event.preventDefault();saveSelection()" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('pq-q','removeFormat')" style="font-size:11px">✕서식</button>
-          </div>
-          <div class="rich-content" onmouseup="saveSelection()" onkeyup="saveSelection()" id="pq-q" contenteditable="true" data-placeholder="사진을 보고 알맞은 답을 고르세요. (선택)" onkeydown="if(event.key==='Enter'){event.preventDefault();}"></div>
-        </div>
+          <input type="text" id="pq-q" placeholder="사진을 보고 알맞은 답을 고르세요. (선택)">
           <label>답변 유형</label>
           <div style="display:flex;gap:8px;margin:6px 0 10px">
             <button class="cbtn sel" id="pq-type-mc" onclick="setPqType('mc')">객관식</button>
@@ -684,17 +599,7 @@ textarea{min-height:52px;resize:vertical}
 
         <div id="sec-classify" style="display:none">
           <label>지시문 (선택)</label>
-          <div class="rich-editor-wrap" id="cls-q-wrap">
-          <div class="rich-toolbar">
-            <button class="rtb" title="굵게" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('cls-q','bold')"><b>B</b></button>
-            <button class="rtb" title="밑줄" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('cls-q','underline')"><u>U</u></button>
-            <div class="rtb-sep"></div>
-            <span class="color-dot" style="background:#1a1830" title="검정" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('cls-q','#1a1830')"></span><span class="color-dot" style="background:#534AB7" title="보라" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('cls-q','#534AB7')"></span><span class="color-dot" style="background:#0F6E56" title="초록" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('cls-q','#0F6E56')"></span><span class="color-dot" style="background:#A32D2D" title="빨강" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('cls-q','#A32D2D')"></span><span class="color-dot" style="background:#854F0B" title="주황" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('cls-q','#854F0B')"></span><span class="color-dot" style="background:#1565C0" title="파랑" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('cls-q','#1565C0')"></span><span class="color-dot" style="background:#6A1B9A" title="자주" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('cls-q','#6A1B9A')"></span><span class="color-dot" style="background:#00838F" title="청록" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('cls-q','#00838F')"></span>
-            <div class="rtb-sep"></div>
-            <button class="rtb" title="서식 지우기" onmousedown="event.preventDefault();saveSelection()" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('cls-q','removeFormat')" style="font-size:11px">✕서식</button>
-          </div>
-          <div class="rich-content" onmouseup="saveSelection()" onkeyup="saveSelection()" id="cls-q" contenteditable="true" data-placeholder="단어를 알맞은 종류로 분류하세요." onkeydown="if(event.key==='Enter'){event.preventDefault();}"></div>
-        </div>
+          <input type="text" id="cls-q" placeholder="단어를 알맞은 종류로 분류하세요.">
           <label>카테고리 수</label>
           <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
             <input type="number" id="cls-num" value="2" min="2" max="8" style="width:80px;margin:0;text-align:center;font-size:18px;font-weight:700">
@@ -707,17 +612,7 @@ textarea{min-height:52px;resize:vertical}
         <div id="sec-instr" style="display:none">
           <label>※ 지시문 내용</label>
           <div style="font-size:12px;color:var(--muted);margin-bottom:6px">예: [1~2] ( )에 들어갈 말로 가장 알맞은 것을 고르십시오. (각 2점)</div>
-          <div class="rich-editor-wrap" id="instr-text-wrap">
-          <div class="rich-toolbar">
-            <button class="rtb" title="굵게" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('instr-text','bold')"><b>B</b></button>
-            <button class="rtb" title="밑줄" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('instr-text','underline')"><u>U</u></button>
-            <div class="rtb-sep"></div>
-            <span class="color-dot" style="background:#1a1830" title="검정" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('instr-text','#1a1830')"></span><span class="color-dot" style="background:#534AB7" title="보라" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('instr-text','#534AB7')"></span><span class="color-dot" style="background:#0F6E56" title="초록" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('instr-text','#0F6E56')"></span><span class="color-dot" style="background:#A32D2D" title="빨강" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('instr-text','#A32D2D')"></span><span class="color-dot" style="background:#854F0B" title="주황" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('instr-text','#854F0B')"></span><span class="color-dot" style="background:#1565C0" title="파랑" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('instr-text','#1565C0')"></span><span class="color-dot" style="background:#6A1B9A" title="자주" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('instr-text','#6A1B9A')"></span><span class="color-dot" style="background:#00838F" title="청록" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('instr-text','#00838F')"></span>
-            <div class="rtb-sep"></div>
-            <button class="rtb" title="서식 지우기" onmousedown="event.preventDefault();saveSelection()" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('instr-text','removeFormat')" style="font-size:11px">✕서식</button>
-          </div>
-          <div class="rich-content" onmouseup="saveSelection()" onkeyup="saveSelection()" id="instr-text" contenteditable="true" data-placeholder="※ [1~2] ( )에 들어갈 말로 가장 알맞은 것을 고르십시오. (각 2점)" onkeydown="if(event.key==='Enter'){event.preventDefault();}"></div>
-        </div>
+          <input type="text" id="instr-text" placeholder="※ [1~2] ( )에 들어갈 말로 가장 알맞은 것을 고르십시오. (각 2점)">
           <p style="font-size:12px;color:var(--muted);margin-top:6px">지시문은 점수 없이 문제지에 구분선으로 표시됩니다. 번호는 이어서 계속됩니다.</p>
         </div>
         <div class="divider"></div>
@@ -1403,52 +1298,12 @@ function clsRmWord(btn){
   clsRenderWordChips(i,cat);
 }
 
-
-// ── Rich text editor helpers ──────────────────────────────────────────────
-// 버튼 클릭 전 selection 저장
-let _savedRange=null;
-function saveSelection(){
-  const sel=window.getSelection();
-  if(sel&&sel.rangeCount>0) _savedRange=sel.getRangeAt(0).cloneRange();
-}
-function restoreSelection(){
-  if(!_savedRange) return;
-  const sel=window.getSelection();
-  sel.removeAllRanges();
-  sel.addRange(_savedRange);
-}
-function rtExec(qid,cmd,val){
-  restoreSelection();
-  document.execCommand('styleWithCSS',false,true);
-  document.execCommand(cmd,false,val||null);
-  _savedRange=null;
-}
-function rtColor(qid,color){
-  restoreSelection();
-  document.execCommand('styleWithCSS',false,true);
-  document.execCommand('foreColor',false,color);
-  _savedRange=null;
-}
-function getRichText(id){
-  const el=document.getElementById(id);
-  if(!el) return '';
-  // Return innerHTML (preserves bold/underline/color)
-  return el.innerHTML.trim();
-}
-function setRichText(id,html){
-  const el=document.getElementById(id);
-  if(el) el.innerHTML=html||'';
-}
-function clearRichText(id){
-  const el=document.getElementById(id);
-  if(el) el.innerHTML='';
-}
 function smsg(txt,cls){const el=document.getElementById('amsg');el.textContent=txt;el.className='smsg '+(cls||'');if(cls) setTimeout(()=>{if(el.textContent===txt){el.textContent='';el.className='smsg';}},2600);}
 
 async function addQ(){
   let q={type:qType};
   if(qType==='mc'){
-    const qt=getRichText('mc-q');
+    const qt=document.getElementById('mc-q').value.trim();
     if(!qt) return smsg('문제를 입력해주세요.','err');
     const opts=[...document.querySelectorAll('.mc-opt')].map(i=>i.value.trim());
     if(opts.some(o=>!o)) return smsg('모든 보기를 입력해주세요.','err');
@@ -1456,15 +1311,15 @@ async function addQ(){
     const correctArr=cbs.map((b,i)=>b.classList.contains('sel')?i:-1).filter(i=>i>=0);
     if(!correctArr.length) return smsg('정답을 선택해주세요.','err');
     q={...q,text:qt,options:opts,correct:correctArr,multiCorrect:correctArr.length>1};
-    clearRichText('mc-q');
+    document.getElementById('mc-q').value='';
     document.querySelectorAll('.mc-opt').forEach(i=>i.value='');
     cbs.forEach(b=>b.classList.remove('sel'));
   } else if(qType==='tf'){
-    const qt=getRichText('tf-q');
+    const qt=document.getElementById('tf-q').value.trim();
     if(!qt) return smsg('문제를 입력해주세요.','err');
     if(!tfVal) return smsg('정답을 선택해주세요.','err');
     q={...q,text:qt,correct:tfVal};
-    clearRichText('tf-q');tfVal=null;
+    document.getElementById('tf-q').value='';tfVal=null;
     document.getElementById('tf-O').classList.remove('sel');document.getElementById('tf-X').classList.remove('sel');
   } else if(qType==='match'){
     const rows=[...document.querySelectorAll('#match-pairs .pair-row')];
@@ -1476,7 +1331,7 @@ async function addQ(){
     document.querySelectorAll('#match-pairs input[type=text]').forEach(i=>i.value='');
     document.querySelectorAll('#match-pairs input[type=number]').forEach(i=>i.value='1');
   } else if(qType==='imgsel'){
-    const qt=getRichText('imgsel-q');
+    const qt=document.getElementById('imgsel-q').value.trim();
     if(!qt) return smsg('문제를 입력해주세요.','err');
     const allV=[...document.querySelectorAll('.img-opt')].map(i=>i.value.trim());
     if(allV.filter(o=>o).length<2) return smsg('최소 2개의 보기를 입력해주세요.','err');
@@ -1494,30 +1349,30 @@ async function addQ(){
     }
     const opts=resolved.filter(o=>o);
     q={...q,text:qt,options:opts,correct:Math.max(0,opts.indexOf(resolved[si]))};
-    clearRichText('imgsel-q');
+    document.getElementById('imgsel-q').value='';
     document.querySelectorAll('.img-opt').forEach(i=>i.value='');
     document.querySelectorAll('.img-file-inp').forEach(i=>i.value='');
     document.querySelectorAll('.img-preview').forEach(i=>{i.src='';i.style.display='none';});
     cbs.forEach(b=>b.classList.remove('sel'));
   } else if(qType==='phrase'){
-    const qt=getRichText('phrase-q');
+    const qt=document.getElementById('phrase-q').value.trim();
     if(!qt) return smsg('지시문을 입력해주세요.','err');
     const inp=document.getElementById('phrase-input').value.replace(/,/g,'').trim();
     if(inp) phraseList.push(inp);
     if(phraseList.length<2) return smsg('최소 2개의 phrase를 입력해주세요.','err');
     q={...q,text:qt,phrases:[...phraseList]};
-    clearRichText('phrase-q');document.getElementById('phrase-input').value='';
+    document.getElementById('phrase-q').value='';document.getElementById('phrase-input').value='';
     phraseList=[];renderChips();
   } else if(qType==='order'){
-    const qt=getRichText('order-q');
+    const qt=document.getElementById('order-q').value.trim();
     if(!qt) return smsg('지시문을 입력해주세요.','err');
     const sents=[...document.querySelectorAll('.ord-s')].map(i=>i.value.trim()).filter(s=>s);
     if(sents.length<2) return smsg('최소 2개의 문장을 입력해주세요.','err');
     q={...q,text:qt,sentences:sents};
-    clearRichText('order-q');
+    document.getElementById('order-q').value='';
     document.querySelectorAll('.ord-s').forEach(i=>i.value='');
   } else if(qType==='audio'){
-    const qt=getRichText('audio-q');
+    const qt=document.getElementById('audio-q').value.trim();
     const fi=document.getElementById('audio-file');
     const fb=fi._b64||'';
     const rawUrl=document.getElementById('audio-url').value.trim();
@@ -1531,7 +1386,7 @@ async function addQ(){
     if(fb){smsg('오디오 업로드 중...','');try{url=await uploadFile(fb,'audio/'+Date.now()+'.mp3');}catch(e){return smsg('업로드 실패: '+e.message,'err');}}
     const ci=[...document.querySelectorAll('#audio-opts .cbtn')].indexOf(cb);
     q={...q,text:qt,audioUrl:url,options:opts,correct:ci};
-    clearRichText('audio-q');document.getElementById('audio-url').value='';
+    document.getElementById('audio-q').value='';document.getElementById('audio-url').value='';
     fi.value='';fi._b64='';document.getElementById('audio-preview').style.display='none';
     document.querySelectorAll('.aud-opt').forEach(i=>i.value='');
     document.querySelectorAll('#audio-opts .cbtn').forEach(b=>b.classList.remove('sel'));
@@ -1575,7 +1430,7 @@ async function addQ(){
     const fb2=pf._b64||'';
     const rawPqUrl=document.getElementById('pq-url').value.trim();
     if(!fb2&&!rawPqUrl) return smsg('사진을 업로드하거나 URL을 입력해주세요.','err');
-    const qt=getRichText('pq-q')||'사진을 보고 답하세요.';
+    const qt=document.getElementById('pq-q').value.trim()||'사진을 보고 답하세요.';
     let imgSrc=rawPqUrl;
     if(fb2&&fb2._b64){smsg('사진 업로드 중...','');try{imgSrc=await uploadFile(fb2._b64,'photos/'+Date.now()+'.png');}catch(e){return smsg('업로드 실패: '+e.message,'err');}}
     if(pqSubType==='mc'){
@@ -1589,7 +1444,7 @@ async function addQ(){
     } else {
       q={...q,text:qt,imgSrc,answerType:'essay',points:0,pendingGrade:true};
     }
-    clearRichText('pq-q');document.getElementById('pq-url').value='';
+    document.getElementById('pq-q').value='';document.getElementById('pq-url').value='';
     pf.value='';pf._b64='';document.getElementById('pq-preview').style.display='none';
     document.querySelectorAll('.pq-opt').forEach(i=>i.value='');
     document.querySelectorAll('#pq-opts .cbtn').forEach(b=>b.classList.remove('sel'));
@@ -1605,18 +1460,18 @@ async function addQ(){
     if(validCats.length<2) return smsg('카테고리 이름을 최소 2개 입력해주세요.','err');
     const totalWords=validCats.reduce(function(sum,c){return sum+(clsWords[c]||[]).length;},0);
     if(totalWords<2) return smsg('각 카테고리에 단어를 최소 1개 이상 추가해주세요.','err');
-    const qt=getRichText('cls-q')||'단어를 알맞은 종류로 분류하세요.';
+    const qt=document.getElementById('cls-q').value.trim()||'단어를 알맞은 종류로 분류하세요.';
     const cats=validCats.map(function(c){return {name:c,words:(clsWords[c]||[]).slice()};});
     q={type:'classify',text:qt,cats:cats,points:totalWords};
-    clearRichText('cls-q');
+    document.getElementById('cls-q').value='';
     clsCats=[];clsWords={};
     document.getElementById('cls-num').value=2;
     document.getElementById('cls-boxes').innerHTML='';
   } else if(qType==='instr'){
-    const txt=getRichText('instr-text');
+    const txt=document.getElementById('instr-text').value.trim();
     if(!txt) return smsg('지시문 내용을 입력해주세요.','err');
     q={type:'instr',text:txt,points:0};
-    clearRichText('instr-text');
+    document.getElementById('instr-text').value='';
   }
   if(qType!=='match'&&qType!=='wordfill'&&qType!=='inlinesel'&&qType!=='classify'&&qType!=='instr'&&!(qType==='photoq'&&pqSubType==='essay'))
     q.points=Math.max(1,parseInt(document.getElementById('q-points').value)||1);
