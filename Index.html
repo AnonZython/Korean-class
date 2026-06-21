@@ -414,10 +414,10 @@ textarea{min-height:52px;resize:vertical}
           <label>문제</label><input type="text" id="imgsel-q" placeholder="'도서관'을 나타내는 이미지는?">
           <label>보기 — 이미지 파일 또는 URL (정답 옆 ✓)</label>
           <div id="imgsel-opts">
-            <div class="opt-row" style="align-items:flex-start;flex-wrap:wrap;gap:6px"><span class="opt-lbl" style="margin-top:8px">①</span><div style="flex:1;min-width:0"><div class="paste-zone" id="pz-0" onclick="document.querySelector('.img-file-inp[data-idx=\"0\"]').click()" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleImgDrop(event,0)" onpaste="handleImgPaste(event,0)"><span id="pz-label-0">📋 Ctrl+V 붙여넣기 · 클릭하여 파일 선택 · 끌어놓기</span><button class="pz-clear" id="pz-clear-0" style="display:none" onclick="event.stopPropagation();clearPasteZone(0)">✕</button></div><input type="file" class="img-file-inp" accept="image/*" data-idx="0" onchange="loadImgFile(this)" style="display:none"><input type="text" class="img-opt" placeholder="또는 이미지 URL" style="margin:0" onchange="loadImgUrl(this,0)"><img class="img-preview" data-idx="0" style="display:none;width:80px;height:60px;object-fit:cover;border-radius:6px;margin-top:4px"></div><button class="cbtn" onclick="selC(this,'imgsel-opts')" style="margin-top:8px">✓</button></div>
-            <div class="opt-row" style="align-items:flex-start;flex-wrap:wrap;gap:6px"><span class="opt-lbl" style="margin-top:8px">②</span><div style="flex:1;min-width:0"><div class="paste-zone" id="pz-1" onclick="document.querySelector('.img-file-inp[data-idx=\"1\"]').click()" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleImgDrop(event,1)" onpaste="handleImgPaste(event,1)"><span id="pz-label-1">📋 Ctrl+V 붙여넣기 · 클릭하여 파일 선택 · 끌어놓기</span><button class="pz-clear" id="pz-clear-1" style="display:none" onclick="event.stopPropagation();clearPasteZone(1)">✕</button></div><input type="file" class="img-file-inp" accept="image/*" data-idx="1" onchange="loadImgFile(this)" style="display:none"><input type="text" class="img-opt" placeholder="또는 이미지 URL" style="margin:0" onchange="loadImgUrl(this,1)"><img class="img-preview" data-idx="1" style="display:none;width:80px;height:60px;object-fit:cover;border-radius:6px;margin-top:4px"></div><button class="cbtn" onclick="selC(this,'imgsel-opts')" style="margin-top:8px">✓</button></div>
-            <div class="opt-row" style="align-items:flex-start;flex-wrap:wrap;gap:6px"><span class="opt-lbl" style="margin-top:8px">③</span><div style="flex:1;min-width:0"><div class="paste-zone" id="pz-2" onclick="document.querySelector('.img-file-inp[data-idx=\"2\"]').click()" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleImgDrop(event,2)" onpaste="handleImgPaste(event,2)"><span id="pz-label-2">📋 Ctrl+V 붙여넣기 · 클릭하여 파일 선택 · 끌어놓기</span><button class="pz-clear" id="pz-clear-2" style="display:none" onclick="event.stopPropagation();clearPasteZone(2)">✕</button></div><input type="file" class="img-file-inp" accept="image/*" data-idx="2" onchange="loadImgFile(this)" style="display:none"><input type="text" class="img-opt" placeholder="또는 이미지 URL" style="margin:0" onchange="loadImgUrl(this,2)"><img class="img-preview" data-idx="2" style="display:none;width:80px;height:60px;object-fit:cover;border-radius:6px;margin-top:4px"></div><button class="cbtn" onclick="selC(this,'imgsel-opts')" style="margin-top:8px">✓</button></div>
-            <div class="opt-row" style="align-items:flex-start;flex-wrap:wrap;gap:6px"><span class="opt-lbl" style="margin-top:8px">④</span><div style="flex:1;min-width:0"><div class="paste-zone" id="pz-3" onclick="document.querySelector('.img-file-inp[data-idx=\"3\"]').click()" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleImgDrop(event,3)" onpaste="handleImgPaste(event,3)"><span id="pz-label-3">📋 Ctrl+V 붙여넣기 · 클릭하여 파일 선택 · 끌어놓기</span><button class="pz-clear" id="pz-clear-3" style="display:none" onclick="event.stopPropagation();clearPasteZone(3)">✕</button></div><input type="file" class="img-file-inp" accept="image/*" data-idx="3" onchange="loadImgFile(this)" style="display:none"><input type="text" class="img-opt" placeholder="또는 이미지 URL" style="margin:0" onchange="loadImgUrl(this,3)"><img class="img-preview" data-idx="3" style="display:none;width:80px;height:60px;object-fit:cover;border-radius:6px;margin-top:4px"></div><button class="cbtn" onclick="selC(this,'imgsel-opts')" style="margin-top:8px">✓</button></div>
+            <div class="opt-row" style="align-items:flex-start;flex-wrap:wrap;gap:6px"><span class="opt-lbl" style="margin-top:8px">①</span><div style="flex:1;min-width:0"><div class="paste-zone" id="pz-0" tabindex="0" onclick="setPasteTarget(0);document.querySelector('.img-file-inp[data-idx=\"0\"]').click()" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleImgDrop(event,0)" ><span id="pz-label-0">📋 여기 클릭 후 Ctrl+V · 파일 클릭 · 끌어놓기</span><button class="pz-clear" id="pz-clear-0" style="display:none" onclick="event.stopPropagation();clearPasteZone(0)">✕</button></div><input type="file" class="img-file-inp" accept="image/*" data-idx="0" onchange="loadImgFile(this)" style="display:none"><input type="text" class="img-opt" placeholder="또는 이미지 URL" style="margin:0" onchange="loadImgUrl(this,0)"><img class="img-preview" data-idx="0" style="display:none;width:80px;height:60px;object-fit:cover;border-radius:6px;margin-top:4px"></div><button class="cbtn" onclick="selC(this,'imgsel-opts')" style="margin-top:8px">✓</button></div>
+            <div class="opt-row" style="align-items:flex-start;flex-wrap:wrap;gap:6px"><span class="opt-lbl" style="margin-top:8px">②</span><div style="flex:1;min-width:0"><div class="paste-zone" id="pz-1" tabindex="0" onclick="setPasteTarget(1);document.querySelector('.img-file-inp[data-idx=\"1\"]').click()" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleImgDrop(event,1)" ><span id="pz-label-1">📋 여기 클릭 후 Ctrl+V · 파일 클릭 · 끌어놓기</span><button class="pz-clear" id="pz-clear-1" style="display:none" onclick="event.stopPropagation();clearPasteZone(1)">✕</button></div><input type="file" class="img-file-inp" accept="image/*" data-idx="1" onchange="loadImgFile(this)" style="display:none"><input type="text" class="img-opt" placeholder="또는 이미지 URL" style="margin:0" onchange="loadImgUrl(this,1)"><img class="img-preview" data-idx="1" style="display:none;width:80px;height:60px;object-fit:cover;border-radius:6px;margin-top:4px"></div><button class="cbtn" onclick="selC(this,'imgsel-opts')" style="margin-top:8px">✓</button></div>
+            <div class="opt-row" style="align-items:flex-start;flex-wrap:wrap;gap:6px"><span class="opt-lbl" style="margin-top:8px">③</span><div style="flex:1;min-width:0"><div class="paste-zone" id="pz-2" tabindex="0" onclick="setPasteTarget(2);document.querySelector('.img-file-inp[data-idx=\"2\"]').click()" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleImgDrop(event,2)" ><span id="pz-label-2">📋 여기 클릭 후 Ctrl+V · 파일 클릭 · 끌어놓기</span><button class="pz-clear" id="pz-clear-2" style="display:none" onclick="event.stopPropagation();clearPasteZone(2)">✕</button></div><input type="file" class="img-file-inp" accept="image/*" data-idx="2" onchange="loadImgFile(this)" style="display:none"><input type="text" class="img-opt" placeholder="또는 이미지 URL" style="margin:0" onchange="loadImgUrl(this,2)"><img class="img-preview" data-idx="2" style="display:none;width:80px;height:60px;object-fit:cover;border-radius:6px;margin-top:4px"></div><button class="cbtn" onclick="selC(this,'imgsel-opts')" style="margin-top:8px">✓</button></div>
+            <div class="opt-row" style="align-items:flex-start;flex-wrap:wrap;gap:6px"><span class="opt-lbl" style="margin-top:8px">④</span><div style="flex:1;min-width:0"><div class="paste-zone" id="pz-3" tabindex="0" onclick="setPasteTarget(3);document.querySelector('.img-file-inp[data-idx=\"3\"]').click()" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleImgDrop(event,3)" ><span id="pz-label-3">📋 여기 클릭 후 Ctrl+V · 파일 클릭 · 끌어놓기</span><button class="pz-clear" id="pz-clear-3" style="display:none" onclick="event.stopPropagation();clearPasteZone(3)">✕</button></div><input type="file" class="img-file-inp" accept="image/*" data-idx="3" onchange="loadImgFile(this)" style="display:none"><input type="text" class="img-opt" placeholder="또는 이미지 URL" style="margin:0" onchange="loadImgUrl(this,3)"><img class="img-preview" data-idx="3" style="display:none;width:80px;height:60px;object-fit:cover;border-radius:6px;margin-top:4px"></div><button class="cbtn" onclick="selC(this,'imgsel-opts')" style="margin-top:8px">✓</button></div>
           </div>
         </div>
 
@@ -502,7 +502,7 @@ textarea{min-height:52px;resize:vertical}
         <div id="sec-photoq" style="display:none">
           <label>사진 파일 또는 URL</label>
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
-            <div class="paste-zone" id="pq-pz" style="flex:1;min-width:200px" onclick="document.getElementById('pq-file').click()" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handlePqDrop(event)" onpaste="handlePqPaste(event)"><span id="pq-pz-label">📋 Ctrl+V 붙여넣기 · 클릭 · 끌어놓기</span><button class="pz-clear" id="pq-pz-clear" style="display:none" onclick="event.stopPropagation();clearPqPaste()">✕</button></div>
+            <div class="paste-zone" id="pq-pz" tabindex="0" style="flex:1;min-width:200px" onclick="setPasteTarget('photoq');document.getElementById('pq-file').click()" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handlePqDrop(event)" ><span id="pq-pz-label">📋 여기 클릭 후 Ctrl+V · 파일 선택 · 끌어놓기</span><button class="pz-clear" id="pq-pz-clear" style="display:none" onclick="event.stopPropagation();clearPqPaste()">✕</button></div>
             <input type="file" id="pq-file" accept="image/*" style="display:none" onchange="loadPqFile(this)">
             <span style="font-size:12px;color:var(--muted)">또는 URL</span>
             <input type="text" id="pq-url" placeholder="https://... .jpg" style="flex:1;min-width:160px;margin:0">
@@ -1021,11 +1021,50 @@ function fileToB64(file){return new Promise((res,rej)=>{const r=new FileReader()
 async function loadAudioFile(inp){if(!inp.files[0]) return;inp._b64=await fileToB64(inp.files[0]);document.getElementById('audio-url').value='';document.getElementById('audio-player').src=inp._b64;document.getElementById('audio-preview').style.display='';}
 async 
 // ── Image paste / drop helpers ──────────────────────────────────────────
-function getImgFromClipboardOrDrop(e){
+let activePasteTarget=null; // 'imgsel-N' or 'photoq'
+
+function getImgFile(e){
   const items=(e.clipboardData||e.dataTransfer||{}).items||[];
   for(const item of items){ if(item.type.startsWith('image/')) return item.getAsFile(); }
+  const files=(e.clipboardData||e.dataTransfer||{}).files||[];
+  for(const f of files){ if(f.type.startsWith('image/')) return f; }
   return null;
 }
+
+// Global paste listener — works regardless of focus
+document.addEventListener('paste', async function(e){
+  const f=getImgFile(e);
+  if(!f) return;
+  e.preventDefault();
+  // If a paste-zone is focused/active use it, else use first imgsel slot if visible
+  if(activePasteTarget==='photoq'){
+    await applyPqImg(await fileToB64(f));
+  } else if(activePasteTarget!==null){
+    await applyImgToSlot(f, activePasteTarget);
+  } else {
+    // Auto-detect which section is visible
+    const secImgsel=document.getElementById('sec-imgsel');
+    const secPhotoq=document.getElementById('sec-photoq');
+    if(secPhotoq&&secPhotoq.style.display!=='none'){
+      await applyPqImg(await fileToB64(f));
+    } else if(secImgsel&&secImgsel.style.display!=='none'){
+      // Find first empty slot
+      let placed=false;
+      for(let i=0;i<4;i++){
+        const inp=document.querySelector('.img-file-inp[data-idx="'+i+'"]');
+        if(inp&&!inp._b64Override&&!(inp.files&&inp.files[0])){
+          const optInp=document.querySelectorAll('.img-opt')[i];
+          if(optInp&&!optInp.value.trim()){
+            await applyImgToSlot(f,i);
+            placed=true; break;
+          }
+        }
+      }
+      if(!placed) await applyImgToSlot(f,0);
+    }
+  }
+});
+
 async function applyImgToSlot(file,idx){
   if(!file) return;
   const b64=await fileToB64(file);
@@ -1039,16 +1078,14 @@ async function applyImgToSlot(file,idx){
     const cl=document.getElementById('pz-clear-'+idx);
     if(cl) cl.style.display='';
   }
-  // Store b64 on the fake file input object for later upload
   const inp=document.querySelector('.img-file-inp[data-idx="'+idx+'"]');
-  if(inp){
-    const dt=new DataTransfer();dt.items.add(file);
-    try{inp.files=dt.files;}catch(e){}
-    inp._b64Override=b64;
-  }
+  if(inp) inp._b64Override=b64;
 }
-function handleImgPaste(e,idx){ const f=getImgFromClipboardOrDrop(e); if(f){e.preventDefault();applyImgToSlot(f,idx);} }
-function handleImgDrop(e,idx){ e.preventDefault(); const f=getImgFromClipboardOrDrop(e); if(f) applyImgToSlot(f,idx); }
+
+function setPasteTarget(target){ activePasteTarget=target; }
+
+function handleImgDrop(e,idx){ e.preventDefault(); const f=getImgFile(e); if(f) applyImgToSlot(f,idx); }
+
 function clearPasteZone(idx){
   const pz=document.getElementById('pz-'+idx);
   if(pz){pz.classList.remove('has-img');document.getElementById('pz-label-'+idx).textContent='📋 Ctrl+V 붙여넣기 · 클릭하여 파일 선택 · 끌어놓기';document.getElementById('pz-clear-'+idx).style.display='none';}
@@ -1057,21 +1094,24 @@ function clearPasteZone(idx){
   const inp=document.querySelector('.img-file-inp[data-idx="'+idx+'"]');
   if(inp){inp.value='';inp._b64Override=null;}
 }
-async function handlePqPaste(e){ const f=getImgFromClipboardOrDrop(e); if(f){e.preventDefault();await applyPqImg(await fileToB64(f));} }
-async function handlePqDrop(e){ e.preventDefault(); const f=getImgFromClipboardOrDrop(e); if(f) await applyPqImg(await fileToB64(f)); }
+
+async function handlePqDrop(e){ e.preventDefault(); const f=getImgFile(e); if(f) await applyPqImg(await fileToB64(f)); }
+
 async function applyPqImg(b64){
   document.getElementById('pq-url').value='';
   const p=document.getElementById('pq-preview');if(p){p.src=b64;p.style.display='';}
   const pz=document.getElementById('pq-pz');
-  if(pz){pz.classList.add('has-img');document.getElementById('pq-pz-label').textContent='✅ 이미지 적용됨';document.getElementById('pq-pz-clear').style.display='';}
+  if(pz){pz.classList.add('has-img');document.getElementById('pq-pz-label').textContent='이미지 적용됨 ✅';document.getElementById('pq-pz-clear').style.display='';}
   const pqInp=document.getElementById('pq-file');if(pqInp) pqInp._b64=b64;
 }
+
 function clearPqPaste(){
   const pz=document.getElementById('pq-pz');
   if(pz){pz.classList.remove('has-img');document.getElementById('pq-pz-label').textContent='📋 Ctrl+V 붙여넣기 · 클릭 · 끌어놓기';document.getElementById('pq-pz-clear').style.display='none';}
   const p=document.getElementById('pq-preview');if(p){p.src='';p.style.display='none';}
   const pqInp=document.getElementById('pq-file');if(pqInp){pqInp.value='';pqInp._b64=null;}
 }
+
 function loadImgUrl(inp,idx){
   const url=inp.value.trim();
   if(!url) return;
