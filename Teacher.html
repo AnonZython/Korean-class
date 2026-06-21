@@ -159,6 +159,9 @@ input[type=text]:focus{border-color:var(--purple)}
 .cls-placed-word{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;background:var(--purple-l);border:1.5px solid var(--purple);border-radius:20px;font-size:13px;color:var(--purple);margin:3px;font-weight:500;cursor:pointer}
 .cls-placed-word:hover{background:#d8d4f8}
 .cls-placed-word.locked{pointer-events:none;background:var(--bg);border-color:var(--border);color:var(--muted)}
+
+.instr-card{background:var(--bg);border-left:3px solid var(--purple);border-radius:0 var(--rs) var(--rs) 0;padding:10px 14px;margin-bottom:10px;font-size:14px;color:var(--text);font-family:'Noto Sans KR',sans-serif;line-height:1.6}
+.instr-card .instr-symbol{font-weight:700;color:var(--purple);margin-right:4px}
 </style>
 </head>
 <body>
@@ -275,15 +278,22 @@ function setMsg(id,txt,cls){
 }
 
 const nums=['①','②','③','④','⑤','⑥'];
-const typeNames={mc:'객관식',tf:'O/X',match:'A↔B 연결',imgsel:'이미지 선택',phrase:'Phrase 순서',order:'문장 순서',audio:'Audio 듣기',wordfill:'단어 빈칸',inlinesel:'문장 내 선택',photoq:'사진 보고 답하기',classify:'단어 분류'};
+const typeNames={mc:'객관식',tf:'O/X',match:'A↔B 연결',imgsel:'이미지 선택',phrase:'Phrase 순서',order:'문장 순서',audio:'Audio 듣기',wordfill:'단어 빈칸',inlinesel:'문장 내 선택',photoq:'사진 보고 답하기',classify:'단어 분류',instr:'지시문'};
 
 function renderQuiz(){
-  document.getElementById('qcontainer').innerHTML=qdata.questions.map((q,qi)=>buildQ(q,qi)).join('');
+  let qNum=0;
+  document.getElementById('qcontainer').innerHTML=qdata.questions.map(function(q,qi){
+    if(q.type==='instr'){
+      return '<div class="instr-card"><span class="instr-symbol">※</span>'+q.text.replace(/^※\s*/,'')+'</div>';
+    }
+    qNum++;
+    return buildQ(q,qi,qNum);
+  }).join('');
   document.getElementById('quiz-wrap').style.display='';
   initStates(); updateProg();
 }
 
-function buildQ(q,qi){
+function buildQ(q,qi,qNum){
   let body='';
   if(q.type==='mc'){
     body=q.options.map((o,oi)=>`
@@ -398,11 +408,12 @@ function buildQ(q,qi){
     }).join('');
     body=sentHtml;
   }
-    return `<div class="qcard"><p class="qnum">${qi+1}번 · ${typeNames[q.type]}</p><p class="qtext">${q.text}</p>${body}</div>`;
+    return `<div class="qcard"><p class="qnum">${qNum||qi+1}번 · ${typeNames[q.type]}</p><p class="qtext">${(q.text||"")}</p>${body}</div>`;
 }
 
 function initStates(){
   qdata.questions.forEach((q,qi)=>{
+    if(q.type==='instr') return;
     if(q.type==='match') window['ms_'+qi]={selA:null,matched:{}};
     if(q.type==='phrase') window['ps_'+qi]=[];
     if(q.type==='order') window['os_'+qi]=[];
@@ -728,7 +739,7 @@ function updateClsAnswer(qi){
 }
 
 function updateProg(){
-  const total=qdata.questions.length;
+  const total=qdata.questions.filter(function(q){return q.type!=='instr';}).length;
   const done=qdata.questions.filter((_,qi)=>answers[qi]!=null).length;
   document.getElementById('pbar').style.width=Math.round(done/total*100)+'%';
   document.getElementById('prog-lbl').textContent=done+' / '+total;
