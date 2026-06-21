@@ -401,14 +401,14 @@ textarea{min-height:52px;resize:vertical}
         <div id="sec-mc">
           <label>문제</label><div class="rich-editor-wrap" id="mc-q-wrap">
           <div class="rich-toolbar">
-            <button class="rtb" title="굵게" onclick="rtExec('mc-q','bold')"><b>B</b></button>
-            <button class="rtb" title="밑줄" onclick="rtExec('mc-q','underline')"><u>U</u></button>
+            <button class="rtb" title="굵게" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('mc-q','bold')"><b>B</b></button>
+            <button class="rtb" title="밑줄" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('mc-q','underline')"><u>U</u></button>
             <div class="rtb-sep"></div>
-            <span class="color-dot" style="background:#1a1830" title="검정" onclick="rtColor('mc-q','#1a1830')"></span><span class="color-dot" style="background:#534AB7" title="보라" onclick="rtColor('mc-q','#534AB7')"></span><span class="color-dot" style="background:#0F6E56" title="초록" onclick="rtColor('mc-q','#0F6E56')"></span><span class="color-dot" style="background:#A32D2D" title="빨강" onclick="rtColor('mc-q','#A32D2D')"></span><span class="color-dot" style="background:#854F0B" title="주황" onclick="rtColor('mc-q','#854F0B')"></span><span class="color-dot" style="background:#1565C0" title="파랑" onclick="rtColor('mc-q','#1565C0')"></span><span class="color-dot" style="background:#6A1B9A" title="자주" onclick="rtColor('mc-q','#6A1B9A')"></span><span class="color-dot" style="background:#00838F" title="청록" onclick="rtColor('mc-q','#00838F')"></span>
+            <span class="color-dot" style="background:#1a1830" title="검정" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('mc-q','#1a1830')"></span><span class="color-dot" style="background:#534AB7" title="보라" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('mc-q','#534AB7')"></span><span class="color-dot" style="background:#0F6E56" title="초록" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('mc-q','#0F6E56')"></span><span class="color-dot" style="background:#A32D2D" title="빨강" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('mc-q','#A32D2D')"></span><span class="color-dot" style="background:#854F0B" title="주황" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('mc-q','#854F0B')"></span><span class="color-dot" style="background:#1565C0" title="파랑" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('mc-q','#1565C0')"></span><span class="color-dot" style="background:#6A1B9A" title="자주" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('mc-q','#6A1B9A')"></span><span class="color-dot" style="background:#00838F" title="청록" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('mc-q','#00838F')"></span>
             <div class="rtb-sep"></div>
-            <button class="rtb" title="서식 지우기" onclick="rtExec('mc-q','removeFormat')" style="font-size:11px">✕서식</button>
+            <button class="rtb" title="서식 지우기" onmousedown="event.preventDefault();saveSelection()" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('mc-q','removeFormat')" style="font-size:11px">✕서식</button>
           </div>
-          <div class="rich-content" id="mc-q" contenteditable="true" data-placeholder="다음 중 '가다'의 과거형은?" onkeydown="if(event.key==='Enter'){event.preventDefault();}"></div>
+          <div class="rich-content" onmouseup="saveSelection()" onkeyup="saveSelection()" id="mc-q" contenteditable="true" data-placeholder="다음 중 '가다'의 과거형은?" onkeydown="if(event.key==='Enter'){event.preventDefault();}"></div>
         </div>
           <label>보기 — 정답 ✓ (여러 개 선택 가능)</label>
           <div id="mc-opts">
@@ -423,14 +423,14 @@ textarea{min-height:52px;resize:vertical}
         <div id="sec-tf" style="display:none">
           <label>문제</label><div class="rich-editor-wrap" id="tf-q-wrap">
           <div class="rich-toolbar">
-            <button class="rtb" title="굵게" onclick="rtExec('tf-q','bold')"><b>B</b></button>
-            <button class="rtb" title="밑줄" onclick="rtExec('tf-q','underline')"><u>U</u></button>
+            <button class="rtb" title="굵게" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('tf-q','bold')"><b>B</b></button>
+            <button class="rtb" title="밑줄" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('tf-q','underline')"><u>U</u></button>
             <div class="rtb-sep"></div>
-            <span class="color-dot" style="background:#1a1830" title="검정" onclick="rtColor('tf-q','#1a1830')"></span><span class="color-dot" style="background:#534AB7" title="보라" onclick="rtColor('tf-q','#534AB7')"></span><span class="color-dot" style="background:#0F6E56" title="초록" onclick="rtColor('tf-q','#0F6E56')"></span><span class="color-dot" style="background:#A32D2D" title="빨강" onclick="rtColor('tf-q','#A32D2D')"></span><span class="color-dot" style="background:#854F0B" title="주황" onclick="rtColor('tf-q','#854F0B')"></span><span class="color-dot" style="background:#1565C0" title="파랑" onclick="rtColor('tf-q','#1565C0')"></span><span class="color-dot" style="background:#6A1B9A" title="자주" onclick="rtColor('tf-q','#6A1B9A')"></span><span class="color-dot" style="background:#00838F" title="청록" onclick="rtColor('tf-q','#00838F')"></span>
+            <span class="color-dot" style="background:#1a1830" title="검정" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('tf-q','#1a1830')"></span><span class="color-dot" style="background:#534AB7" title="보라" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('tf-q','#534AB7')"></span><span class="color-dot" style="background:#0F6E56" title="초록" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('tf-q','#0F6E56')"></span><span class="color-dot" style="background:#A32D2D" title="빨강" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('tf-q','#A32D2D')"></span><span class="color-dot" style="background:#854F0B" title="주황" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('tf-q','#854F0B')"></span><span class="color-dot" style="background:#1565C0" title="파랑" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('tf-q','#1565C0')"></span><span class="color-dot" style="background:#6A1B9A" title="자주" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('tf-q','#6A1B9A')"></span><span class="color-dot" style="background:#00838F" title="청록" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('tf-q','#00838F')"></span>
             <div class="rtb-sep"></div>
-            <button class="rtb" title="서식 지우기" onclick="rtExec('tf-q','removeFormat')" style="font-size:11px">✕서식</button>
+            <button class="rtb" title="서식 지우기" onmousedown="event.preventDefault();saveSelection()" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('tf-q','removeFormat')" style="font-size:11px">✕서식</button>
           </div>
-          <div class="rich-content" id="tf-q" contenteditable="true" data-placeholder="'먹었어요'는 과거형이다." onkeydown="if(event.key==='Enter'){event.preventDefault();}"></div>
+          <div class="rich-content" onmouseup="saveSelection()" onkeyup="saveSelection()" id="tf-q" contenteditable="true" data-placeholder="'먹었어요'는 과거형이다." onkeydown="if(event.key==='Enter'){event.preventDefault();}"></div>
         </div>
           <label>정답</label>
           <div style="display:flex;gap:8px;margin-top:5px">
@@ -455,14 +455,14 @@ textarea{min-height:52px;resize:vertical}
         <div id="sec-imgsel" style="display:none">
           <label>문제 <span style="font-size:11px;color:var(--muted)">(선택)</span></label><div class="rich-editor-wrap" id="imgsel-q-wrap">
           <div class="rich-toolbar">
-            <button class="rtb" title="굵게" onclick="rtExec('imgsel-q','bold')"><b>B</b></button>
-            <button class="rtb" title="밑줄" onclick="rtExec('imgsel-q','underline')"><u>U</u></button>
+            <button class="rtb" title="굵게" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('imgsel-q','bold')"><b>B</b></button>
+            <button class="rtb" title="밑줄" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('imgsel-q','underline')"><u>U</u></button>
             <div class="rtb-sep"></div>
-            <span class="color-dot" style="background:#1a1830" title="검정" onclick="rtColor('imgsel-q','#1a1830')"></span><span class="color-dot" style="background:#534AB7" title="보라" onclick="rtColor('imgsel-q','#534AB7')"></span><span class="color-dot" style="background:#0F6E56" title="초록" onclick="rtColor('imgsel-q','#0F6E56')"></span><span class="color-dot" style="background:#A32D2D" title="빨강" onclick="rtColor('imgsel-q','#A32D2D')"></span><span class="color-dot" style="background:#854F0B" title="주황" onclick="rtColor('imgsel-q','#854F0B')"></span><span class="color-dot" style="background:#1565C0" title="파랑" onclick="rtColor('imgsel-q','#1565C0')"></span><span class="color-dot" style="background:#6A1B9A" title="자주" onclick="rtColor('imgsel-q','#6A1B9A')"></span><span class="color-dot" style="background:#00838F" title="청록" onclick="rtColor('imgsel-q','#00838F')"></span>
+            <span class="color-dot" style="background:#1a1830" title="검정" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('imgsel-q','#1a1830')"></span><span class="color-dot" style="background:#534AB7" title="보라" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('imgsel-q','#534AB7')"></span><span class="color-dot" style="background:#0F6E56" title="초록" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('imgsel-q','#0F6E56')"></span><span class="color-dot" style="background:#A32D2D" title="빨강" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('imgsel-q','#A32D2D')"></span><span class="color-dot" style="background:#854F0B" title="주황" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('imgsel-q','#854F0B')"></span><span class="color-dot" style="background:#1565C0" title="파랑" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('imgsel-q','#1565C0')"></span><span class="color-dot" style="background:#6A1B9A" title="자주" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('imgsel-q','#6A1B9A')"></span><span class="color-dot" style="background:#00838F" title="청록" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('imgsel-q','#00838F')"></span>
             <div class="rtb-sep"></div>
-            <button class="rtb" title="서식 지우기" onclick="rtExec('imgsel-q','removeFormat')" style="font-size:11px">✕서식</button>
+            <button class="rtb" title="서식 지우기" onmousedown="event.preventDefault();saveSelection()" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('imgsel-q','removeFormat')" style="font-size:11px">✕서식</button>
           </div>
-          <div class="rich-content" id="imgsel-q" contenteditable="true" data-placeholder="'도서관'을 나타내는 이미지는? (선택)" onkeydown="if(event.key==='Enter'){event.preventDefault();}"></div>
+          <div class="rich-content" onmouseup="saveSelection()" onkeyup="saveSelection()" id="imgsel-q" contenteditable="true" data-placeholder="'도서관'을 나타내는 이미지는? (선택)" onkeydown="if(event.key==='Enter'){event.preventDefault();}"></div>
         </div>
           <label>보기 — 이미지 파일 또는 URL (정답 옆 ✓)</label>
           <div id="imgsel-opts">
@@ -533,14 +533,14 @@ textarea{min-height:52px;resize:vertical}
         <div id="sec-phrase" style="display:none">
           <label>지시문</label><div class="rich-editor-wrap" id="phrase-q-wrap">
           <div class="rich-toolbar">
-            <button class="rtb" title="굵게" onclick="rtExec('phrase-q','bold')"><b>B</b></button>
-            <button class="rtb" title="밑줄" onclick="rtExec('phrase-q','underline')"><u>U</u></button>
+            <button class="rtb" title="굵게" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('phrase-q','bold')"><b>B</b></button>
+            <button class="rtb" title="밑줄" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('phrase-q','underline')"><u>U</u></button>
             <div class="rtb-sep"></div>
-            <span class="color-dot" style="background:#1a1830" title="검정" onclick="rtColor('phrase-q','#1a1830')"></span><span class="color-dot" style="background:#534AB7" title="보라" onclick="rtColor('phrase-q','#534AB7')"></span><span class="color-dot" style="background:#0F6E56" title="초록" onclick="rtColor('phrase-q','#0F6E56')"></span><span class="color-dot" style="background:#A32D2D" title="빨강" onclick="rtColor('phrase-q','#A32D2D')"></span><span class="color-dot" style="background:#854F0B" title="주황" onclick="rtColor('phrase-q','#854F0B')"></span><span class="color-dot" style="background:#1565C0" title="파랑" onclick="rtColor('phrase-q','#1565C0')"></span><span class="color-dot" style="background:#6A1B9A" title="자주" onclick="rtColor('phrase-q','#6A1B9A')"></span><span class="color-dot" style="background:#00838F" title="청록" onclick="rtColor('phrase-q','#00838F')"></span>
+            <span class="color-dot" style="background:#1a1830" title="검정" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('phrase-q','#1a1830')"></span><span class="color-dot" style="background:#534AB7" title="보라" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('phrase-q','#534AB7')"></span><span class="color-dot" style="background:#0F6E56" title="초록" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('phrase-q','#0F6E56')"></span><span class="color-dot" style="background:#A32D2D" title="빨강" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('phrase-q','#A32D2D')"></span><span class="color-dot" style="background:#854F0B" title="주황" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('phrase-q','#854F0B')"></span><span class="color-dot" style="background:#1565C0" title="파랑" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('phrase-q','#1565C0')"></span><span class="color-dot" style="background:#6A1B9A" title="자주" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('phrase-q','#6A1B9A')"></span><span class="color-dot" style="background:#00838F" title="청록" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('phrase-q','#00838F')"></span>
             <div class="rtb-sep"></div>
-            <button class="rtb" title="서식 지우기" onclick="rtExec('phrase-q','removeFormat')" style="font-size:11px">✕서식</button>
+            <button class="rtb" title="서식 지우기" onmousedown="event.preventDefault();saveSelection()" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('phrase-q','removeFormat')" style="font-size:11px">✕서식</button>
           </div>
-          <div class="rich-content" id="phrase-q" contenteditable="true" data-placeholder="단어를 올바른 순서로 배열하세요." onkeydown="if(event.key==='Enter'){event.preventDefault();}"></div>
+          <div class="rich-content" onmouseup="saveSelection()" onkeyup="saveSelection()" id="phrase-q" contenteditable="true" data-placeholder="단어를 올바른 순서로 배열하세요." onkeydown="if(event.key==='Enter'){event.preventDefault();}"></div>
         </div>
           <label>Phrase — 올바른 순서, Enter/쉼표로 구분</label>
           <input type="text" id="phrase-input" placeholder="나는, 학교에, 갑니다" onkeydown="phraseKD(event)">
@@ -551,14 +551,14 @@ textarea{min-height:52px;resize:vertical}
         <div id="sec-order" style="display:none">
           <label>지시문</label><div class="rich-editor-wrap" id="order-q-wrap">
           <div class="rich-toolbar">
-            <button class="rtb" title="굵게" onclick="rtExec('order-q','bold')"><b>B</b></button>
-            <button class="rtb" title="밑줄" onclick="rtExec('order-q','underline')"><u>U</u></button>
+            <button class="rtb" title="굵게" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('order-q','bold')"><b>B</b></button>
+            <button class="rtb" title="밑줄" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('order-q','underline')"><u>U</u></button>
             <div class="rtb-sep"></div>
-            <span class="color-dot" style="background:#1a1830" title="검정" onclick="rtColor('order-q','#1a1830')"></span><span class="color-dot" style="background:#534AB7" title="보라" onclick="rtColor('order-q','#534AB7')"></span><span class="color-dot" style="background:#0F6E56" title="초록" onclick="rtColor('order-q','#0F6E56')"></span><span class="color-dot" style="background:#A32D2D" title="빨강" onclick="rtColor('order-q','#A32D2D')"></span><span class="color-dot" style="background:#854F0B" title="주황" onclick="rtColor('order-q','#854F0B')"></span><span class="color-dot" style="background:#1565C0" title="파랑" onclick="rtColor('order-q','#1565C0')"></span><span class="color-dot" style="background:#6A1B9A" title="자주" onclick="rtColor('order-q','#6A1B9A')"></span><span class="color-dot" style="background:#00838F" title="청록" onclick="rtColor('order-q','#00838F')"></span>
+            <span class="color-dot" style="background:#1a1830" title="검정" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('order-q','#1a1830')"></span><span class="color-dot" style="background:#534AB7" title="보라" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('order-q','#534AB7')"></span><span class="color-dot" style="background:#0F6E56" title="초록" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('order-q','#0F6E56')"></span><span class="color-dot" style="background:#A32D2D" title="빨강" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('order-q','#A32D2D')"></span><span class="color-dot" style="background:#854F0B" title="주황" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('order-q','#854F0B')"></span><span class="color-dot" style="background:#1565C0" title="파랑" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('order-q','#1565C0')"></span><span class="color-dot" style="background:#6A1B9A" title="자주" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('order-q','#6A1B9A')"></span><span class="color-dot" style="background:#00838F" title="청록" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('order-q','#00838F')"></span>
             <div class="rtb-sep"></div>
-            <button class="rtb" title="서식 지우기" onclick="rtExec('order-q','removeFormat')" style="font-size:11px">✕서식</button>
+            <button class="rtb" title="서식 지우기" onmousedown="event.preventDefault();saveSelection()" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('order-q','removeFormat')" style="font-size:11px">✕서식</button>
           </div>
-          <div class="rich-content" id="order-q" contenteditable="true" data-placeholder="문장을 올바른 순서로 배열하세요." onkeydown="if(event.key==='Enter'){event.preventDefault();}"></div>
+          <div class="rich-content" onmouseup="saveSelection()" onkeyup="saveSelection()" id="order-q" contenteditable="true" data-placeholder="문장을 올바른 순서로 배열하세요." onkeydown="if(event.key==='Enter'){event.preventDefault();}"></div>
         </div>
           <label>문장 — 올바른 순서대로</label>
           <div id="order-sents">
@@ -580,14 +580,14 @@ textarea{min-height:52px;resize:vertical}
           <div id="audio-preview" style="display:none"><audio id="audio-player" controls style="width:100%;height:36px"></audio></div>
           <label>문제</label><div class="rich-editor-wrap" id="audio-q-wrap">
           <div class="rich-toolbar">
-            <button class="rtb" title="굵게" onclick="rtExec('audio-q','bold')"><b>B</b></button>
-            <button class="rtb" title="밑줄" onclick="rtExec('audio-q','underline')"><u>U</u></button>
+            <button class="rtb" title="굵게" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('audio-q','bold')"><b>B</b></button>
+            <button class="rtb" title="밑줄" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('audio-q','underline')"><u>U</u></button>
             <div class="rtb-sep"></div>
-            <span class="color-dot" style="background:#1a1830" title="검정" onclick="rtColor('audio-q','#1a1830')"></span><span class="color-dot" style="background:#534AB7" title="보라" onclick="rtColor('audio-q','#534AB7')"></span><span class="color-dot" style="background:#0F6E56" title="초록" onclick="rtColor('audio-q','#0F6E56')"></span><span class="color-dot" style="background:#A32D2D" title="빨강" onclick="rtColor('audio-q','#A32D2D')"></span><span class="color-dot" style="background:#854F0B" title="주황" onclick="rtColor('audio-q','#854F0B')"></span><span class="color-dot" style="background:#1565C0" title="파랑" onclick="rtColor('audio-q','#1565C0')"></span><span class="color-dot" style="background:#6A1B9A" title="자주" onclick="rtColor('audio-q','#6A1B9A')"></span><span class="color-dot" style="background:#00838F" title="청록" onclick="rtColor('audio-q','#00838F')"></span>
+            <span class="color-dot" style="background:#1a1830" title="검정" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('audio-q','#1a1830')"></span><span class="color-dot" style="background:#534AB7" title="보라" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('audio-q','#534AB7')"></span><span class="color-dot" style="background:#0F6E56" title="초록" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('audio-q','#0F6E56')"></span><span class="color-dot" style="background:#A32D2D" title="빨강" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('audio-q','#A32D2D')"></span><span class="color-dot" style="background:#854F0B" title="주황" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('audio-q','#854F0B')"></span><span class="color-dot" style="background:#1565C0" title="파랑" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('audio-q','#1565C0')"></span><span class="color-dot" style="background:#6A1B9A" title="자주" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('audio-q','#6A1B9A')"></span><span class="color-dot" style="background:#00838F" title="청록" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('audio-q','#00838F')"></span>
             <div class="rtb-sep"></div>
-            <button class="rtb" title="서식 지우기" onclick="rtExec('audio-q','removeFormat')" style="font-size:11px">✕서식</button>
+            <button class="rtb" title="서식 지우기" onmousedown="event.preventDefault();saveSelection()" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('audio-q','removeFormat')" style="font-size:11px">✕서식</button>
           </div>
-          <div class="rich-content" id="audio-q" contenteditable="true" data-placeholder="오디오를 듣고 알맞은 답을 고르세요." onkeydown="if(event.key==='Enter'){event.preventDefault();}"></div>
+          <div class="rich-content" onmouseup="saveSelection()" onkeyup="saveSelection()" id="audio-q" contenteditable="true" data-placeholder="오디오를 듣고 알맞은 답을 고르세요." onkeydown="if(event.key==='Enter'){event.preventDefault();}"></div>
         </div>
           <label>보기 — 정답 옆 ✓</label>
           <div id="audio-opts">
@@ -654,14 +654,14 @@ textarea{min-height:52px;resize:vertical}
           <label>문제 지시문 <span style="font-size:11px;color:var(--muted)">(선택)</span></label>
           <div class="rich-editor-wrap" id="pq-q-wrap">
           <div class="rich-toolbar">
-            <button class="rtb" title="굵게" onclick="rtExec('pq-q','bold')"><b>B</b></button>
-            <button class="rtb" title="밑줄" onclick="rtExec('pq-q','underline')"><u>U</u></button>
+            <button class="rtb" title="굵게" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('pq-q','bold')"><b>B</b></button>
+            <button class="rtb" title="밑줄" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('pq-q','underline')"><u>U</u></button>
             <div class="rtb-sep"></div>
-            <span class="color-dot" style="background:#1a1830" title="검정" onclick="rtColor('pq-q','#1a1830')"></span><span class="color-dot" style="background:#534AB7" title="보라" onclick="rtColor('pq-q','#534AB7')"></span><span class="color-dot" style="background:#0F6E56" title="초록" onclick="rtColor('pq-q','#0F6E56')"></span><span class="color-dot" style="background:#A32D2D" title="빨강" onclick="rtColor('pq-q','#A32D2D')"></span><span class="color-dot" style="background:#854F0B" title="주황" onclick="rtColor('pq-q','#854F0B')"></span><span class="color-dot" style="background:#1565C0" title="파랑" onclick="rtColor('pq-q','#1565C0')"></span><span class="color-dot" style="background:#6A1B9A" title="자주" onclick="rtColor('pq-q','#6A1B9A')"></span><span class="color-dot" style="background:#00838F" title="청록" onclick="rtColor('pq-q','#00838F')"></span>
+            <span class="color-dot" style="background:#1a1830" title="검정" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('pq-q','#1a1830')"></span><span class="color-dot" style="background:#534AB7" title="보라" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('pq-q','#534AB7')"></span><span class="color-dot" style="background:#0F6E56" title="초록" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('pq-q','#0F6E56')"></span><span class="color-dot" style="background:#A32D2D" title="빨강" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('pq-q','#A32D2D')"></span><span class="color-dot" style="background:#854F0B" title="주황" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('pq-q','#854F0B')"></span><span class="color-dot" style="background:#1565C0" title="파랑" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('pq-q','#1565C0')"></span><span class="color-dot" style="background:#6A1B9A" title="자주" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('pq-q','#6A1B9A')"></span><span class="color-dot" style="background:#00838F" title="청록" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('pq-q','#00838F')"></span>
             <div class="rtb-sep"></div>
-            <button class="rtb" title="서식 지우기" onclick="rtExec('pq-q','removeFormat')" style="font-size:11px">✕서식</button>
+            <button class="rtb" title="서식 지우기" onmousedown="event.preventDefault();saveSelection()" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('pq-q','removeFormat')" style="font-size:11px">✕서식</button>
           </div>
-          <div class="rich-content" id="pq-q" contenteditable="true" data-placeholder="사진을 보고 알맞은 답을 고르세요. (선택)" onkeydown="if(event.key==='Enter'){event.preventDefault();}"></div>
+          <div class="rich-content" onmouseup="saveSelection()" onkeyup="saveSelection()" id="pq-q" contenteditable="true" data-placeholder="사진을 보고 알맞은 답을 고르세요. (선택)" onkeydown="if(event.key==='Enter'){event.preventDefault();}"></div>
         </div>
           <label>답변 유형</label>
           <div style="display:flex;gap:8px;margin:6px 0 10px">
@@ -686,14 +686,14 @@ textarea{min-height:52px;resize:vertical}
           <label>지시문 (선택)</label>
           <div class="rich-editor-wrap" id="cls-q-wrap">
           <div class="rich-toolbar">
-            <button class="rtb" title="굵게" onclick="rtExec('cls-q','bold')"><b>B</b></button>
-            <button class="rtb" title="밑줄" onclick="rtExec('cls-q','underline')"><u>U</u></button>
+            <button class="rtb" title="굵게" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('cls-q','bold')"><b>B</b></button>
+            <button class="rtb" title="밑줄" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('cls-q','underline')"><u>U</u></button>
             <div class="rtb-sep"></div>
-            <span class="color-dot" style="background:#1a1830" title="검정" onclick="rtColor('cls-q','#1a1830')"></span><span class="color-dot" style="background:#534AB7" title="보라" onclick="rtColor('cls-q','#534AB7')"></span><span class="color-dot" style="background:#0F6E56" title="초록" onclick="rtColor('cls-q','#0F6E56')"></span><span class="color-dot" style="background:#A32D2D" title="빨강" onclick="rtColor('cls-q','#A32D2D')"></span><span class="color-dot" style="background:#854F0B" title="주황" onclick="rtColor('cls-q','#854F0B')"></span><span class="color-dot" style="background:#1565C0" title="파랑" onclick="rtColor('cls-q','#1565C0')"></span><span class="color-dot" style="background:#6A1B9A" title="자주" onclick="rtColor('cls-q','#6A1B9A')"></span><span class="color-dot" style="background:#00838F" title="청록" onclick="rtColor('cls-q','#00838F')"></span>
+            <span class="color-dot" style="background:#1a1830" title="검정" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('cls-q','#1a1830')"></span><span class="color-dot" style="background:#534AB7" title="보라" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('cls-q','#534AB7')"></span><span class="color-dot" style="background:#0F6E56" title="초록" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('cls-q','#0F6E56')"></span><span class="color-dot" style="background:#A32D2D" title="빨강" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('cls-q','#A32D2D')"></span><span class="color-dot" style="background:#854F0B" title="주황" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('cls-q','#854F0B')"></span><span class="color-dot" style="background:#1565C0" title="파랑" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('cls-q','#1565C0')"></span><span class="color-dot" style="background:#6A1B9A" title="자주" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('cls-q','#6A1B9A')"></span><span class="color-dot" style="background:#00838F" title="청록" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('cls-q','#00838F')"></span>
             <div class="rtb-sep"></div>
-            <button class="rtb" title="서식 지우기" onclick="rtExec('cls-q','removeFormat')" style="font-size:11px">✕서식</button>
+            <button class="rtb" title="서식 지우기" onmousedown="event.preventDefault();saveSelection()" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('cls-q','removeFormat')" style="font-size:11px">✕서식</button>
           </div>
-          <div class="rich-content" id="cls-q" contenteditable="true" data-placeholder="단어를 알맞은 종류로 분류하세요." onkeydown="if(event.key==='Enter'){event.preventDefault();}"></div>
+          <div class="rich-content" onmouseup="saveSelection()" onkeyup="saveSelection()" id="cls-q" contenteditable="true" data-placeholder="단어를 알맞은 종류로 분류하세요." onkeydown="if(event.key==='Enter'){event.preventDefault();}"></div>
         </div>
           <label>카테고리 수</label>
           <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
@@ -709,14 +709,14 @@ textarea{min-height:52px;resize:vertical}
           <div style="font-size:12px;color:var(--muted);margin-bottom:6px">예: [1~2] ( )에 들어갈 말로 가장 알맞은 것을 고르십시오. (각 2점)</div>
           <div class="rich-editor-wrap" id="instr-text-wrap">
           <div class="rich-toolbar">
-            <button class="rtb" title="굵게" onclick="rtExec('instr-text','bold')"><b>B</b></button>
-            <button class="rtb" title="밑줄" onclick="rtExec('instr-text','underline')"><u>U</u></button>
+            <button class="rtb" title="굵게" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('instr-text','bold')"><b>B</b></button>
+            <button class="rtb" title="밑줄" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('instr-text','underline')"><u>U</u></button>
             <div class="rtb-sep"></div>
-            <span class="color-dot" style="background:#1a1830" title="검정" onclick="rtColor('instr-text','#1a1830')"></span><span class="color-dot" style="background:#534AB7" title="보라" onclick="rtColor('instr-text','#534AB7')"></span><span class="color-dot" style="background:#0F6E56" title="초록" onclick="rtColor('instr-text','#0F6E56')"></span><span class="color-dot" style="background:#A32D2D" title="빨강" onclick="rtColor('instr-text','#A32D2D')"></span><span class="color-dot" style="background:#854F0B" title="주황" onclick="rtColor('instr-text','#854F0B')"></span><span class="color-dot" style="background:#1565C0" title="파랑" onclick="rtColor('instr-text','#1565C0')"></span><span class="color-dot" style="background:#6A1B9A" title="자주" onclick="rtColor('instr-text','#6A1B9A')"></span><span class="color-dot" style="background:#00838F" title="청록" onclick="rtColor('instr-text','#00838F')"></span>
+            <span class="color-dot" style="background:#1a1830" title="검정" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('instr-text','#1a1830')"></span><span class="color-dot" style="background:#534AB7" title="보라" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('instr-text','#534AB7')"></span><span class="color-dot" style="background:#0F6E56" title="초록" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('instr-text','#0F6E56')"></span><span class="color-dot" style="background:#A32D2D" title="빨강" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('instr-text','#A32D2D')"></span><span class="color-dot" style="background:#854F0B" title="주황" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('instr-text','#854F0B')"></span><span class="color-dot" style="background:#1565C0" title="파랑" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('instr-text','#1565C0')"></span><span class="color-dot" style="background:#6A1B9A" title="자주" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('instr-text','#6A1B9A')"></span><span class="color-dot" style="background:#00838F" title="청록" onmousedown="event.preventDefault();saveSelection()" onclick="rtColor('instr-text','#00838F')"></span>
             <div class="rtb-sep"></div>
-            <button class="rtb" title="서식 지우기" onclick="rtExec('instr-text','removeFormat')" style="font-size:11px">✕서식</button>
+            <button class="rtb" title="서식 지우기" onmousedown="event.preventDefault();saveSelection()" onmousedown="event.preventDefault();saveSelection()" onclick="rtExec('instr-text','removeFormat')" style="font-size:11px">✕서식</button>
           </div>
-          <div class="rich-content" id="instr-text" contenteditable="true" data-placeholder="※ [1~2] ( )에 들어갈 말로 가장 알맞은 것을 고르십시오. (각 2점)" onkeydown="if(event.key==='Enter'){event.preventDefault();}"></div>
+          <div class="rich-content" onmouseup="saveSelection()" onkeyup="saveSelection()" id="instr-text" contenteditable="true" data-placeholder="※ [1~2] ( )에 들어갈 말로 가장 알맞은 것을 고르십시오. (각 2점)" onkeydown="if(event.key==='Enter'){event.preventDefault();}"></div>
         </div>
           <p style="font-size:12px;color:var(--muted);margin-top:6px">지시문은 점수 없이 문제지에 구분선으로 표시됩니다. 번호는 이어서 계속됩니다.</p>
         </div>
@@ -1405,18 +1405,29 @@ function clsRmWord(btn){
 
 
 // ── Rich text editor helpers ──────────────────────────────────────────────
+// 버튼 클릭 전 selection 저장
+let _savedRange=null;
+function saveSelection(){
+  const sel=window.getSelection();
+  if(sel&&sel.rangeCount>0) _savedRange=sel.getRangeAt(0).cloneRange();
+}
+function restoreSelection(){
+  if(!_savedRange) return;
+  const sel=window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(_savedRange);
+}
 function rtExec(qid,cmd,val){
-  const el=document.getElementById(qid);
-  if(!el) return;
-  el.focus();
+  restoreSelection();
+  document.execCommand('styleWithCSS',false,true);
   document.execCommand(cmd,false,val||null);
+  _savedRange=null;
 }
 function rtColor(qid,color){
-  const el=document.getElementById(qid);
-  if(!el) return;
-  el.focus();
+  restoreSelection();
   document.execCommand('styleWithCSS',false,true);
   document.execCommand('foreColor',false,color);
+  _savedRange=null;
 }
 function getRichText(id){
   const el=document.getElementById(id);
