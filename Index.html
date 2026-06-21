@@ -1199,7 +1199,7 @@ async function addQ(){
     const resolved=[];
     for(let i=0;i<allV.length;i++){
       if(allV[i]&&allV[i].startsWith('data:')){
-        try{const fn=fileInps[i]&&fileInps[i].files[0]?fileInps[i].files[0].name:'img'+i+'.jpg';resolved.push(await uploadFile(allV[i],'images/'+Date.now()+'_'+fn));}
+        try{const fi=fileInps[i];const fn=(fi&&fi.files&&fi.files[0])?fi.files[0].name:(fi&&fi._b64Override?'pasted-img-'+i+'.jpg':'img'+i+'.jpg');resolved.push(await uploadFile(allV[i],'images/'+Date.now()+'_'+fn));}
         catch(e){return smsg('이미지 업로드 실패: '+e.message,'err');}
       } else resolved.push(allV[i]);
     }
