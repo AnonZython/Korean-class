@@ -1223,7 +1223,7 @@ function loadImgUrl(inp,idx){
 }
 
 async function loadImgFile(inp){if(!inp.files[0]&&!inp._b64Override) return;const b64=inp._b64Override||(await fileToB64(inp.files[0]));const idx=parseInt(inp.dataset.idx);document.querySelectorAll('.img-opt')[idx].value=b64;const prev=document.querySelectorAll('.img-preview')[idx];prev.src=b64;prev.style.display='';}
-async function loadPqFile(inp){if(!inp.files[0]) return;inp._b64=await fileToB64(inp.files[0]);document.getElementById('pq-url').value='';const p=document.getElementById('pq-preview');p.src=inp._b64;p.style.display='';}
+async function loadPqFile(inp){if(!inp.files[0]&&!inp._b64) return;const b64=inp._b64||(await fileToB64(inp.files[0]));document.getElementById('pq-url').value='';const p=document.getElementById('pq-preview');if(p){p.src=b64;p.style.display='';}inp._b64=b64;}
 
 // ── Classify helpers ────────────────────────────────────────────────────────
 function initClsBoxes(){
@@ -1337,7 +1337,7 @@ async function addQ(){
     const resolved=[];
     for(let i=0;i<allV.length;i++){
       if(allV[i]&&allV[i].startsWith('data:')){
-        try{const fi=fileInps[i];const hasFile=fi&&fi.files&&fi.files[0];const fn=hasFile?fi.files[0].name:'img-'+Date.now()+'-'+i+'.png';resolved.push(await uploadFile(allV[i],'images/'+fn));}
+        try{resolved.push(await uploadFile(allV[i],'images/img-'+Date.now()+'-'+i+'.png'));}
         catch(e){return smsg('이미지 업로드 실패: '+e.message,'err');}
       } else resolved.push(allV[i]);
     }
@@ -1377,7 +1377,7 @@ async function addQ(){
     const cb=document.querySelector('#audio-opts .cbtn.sel');
     if(!cb) return smsg('정답을 선택해주세요.','err');
     let url=rawUrl;
-    if(fb){smsg('오디오 업로드 중...','');try{url=await uploadFile(fb,'audio/'+Date.now()+'_'+fi.files[0].name);}catch(e){return smsg('업로드 실패: '+e.message,'err');}}
+    if(fb){smsg('오디오 업로드 중...','');try{url=await uploadFile(fb,'audio/'+Date.now()+'.mp3');}catch(e){return smsg('업로드 실패: '+e.message,'err');}}
     const ci=[...document.querySelectorAll('#audio-opts .cbtn')].indexOf(cb);
     q={...q,text:qt,audioUrl:url,options:opts,correct:ci};
     document.getElementById('audio-q').value='';document.getElementById('audio-url').value='';
@@ -1426,7 +1426,7 @@ async function addQ(){
     if(!fb2&&!rawPqUrl) return smsg('사진을 업로드하거나 URL을 입력해주세요.','err');
     const qt=document.getElementById('pq-q').value.trim()||'사진을 보고 답하세요.';
     let imgSrc=rawPqUrl;
-    if(fb2){smsg('사진 업로드 중...','');try{imgSrc=await uploadFile(fb2,'photos/'+Date.now()+'_'+pf.files[0].name);}catch(e){return smsg('업로드 실패: '+e.message,'err');}}
+    if(fb2&&fb2._b64){smsg('사진 업로드 중...','');try{imgSrc=await uploadFile(fb2._b64,'photos/'+Date.now()+'.png');}catch(e){return smsg('업로드 실패: '+e.message,'err');}}
     if(pqSubType==='mc'){
       const opts=[...document.querySelectorAll('.pq-opt')].map(i=>i.value.trim());
       if(opts.some(o=>!o)) return smsg('모든 보기를 입력해주세요.','err');
