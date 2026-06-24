@@ -422,12 +422,8 @@ textarea{min-height:52px;resize:vertical}
           </div>
           <!-- 음성 파일 -->
           <div id="imgsel-audio-area" style="display:none;margin-bottom:10px">
-            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
-              <input type="file" id="imgsel-audio-file" accept="audio/*" style="flex:1;font-size:13px" onchange="loadImgselAudio(this)">
-              <span style="font-size:12px;color:var(--muted)">또는</span>
-              <input type="text" id="imgsel-audio-url" placeholder="https://... .mp3" style="flex:1;min-width:160px;margin:0">
-            </div>
-            <div id="imgsel-audio-preview" style="display:none"><audio id="imgsel-audio-player" controls style="width:100%;height:36px"></audio></div>
+            <div id="imgsel-slots"></div>
+            <button type="button" onclick="addAudioSlot('img')" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--bg);border:1.5px dashed var(--border);border-radius:var(--rs);font-size:13px;color:var(--muted);cursor:pointer;font-family:'Noto Sans KR',sans-serif;margin-bottom:6px" id="img-add-btn">＋ 파일 추가</button>
           </div>
           <label>문제</label><input type="text" id="imgsel-q" placeholder="'도서관'을 나타내는 이미지는?">
           <label>보기 — 이미지 파일 또는 URL (정답 옆 ✓)</label>
@@ -461,13 +457,9 @@ textarea{min-height:52px;resize:vertical}
 
         <!-- Audio -->
         <div id="sec-audio" style="display:none">
-          <label>오디오 파일 또는 URL</label>
-          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
-            <input type="file" id="audio-file" accept="audio/*" style="flex:1;font-size:13px" onchange="loadAudioFile(this)">
-            <span style="font-size:12px;color:var(--muted)">또는</span>
-            <input type="text" id="audio-url" placeholder="https://... .mp3" style="flex:1;min-width:160px;margin:0">
-          </div>
-          <div id="audio-preview" style="display:none"><audio id="audio-player" controls style="width:100%;height:36px"></audio></div>
+          <label>오디오 파일 (여러 개 추가 가능)</label>
+          <div id="audio-slots"></div>
+          <button type="button" onclick="addAudioSlot('aud')" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--bg);border:1.5px dashed var(--border);border-radius:var(--rs);font-size:13px;color:var(--muted);cursor:pointer;font-family:'Noto Sans KR',sans-serif;margin-bottom:10px" id="aud-add-btn">＋ 파일 추가</button>
           <label>문제</label><input type="text" id="audio-q" placeholder="오디오를 듣고 알맞은 답을 고르세요.">
           <label>보기 — 정답 옆 ✓</label>
           <div id="audio-opts">
@@ -720,7 +712,7 @@ async function uploadFile(b64,path){
 }
 
 // State
-let qType='mc',questions=[],tfVal=null,imgselMediaType='none',phraseList=[],wfWords=[],wfAnswers=[],wfPts=[],ilsAnswers=[],ilsPts=[],pqSubType='mc';
+let qType='mc',questions=[],tfVal=null,imgselMediaType='none',audSlots=[],imgSlots=[],phraseList=[],wfWords=[],wfAnswers=[],wfPts=[],ilsAnswers=[],ilsPts=[],pqSubType='mc';
 let editingQuizCode=null;
 
 let clsCats=[], clsWords={};
@@ -1063,7 +1055,175 @@ function fmt(text){
 }
 
 function fileToB64(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=rej;r.readAsDataURL(file);});}
-async function loadAudioFile(inp){if(!inp.files[0]) return;inp._b64=await fileToB64(inp.files[0]);document.getElementById('audio-url').value='';document.getElementById('audio-player').src=inp._b64;document.getElementById('audio-preview').style.display='';}
+// ── Multi-slot audio ─────────────────────────────────────────────────────────
+function _slotArr(ctx){ return ctx==='aud'?audSlots:imgSlots; }
+function _slotWrap(ctx){ return document.getElementById(ctx==='aud'?'audio-slots':'imgsel-slots'); }
+
+function addAudioSlot(ctx){
+  const arr=_slotArr(ctx);
+  arr.push({b64:'',url:'',name:''});
+  renderAudioSlots(ctx);
+}
+function removeAudioSlot(ctx,idx){
+  _slotArr(ctx).splice(idx,1);
+  renderAudioSlots(ctx);
+}
+// Formats browsers don't support natively
+const _AUDIO_NO_SUPPORT=['wma','flac','aiff','aif','au','ra','rm','amr','m4r','ape','ac3','dts'];
+function _canPlayExt(ext){
+  const e=ext.toLowerCase();
+  if(_AUDIO_NO_SUPPORT.includes(e)) return false;
+  const mime={mp3:'audio/mpeg',wav:'audio/wav',ogg:'audio/ogg',webm:'audio/webm',m4a:'audio/mp4',aac:'audio/aac',opus:'audio/ogg; codecs=opus'}[e];
+  if(!mime) return true;
+  return document.createElement('audio').canPlayType(mime)!=='';
+}
+
+function renderAudioSlots(ctx){
+  const arr=_slotArr(ctx);
+  const wrap=_slotWrap(ctx);
+  if(!wrap) return;
+  if(arr.length===0){ arr.push({b64:'',url:'',name:''}); }
+  wrap.innerHTML=arr.map(function(slot,i){
+    const hasSrc=!!(slot.b64||slot.url);
+    return '<div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;margin-bottom:8px">'
+      +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'
+        +'<span style="font-size:12px;font-weight:700;color:var(--purple)">🎧 파일 '+(i+1)+'</span><span style="flex:1"></span>'
+        +(arr.length>1?'<button type="button" onclick="removeAudioSlot(\''+ctx+'\','+i+')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:2px 6px;border-radius:4px">✕ 삭제</button>':'')
+      +'</div>'
+      +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px">'
+        +'<input type="file" id="'+ctx+'-slot-file-'+i+'" accept="audio/*" style="flex:1;font-size:12px" onchange="onSlotFileChange(\''+ctx+'\','+i+',this)">'
+        +'<span style="font-size:11px;color:var(--muted)">또는</span>'
+        +'<input type="text" id="'+ctx+'-slot-url-'+i+'" placeholder="https://... (URL)" value="'+(slot.url||'')+'" style="flex:1;min-width:130px;margin:0;font-size:13px" oninput="onSlotUrlChange(\''+ctx+'\','+i+',this)">'
+      +'</div>'
+      // Warning area
+      +'<div id="'+ctx+'-slot-warn-'+i+'" style="display:none;align-items:center;gap:8px;padding:8px 10px;background:var(--amber-l);border:1px solid #e8c882;border-radius:var(--rs);margin-bottom:6px">'
+        +'<span style="flex:1;font-size:12px;color:var(--amber)" id="'+ctx+'-slot-warn-msg-'+i+'"></span>'
+        +'<button type="button" id="'+ctx+'-slot-conv-'+i+'" onclick="convertSlotAudio(\''+ctx+'\','+i+')" style="flex-shrink:0;padding:5px 12px;background:var(--purple);color:#fff;border:none;border-radius:var(--rs);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:\'Noto Sans KR\',sans-serif">🔄 MP3로 변환</button>'
+      +'</div>'
+      // Player area
+      +'<div id="'+ctx+'-slot-prev-'+i+'" style="display:'+(hasSrc?'flex':'none')+';align-items:center;gap:8px">'
+        +'<audio controls src="'+(slot.b64||slot.url||'')+'" style="flex:1;height:34px"></audio>'
+        +'<button type="button" onclick="openTrim(\''+ctx+'\','+i+')" style="flex-shrink:0;padding:5px 10px;background:var(--purple-l);color:var(--purple);border:1.5px solid var(--purple);border-radius:var(--rs);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:\'Noto Sans KR\',sans-serif">✂️ 트림</button>'
+      +'</div>'
+    +'</div>';
+  }).join('');
+}
+
+function onSlotFileChange(ctx,idx,inp){
+  if(!inp.files[0]) return;
+  const file=inp.files[0];
+  const arr=_slotArr(ctx);
+  const ext=file.name.split('.').pop().toLowerCase();
+  arr[idx]._pendingFile=file;
+  const warn=document.getElementById(ctx+'-slot-warn-'+idx);
+  const warnMsg=document.getElementById(ctx+'-slot-warn-msg-'+idx);
+  const prev=document.getElementById(ctx+'-slot-prev-'+idx);
+  if(!_canPlayExt(ext)){
+    // Show convert button
+    if(warn){ warn.style.display='flex'; }
+    if(warnMsg){ warnMsg.textContent='⚠️ '+ext.toUpperCase()+' 파일은 브라우저에서 재생이 안 됩니다. MP3로 변환해 주세요.'; }
+    if(prev){ prev.style.display='none'; }
+    return;
+  }
+  if(warn) warn.style.display='none';
+  fileToB64(file).then(function(b64){
+    arr[idx].b64=b64; arr[idx].url=''; arr[idx].name=file.name;
+    const urlInp=document.getElementById(ctx+'-slot-url-'+idx); if(urlInp) urlInp.value='';
+    if(prev){ prev.style.display='flex'; prev.querySelector('audio').src=b64; }
+  });
+}
+
+// FFmpeg.wasm lazy loader
+let _ffmpegReady=false, _ffmpegLoading=false, _ffmpegInst=null;
+async function _loadFFmpeg(statusEl){
+  // Can't load CDN from file:// protocol
+  if(window.location.protocol==='file:') return false;
+  if(_ffmpegReady) return true;
+  if(_ffmpegLoading){ await new Promise(function(r){var t=setInterval(function(){if(!_ffmpegLoading){clearInterval(t);r();}},200);}); return _ffmpegReady; }
+  _ffmpegLoading=true;
+  try{
+    if(!window.FFmpeg){
+      if(statusEl) statusEl.textContent='🔄 FFmpeg 로드 중...';
+      await new Promise(function(res,rej){
+        const s=document.createElement('script');
+        s.src='https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js';
+        s.onload=res; s.onerror=rej; document.head.appendChild(s);
+      });
+    }
+    _ffmpegInst=window.FFmpeg.createFFmpeg({
+      corePath:'https://unpkg.com/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js',
+      log:false
+    });
+    if(statusEl) statusEl.textContent='🔄 WASM 코어 로드 중 (첫 실행: 잠시 기다려 주세요)...';
+    await _ffmpegInst.load();
+    _ffmpegReady=true; _ffmpegLoading=false;
+    return true;
+  }catch(e){ _ffmpegLoading=false; return false; }
+}
+
+function _showConvertLinks(ctx,idx,extra){
+  const warn=document.getElementById(ctx+'-slot-warn-'+idx);
+  const warnMsg=document.getElementById(ctx+'-slot-warn-msg-'+idx);
+  const convBtn=document.getElementById(ctx+'-slot-conv-'+idx);
+  if(convBtn) convBtn.style.display='none';
+  if(warnMsg) warnMsg.innerHTML=(extra||'')
+    +'<br><strong>무료 온라인 변환기:</strong><br>'
+    +'<a href="https://cloudconvert.com/wma-to-mp3" target="_blank" style="color:var(--purple);font-weight:700;margin-right:10px">☁️ CloudConvert</a>'
+    +'<a href="https://convertio.co/wma-mp3/" target="_blank" style="color:var(--purple);font-weight:700;margin-right:10px">🔄 Convertio</a>'
+    +'<a href="https://www.freeconvert.com/wma-to-mp3" target="_blank" style="color:var(--purple);font-weight:700">🆓 FreeConvert</a>'
+    +'<br><span style="font-size:11px;opacity:.8">MP3로 변환 후 다시 업로드해 주세요.</span>';
+  if(warn) warn.style.display='flex';
+}
+
+async function convertSlotAudio(ctx,idx){
+  const arr=_slotArr(ctx);
+  const file=arr[idx]._pendingFile;
+  if(!file){ alert('변환할 파일을 찾을 수 없습니다.'); return; }
+  const convBtn=document.getElementById(ctx+'-slot-conv-'+idx);
+  const warnMsg=document.getElementById(ctx+'-slot-warn-msg-'+idx);
+  const prev=document.getElementById(ctx+'-slot-prev-'+idx);
+  const ext=file.name.split('.').pop().toUpperCase();
+
+  // file:// protocol — FFmpeg CDN will never load, show links immediately
+  if(window.location.protocol==='file:'){
+    _showConvertLinks(ctx,idx,'⚠️ 로컬 파일 실행 중: 자동 변환이 불가합니다.');
+    return;
+  }
+
+  if(convBtn){ convBtn.disabled=true; convBtn.textContent='변환 중...'; }
+  const ok=await _loadFFmpeg(warnMsg);
+  if(!ok){
+    _showConvertLinks(ctx,idx,'⚠️ FFmpeg 로드 실패.');
+    return;
+  }
+  try{
+    if(warnMsg) warnMsg.textContent='🔄 변환 중...';
+    const inName='input.'+file.name.split('.').pop().toLowerCase(), outName='output.mp3';
+    const buf=await file.arrayBuffer();
+    _ffmpegInst.FS('writeFile',inName,new Uint8Array(buf));
+    await _ffmpegInst.run('-i',inName,'-acodec','libmp3lame','-ar','44100','-q:a','2',outName);
+    const data=_ffmpegInst.FS('readFile',outName);
+    const blob=new Blob([data.buffer],{type:'audio/mp3'});
+    const b64=await new Promise(function(res){const r=new FileReader();r.onload=function(e){res(e.target.result);};r.readAsDataURL(blob);});
+    arr[idx].b64=b64; arr[idx].url=''; arr[idx].name=file.name.replace(/\.[^.]+$/,'.mp3');
+    const urlInp=document.getElementById(ctx+'-slot-url-'+idx); if(urlInp) urlInp.value='';
+    const warn=document.getElementById(ctx+'-slot-warn-'+idx);
+    if(warn) warn.style.display='none';
+    if(prev){ prev.style.display='flex'; prev.querySelector('audio').src=b64; }
+    try{_ffmpegInst.FS('unlink',inName);}catch(e){}
+    try{_ffmpegInst.FS('unlink',outName);}catch(e){}
+  }catch(e){
+    _showConvertLinks(ctx,idx,'⚠️ 변환 실패: '+e.message);
+  }
+}
+function onSlotUrlChange(ctx,idx,inp){
+  const url=inp.value.trim(); const arr=_slotArr(ctx);
+  arr[idx].url=url; arr[idx].b64=''; arr[idx].name='';
+  const prev=document.getElementById(ctx+'-slot-prev-'+idx);
+  if(prev){ if(url){prev.style.display='flex';prev.querySelector('audio').src=url;}else{prev.style.display='none';} }
+}
+async function loadAudioFile(inp){if(!inp.files[0]) return;}
+function loadImgselAudio(inp){}
 function setImgselMedia(t){
   imgselMediaType=t;
   ['none','text','audio'].forEach(function(v){
@@ -1071,15 +1231,7 @@ function setImgselMedia(t){
     const a=document.getElementById('imgsel-'+v+'-area');
     if(a) a.style.display=(v===t&&v!=='none')?'':'none';
   });
-}
-function loadImgselAudio(inp){
-  if(!inp.files[0]) return;
-  fileToB64(inp.files[0]).then(function(b64){
-    inp._b64=b64;
-    document.getElementById('imgsel-audio-url').value='';
-    document.getElementById('imgsel-audio-player').src=b64;
-    document.getElementById('imgsel-audio-preview').style.display='';
-  });
+  if(t==='audio' && imgSlots.length===0) _initSlots('img');
 }
 async function loadImgFile(inp){if(!inp.files[0]) return;const b64=await fileToB64(inp.files[0]);const idx=parseInt(inp.dataset.idx);document.querySelectorAll('.img-opt')[idx].value=b64;const prev=document.querySelectorAll('.img-preview')[idx];prev.src=b64;prev.style.display='';}
 async function loadPqFile(inp){
@@ -1248,6 +1400,11 @@ function clsRmWord(btn){
   clsRenderWordChips(i,cat);
 }
 
+function _initSlots(ctx){
+  if(ctx==='aud'){ audSlots=[]; renderAudioSlots('aud'); }
+  else { imgSlots=[]; renderAudioSlots('img'); }
+}
+
 function smsg(txt,cls){const el=document.getElementById('amsg');el.textContent=txt;el.className='smsg '+(cls||'');if(cls) setTimeout(()=>{if(el.textContent===txt){el.textContent='';el.className='smsg';}},2600);}
 
 async function addQ(){
@@ -1304,13 +1461,18 @@ async function addQ(){
       const txt=document.getElementById('imgsel-text').value.trim();
       if(txt){q.mediaType='text';q.mediaText=txt;}
     } else if(imgselMediaType==='audio'){
-      const iaf=document.getElementById('imgsel-audio-file');
-      const ib=iaf._b64||'';
-      const iu=document.getElementById('imgsel-audio-url').value.trim();
-      if(!ib&&!iu) return smsg('음성 파일을 업로드하거나 URL을 입력해주세요.','err');
-      let au=iu;
-      if(ib){smsg('음성 업로드 중...','');try{au=await uploadFile(ib,'audio/'+Date.now()+'_'+iaf.files[0].name);}catch(e){return smsg('업로드 실패: '+e.message,'err');}}
-      q.mediaType='audio';q.mediaAudio=au;
+      const filledImg=imgSlots.filter(function(s){return s.b64||s.url;});
+      if(!filledImg.length) return smsg('음성 파일을 최소 1개 추가해주세요.','err');
+      smsg('음성 업로드 중...','');
+      const imgAudioUrls=[];
+      for(let si=0;si<filledImg.length;si++){
+        const s=filledImg[si];
+        if(s.b64){
+          try{imgAudioUrls.push(await uploadFile(s.b64,'audio/'+Date.now()+'_'+(s.name||'audio'+si+'.wav')));}
+          catch(e){return smsg('업로드 실패: '+e.message,'err');}
+        } else if(s.url){ imgAudioUrls.push(s.url); }
+      }
+      q.mediaType='audio'; q.mediaAudios=imgAudioUrls;
     }
     // reset
     document.getElementById('imgsel-q').value='';
@@ -1319,10 +1481,7 @@ async function addQ(){
     document.querySelectorAll('.img-preview').forEach(i=>{i.src='';i.style.display='none';});
     cbs.forEach(b=>b.classList.remove('sel'));
     document.getElementById('imgsel-text').value='';
-    const iaf2=document.getElementById('imgsel-audio-file');
-    iaf2.value='';iaf2._b64='';
-    document.getElementById('imgsel-audio-url').value='';
-    document.getElementById('imgsel-audio-preview').style.display='none';
+    imgSlots=[]; renderAudioSlots('img');
     setImgselMedia('none');
   } else if(qType==='phrase'){
     const qt=document.getElementById('phrase-q').value.trim();
@@ -1343,23 +1502,28 @@ async function addQ(){
     document.querySelectorAll('.ord-s').forEach(i=>i.value='');
   } else if(qType==='audio'){
     const qt=document.getElementById('audio-q').value.trim();
-    const fi=document.getElementById('audio-file');
-    const fb=fi._b64||'';
-    const rawUrl=document.getElementById('audio-url').value.trim();
-    if(!fb&&!rawUrl) return smsg('오디오 파일을 업로드하거나 URL을 입력해주세요.','err');
     if(!qt) return smsg('문제 지시문을 입력해주세요.','err');
+    const filledSlots=audSlots.filter(function(s){return s.b64||s.url;});
+    if(!filledSlots.length) return smsg('오디오 파일을 최소 1개 추가해주세요.','err');
     const opts=[...document.querySelectorAll('.aud-opt')].map(i=>i.value.trim()).filter(o=>o);
     if(opts.length<2) return smsg('최소 2개의 보기를 입력해주세요.','err');
     const cb=document.querySelector('#audio-opts .cbtn.sel');
     if(!cb) return smsg('정답을 선택해주세요.','err');
-    let url=rawUrl;
-    if(fb){smsg('오디오 업로드 중...','');try{url=await uploadFile(fb,'audio/'+Date.now()+'_'+fi.files[0].name);}catch(e){return smsg('업로드 실패: '+e.message,'err');}}
+    smsg('오디오 업로드 중...','');
+    const audioUrls=[];
+    for(let si=0;si<filledSlots.length;si++){
+      const s=filledSlots[si];
+      if(s.b64){
+        try{audioUrls.push(await uploadFile(s.b64,'audio/'+Date.now()+'_'+(s.name||'audio'+si+'.wav')));}
+        catch(e){return smsg('업로드 실패: '+e.message,'err');}
+      } else if(s.url){ audioUrls.push(s.url); }
+    }
     const ci=[...document.querySelectorAll('#audio-opts .cbtn')].indexOf(cb);
-    q={...q,text:qt,audioUrl:url,options:opts,correct:ci};
-    document.getElementById('audio-q').value='';document.getElementById('audio-url').value='';
-    fi.value='';fi._b64='';document.getElementById('audio-preview').style.display='none';
+    q={...q,text:qt,audioUrls:audioUrls,options:opts,correct:ci};
+    document.getElementById('audio-q').value='';
     document.querySelectorAll('.aud-opt').forEach(i=>i.value='');
     document.querySelectorAll('#audio-opts .cbtn').forEach(b=>b.classList.remove('sel'));
+    audSlots=[]; renderAudioSlots('aud');
   } else if(qType==='wordfill'){
     const sents=[...document.querySelectorAll('.wf-s')].map(i=>i.value.trim()).filter(s=>s);
     if(!sents.length) return smsg('문장을 최소 1개 입력해주세요.','err');
@@ -1806,6 +1970,7 @@ async function toggleRankReleaseFromAnswers(code,checkbox){
 // Tag all question-form inputs as formattable
 (function tagFmtFields(){
   const sectionIds=['sec-mc','sec-tf','sec-match','sec-imgsel','sec-phrase','sec-order','sec-audio','sec-wordfill','sec-inlinesel','sec-photoq','sec-classify'];
+  if(t==='audio' && audSlots.length===0) setTimeout(function(){_initSlots('aud');},0);
   sectionIds.forEach(function(id){
     const sec=document.getElementById(id);
     if(!sec) return;
@@ -2004,6 +2169,290 @@ document.addEventListener('keydown',function(e){
   if(e.key==='b'||e.key==='B'){e.preventDefault();applyFmt('bold');}
   else if(e.key==='u'||e.key==='U'){e.preventDefault();applyFmt('underline');}
 });
+</script>
+
+
+<!-- ── Audio Trim Modal ─────────────────────────────────────────────── -->
+<div id="trim-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:3000;align-items:center;justify-content:center;padding:16px" onclick="if(event.target===this)closeTrim()">
+  <div style="background:var(--sur);border-radius:var(--r);padding:22px 20px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.4)">
+    <div style="display:flex;align-items:center;margin-bottom:16px">
+      <span style="font-size:16px;font-weight:700;flex:1">✂️ 오디오 트림</span>
+      <button onclick="closeTrim()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);line-height:1">✕</button>
+    </div>
+    <div id="trim-status" style="font-size:13px;color:var(--muted);min-height:18px;margin-bottom:10px"></div>
+
+    <!-- Waveform canvas -->
+    <canvas id="trim-canvas" height="72" style="width:100%;border-radius:8px;background:#1a1830;display:block;margin-bottom:12px;cursor:crosshair"></canvas>
+
+    <!-- Dual-range slider track -->
+    <div style="position:relative;height:36px;margin-bottom:10px;user-select:none" id="trim-slider-wrap">
+      <div style="position:absolute;top:50%;left:0;right:0;height:6px;background:var(--border);border-radius:3px;transform:translateY(-50%)"></div>
+      <div id="trim-fill" style="position:absolute;top:50%;height:6px;background:var(--purple);border-radius:3px;transform:translateY(-50%);pointer-events:none"></div>
+      <input type="range" id="trim-s" min="0" step="0.01" value="0"
+        style="position:absolute;width:100%;height:100%;opacity:0;cursor:pointer;margin:0;z-index:3"
+        oninput="onTrimRange()">
+      <input type="range" id="trim-e" min="0" step="0.01" value="100"
+        style="position:absolute;width:100%;height:100%;opacity:0;cursor:pointer;margin:0;z-index:3"
+        oninput="onTrimRange()">
+    </div>
+
+    <!-- Time labels -->
+    <div style="display:flex;gap:10px;margin-bottom:14px;align-items:flex-end">
+      <div style="flex:1">
+        <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px">시작</div>
+        <input type="number" id="trim-s-inp" min="0" step="0.1" value="0"
+          style="width:100%;text-align:center;font-family:'DM Mono',monospace;font-size:16px;font-weight:700;padding:8px"
+          oninput="onTrimInput()">
+        <div style="text-align:center;font-size:11px;color:var(--muted);margin-top:3px">초</div>
+      </div>
+      <div style="flex:1;text-align:center">
+        <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px">선택 길이</div>
+        <div id="trim-len" style="font-family:'DM Mono',monospace;font-size:22px;font-weight:700;color:var(--purple);padding:8px 0;border:1.5px solid var(--border);border-radius:var(--rs)">0.0s</div>
+      </div>
+      <div style="flex:1">
+        <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px">끝</div>
+        <input type="number" id="trim-e-inp" min="0" step="0.1" value="0"
+          style="width:100%;text-align:center;font-family:'DM Mono',monospace;font-size:16px;font-weight:700;padding:8px"
+          oninput="onTrimInput()">
+        <div style="text-align:center;font-size:11px;color:var(--muted);margin-top:3px">초</div>
+      </div>
+    </div>
+
+    <!-- Preview player -->
+    <audio id="trim-player" controls style="width:100%;height:36px;margin-bottom:14px"></audio>
+
+    <!-- Buttons -->
+    <div style="display:flex;gap:10px">
+      <button onclick="previewTrim()" class="btn-sec" style="flex:1">▶ 미리 듣기</button>
+      <button onclick="applyTrim()" class="btn-pri" style="flex:2">✂️ 트림 적용</button>
+    </div>
+    <div id="trim-msg" style="font-size:12px;color:var(--teal);text-align:center;margin-top:10px;min-height:16px"></div>
+  </div>
+</div>
+
+<script>
+// ── Audio Trim ───────────────────────────────────────────────────────────────
+let _trimCtx=null, _trimBuf=null, _trimSrc=null, _trimTarget=null, _trimSlotIdx=0;
+
+function openTrim(ctx,idx){
+  _trimTarget=ctx; _trimSlotIdx=idx;
+  const arr=_slotArr(ctx);
+  const slot=arr[idx]||{};
+  const b64=slot.b64||'';
+  if(!b64){alert('파일 업로드로 추가한 오디오만 트림할 수 있습니다.');return;}
+  document.getElementById('trim-modal').style.display='flex';
+  document.getElementById('trim-status').textContent='오디오 분석 중...';
+  document.getElementById('trim-msg').textContent='';
+  document.getElementById('trim-player').src='';
+  fetch(b64).then(function(r){return r.arrayBuffer();}).then(function(buf){
+    if(!_trimCtx) _trimCtx=new(window.AudioContext||window.webkitAudioContext)();
+    return _trimCtx.decodeAudioData(buf);
+  }).then(function(decoded){
+    _trimBuf=decoded;
+    const dur=decoded.duration;
+    document.getElementById('trim-s').max=dur;
+    document.getElementById('trim-e').max=dur;
+    document.getElementById('trim-s').value=0;
+    document.getElementById('trim-e').value=dur;
+    document.getElementById('trim-s-inp').max=dur;
+    document.getElementById('trim-e-inp').max=dur;
+    document.getElementById('trim-s-inp').value=0;
+    document.getElementById('trim-e-inp').value=dur.toFixed(1);
+    document.getElementById('trim-status').textContent='전체 길이: '+dur.toFixed(2)+'초';
+    drawTrimWave(decoded);
+    updateTrimFill();
+    updateTrimLen();
+  }).catch(function(e){
+    document.getElementById('trim-status').textContent='오디오를 읽을 수 없습니다: '+e.message;
+  });
+}
+
+function closeTrim(){
+  document.getElementById('trim-modal').style.display='none';
+  if(_trimSrc){try{_trimSrc.stop();}catch(e){}_trimSrc=null;}
+}
+
+function drawTrimWave(buf){
+  const canvas=document.getElementById('trim-canvas');
+  const W=canvas.offsetWidth||460; canvas.width=W;
+  const H=canvas.height; const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,W,H);
+  const data=buf.getChannelData(0);
+  const step=Math.ceil(data.length/W);
+  const mid=H/2;
+  ctx.strokeStyle='#534AB7'; ctx.lineWidth=1;
+  ctx.beginPath();
+  for(let x=0;x<W;x++){
+    let min=1,max=-1;
+    for(let j=0;j<step;j++){const v=data[x*step+j]||0;if(v<min)min=v;if(v>max)max=v;}
+    ctx.moveTo(x+.5,mid+min*mid*.9);
+    ctx.lineTo(x+.5,mid+max*mid*.9);
+  }
+  ctx.stroke();
+  // overlay selected region
+  updateTrimCanvasOverlay(buf.duration);
+}
+
+function updateTrimCanvasOverlay(dur){
+  dur=dur||(_trimBuf?_trimBuf.duration:1);
+  const canvas=document.getElementById('trim-canvas');
+  if(!canvas) return;
+  const W=canvas.width||canvas.offsetWidth; const H=canvas.height;
+  const ctx=canvas.getContext('2d');
+  const s=parseFloat(document.getElementById('trim-s').value)||0;
+  const e=parseFloat(document.getElementById('trim-e').value)||dur;
+  const x1=s/dur*W, x2=e/dur*W;
+  // Redraw waveform if buffer available
+  if(_trimBuf){
+    ctx.clearRect(0,0,W,H);
+    const data=_trimBuf.getChannelData(0);
+    const step=Math.ceil(data.length/W);
+    const mid=H/2;
+    // Dimmed outside
+    ctx.strokeStyle='#534AB730'; ctx.lineWidth=1;
+    ctx.beginPath();
+    for(let x=0;x<W;x++){
+      let mn=1,mx=-1;
+      for(let j=0;j<step;j++){const v=data[x*step+j]||0;if(v<mn)mn=v;if(v>mx)mx=v;}
+      ctx.moveTo(x+.5,mid+mn*mid*.9);
+      ctx.lineTo(x+.5,mid+mx*mid*.9);
+    }
+    ctx.stroke();
+    // Bright selected region
+    ctx.strokeStyle='#534AB7'; ctx.lineWidth=1;
+    ctx.beginPath();
+    for(let x=Math.floor(x1);x<Math.ceil(x2);x++){
+      let mn=1,mx=-1;
+      for(let j=0;j<step;j++){const v=data[x*step+j]||0;if(v<mn)mn=v;if(v>mx)mx=v;}
+      ctx.moveTo(x+.5,mid+mn*mid*.9);
+      ctx.lineTo(x+.5,mid+mx*mid*.9);
+    }
+    ctx.stroke();
+    // Selection overlay
+    ctx.fillStyle='rgba(83,74,183,.12)';
+    ctx.fillRect(x1,0,x2-x1,H);
+    // Handles
+    [x1,x2].forEach(function(x){
+      ctx.fillStyle='#534AB7';
+      ctx.fillRect(x-1.5,0,3,H);
+    });
+  }
+}
+
+function onTrimRange(){
+  const dur=_trimBuf?_trimBuf.duration:100;
+  let s=parseFloat(document.getElementById('trim-s').value);
+  let e=parseFloat(document.getElementById('trim-e').value);
+  if(s>e-0.1){
+    // Determine which thumb moved last (whichever is closer to the other)
+    const mid=(s+e)/2;
+    if(s>=e) { if(document.activeElement===document.getElementById('trim-s')) s=e-0.1; else e=s+0.1; }
+  }
+  s=Math.max(0,Math.min(s,dur-0.1));
+  e=Math.max(s+0.1,Math.min(e,dur));
+  document.getElementById('trim-s').value=s;
+  document.getElementById('trim-e').value=e;
+  document.getElementById('trim-s-inp').value=s.toFixed(1);
+  document.getElementById('trim-e-inp').value=e.toFixed(1);
+  updateTrimFill(); updateTrimLen(); updateTrimCanvasOverlay(dur);
+}
+
+function onTrimInput(){
+  const dur=_trimBuf?_trimBuf.duration:100;
+  let s=parseFloat(document.getElementById('trim-s-inp').value)||0;
+  let e=parseFloat(document.getElementById('trim-e-inp').value)||dur;
+  s=Math.max(0,Math.min(s,dur-0.1));
+  e=Math.max(s+0.1,Math.min(e,dur));
+  document.getElementById('trim-s').value=s;
+  document.getElementById('trim-e').value=e;
+  updateTrimFill(); updateTrimLen(); updateTrimCanvasOverlay(dur);
+}
+
+function updateTrimFill(){
+  const dur=_trimBuf?_trimBuf.duration:100;
+  const s=parseFloat(document.getElementById('trim-s').value)||0;
+  const e=parseFloat(document.getElementById('trim-e').value)||dur;
+  const pS=s/dur*100, pE=e/dur*100;
+  const fill=document.getElementById('trim-fill');
+  fill.style.left=pS+'%'; fill.style.width=(pE-pS)+'%';
+}
+function updateTrimLen(){
+  const s=parseFloat(document.getElementById('trim-s').value)||0;
+  const e=parseFloat(document.getElementById('trim-e').value)||(_trimBuf?_trimBuf.duration:0);
+  document.getElementById('trim-len').textContent=(e-s).toFixed(1)+'s';
+}
+
+function previewTrim(){
+  if(!_trimBuf){alert('오디오를 먼저 로드해 주세요.');return;}
+  const s=parseFloat(document.getElementById('trim-s').value)||0;
+  const e=parseFloat(document.getElementById('trim-e').value)||_trimBuf.duration;
+  const wav=_audioBufferToWav(_trimBuf,s,e);
+  const blob=new Blob([wav],{type:'audio/wav'});
+  const url=URL.createObjectURL(blob);
+  const player=document.getElementById('trim-player');
+  player.src=url; player.play();
+}
+
+function applyTrim(){
+  if(!_trimBuf){alert('오디오를 먼저 로드해 주세요.');return;}
+  const s=parseFloat(document.getElementById('trim-s').value)||0;
+  const e=parseFloat(document.getElementById('trim-e').value)||_trimBuf.duration;
+  if(e-s<0.1){alert('트림 구간이 너무 짧습니다.');return;}
+  document.getElementById('trim-msg').textContent='처리 중...';
+  const wav=_audioBufferToWav(_trimBuf,s,e);
+  const blob=new Blob([wav],{type:'audio/wav'});
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    const b64=ev.target.result;
+    const ctx=_trimTarget; const sidx=_trimSlotIdx;
+    const arr=_slotArr(ctx);
+    if(arr[sidx]){ arr[sidx].b64=b64; arr[sidx].url=''; }
+    const prev=document.getElementById(ctx+'-slot-prev-'+sidx);
+    if(prev){ const aud=prev.querySelector('audio'); if(aud) aud.src=b64; }
+    // Update _trimBuf so further trims work on the new range
+    fetch(b64).then(function(r){return r.arrayBuffer();}).then(function(buf){
+      return _trimCtx.decodeAudioData(buf);
+    }).then(function(dec){
+      _trimBuf=dec;
+      const dur=dec.duration;
+      document.getElementById('trim-s').max=dur;
+      document.getElementById('trim-e').max=dur;
+      document.getElementById('trim-s').value=0;
+      document.getElementById('trim-e').value=dur;
+      document.getElementById('trim-s-inp').value='0';
+      document.getElementById('trim-e-inp').value=dur.toFixed(1);
+      document.getElementById('trim-status').textContent='전체 길이: '+dur.toFixed(2)+'초';
+      drawTrimWave(dec);
+      updateTrimFill(); updateTrimLen();
+      document.getElementById('trim-msg').textContent='✓ 트림 적용됨! 다시 트림하거나 창을 닫으세요.';
+    });
+  };
+  reader.readAsDataURL(blob);
+}
+
+function _audioBufferToWav(buf,start,end){
+  const sr=buf.sampleRate, ch=buf.numberOfChannels;
+  const s=Math.floor(start*sr), e=Math.floor(end*sr), frames=e-s;
+  const pcm=new Int16Array(frames*ch);
+  for(let c=0;c<ch;c++){
+    const d=buf.getChannelData(c);
+    for(let i=0;i<frames;i++){
+      const v=Math.max(-1,Math.min(1,d[s+i]));
+      pcm[i*ch+c]=v<0?v*0x8000:v*0x7FFF;
+    }
+  }
+  const dataLen=pcm.byteLength;
+  const ab=new ArrayBuffer(44+dataLen);
+  const dv=new DataView(ab);
+  function ws(off,str){for(let i=0;i<str.length;i++) dv.setUint8(off+i,str.charCodeAt(i));}
+  ws(0,'RIFF'); dv.setUint32(4,36+dataLen,true); ws(8,'WAVE');
+  ws(12,'fmt '); dv.setUint32(16,16,true); dv.setUint16(20,1,true);
+  dv.setUint16(22,ch,true); dv.setUint32(24,sr,true);
+  dv.setUint32(28,sr*ch*2,true); dv.setUint16(32,ch*2,true); dv.setUint16(34,16,true);
+  ws(36,'data'); dv.setUint32(40,dataLen,true);
+  new Uint8Array(ab,44).set(new Uint8Array(pcm.buffer));
+  return ab;
+}
 </script>
 
 </body>
