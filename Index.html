@@ -88,6 +88,15 @@ textarea{min-height:52px;resize:vertical}
 .smsg{font-size:13px;text-align:center;padding:5px 0;min-height:20px}
 .smsg.ok{color:var(--teal)}.smsg.err{color:var(--red)}
 .pts-row{display:flex;align-items:center;gap:10px;margin-top:10px;padding:10px 12px;background:var(--amber-l);border-radius:var(--rs);border:1px solid #e8c882}
+.pq-image-box{border:1.5px dashed var(--border);border-radius:var(--rs);padding:14px;background:var(--bg);margin-bottom:10px;transition:border-color .15s}
+.pq-image-box.paste-active{border-color:var(--purple);background:var(--purple-l)}
+.pq-method-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+@media (max-width:600px){.pq-method-row{grid-template-columns:1fr}}
+.pq-method{display:flex;flex-direction:column;gap:5px}
+.pq-method-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.3px}
+.pq-paste-btn{padding:9px 10px;background:var(--purple);color:#fff;border:none;border-radius:var(--rs);font-size:12px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:background .15s}
+.pq-paste-btn:hover{background:var(--purple-d)}
+.pq-paste-hint{font-size:11px;color:var(--muted);margin-top:10px;padding:8px 10px;background:var(--sur);border-radius:6px;border:1px solid var(--border);line-height:1.5}
 .pts-row label{margin:0;font-size:12px;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
 .pts-inp{width:70px!important;text-align:center;font-weight:700;font-size:15px;padding:7px 10px}
 .q-item{display:flex;align-items:center;gap:9px;padding:9px 13px;background:var(--sur);border:1px solid var(--border);border-radius:var(--rs);margin-bottom:5px}
@@ -480,13 +489,28 @@ textarea{min-height:52px;resize:vertical}
 
         <!-- Photo Q -->
         <div id="sec-photoq" style="display:none">
-          <label>사진 파일 또는 URL</label>
-          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
-            <input type="file" id="pq-file" accept="image/*" style="flex:1;font-size:13px" onchange="loadPqFile(this)">
-            <span style="font-size:12px;color:var(--muted)">또는</span>
-            <input type="text" id="pq-url" placeholder="https://... .jpg" style="flex:1;min-width:160px;margin:0">
+          <label>사진 추가</label>
+          <div class="pq-image-box" id="pq-image-box">
+            <div class="pq-method-row">
+              <div class="pq-method">
+                <div class="pq-method-label">📁 파일 선택</div>
+                <input type="file" id="pq-file" accept="image/*" style="width:100%;font-size:13px" onchange="loadPqFile(this)">
+              </div>
+              <div class="pq-method">
+                <div class="pq-method-label">🔗 이미지 URL</div>
+                <input type="text" id="pq-url" placeholder="https://... .jpg" style="margin:0" oninput="onPqUrlInput()">
+              </div>
+              <div class="pq-method">
+                <div class="pq-method-label">📋 스크린샷 붙여넣기</div>
+                <button type="button" class="pq-paste-btn" onclick="pastePqFromClipboard()">클릭 또는 Ctrl+V</button>
+              </div>
+            </div>
+            <div class="pq-paste-hint">💡 페이지 어디서나 <strong>Ctrl+V</strong> (Mac: <strong>⌘+V</strong>)로 스크린샷을 붙여넣을 수 있습니다</div>
+            <div id="pq-preview-wrap" style="display:none;margin-top:10px;position:relative">
+              <img id="pq-preview" style="width:100%;max-height:220px;object-fit:contain;border-radius:8px;border:1px solid var(--border);background:var(--bg)">
+              <button type="button" onclick="clearPqImage()" style="position:absolute;top:6px;right:6px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;border:none;cursor:pointer;font-size:14px">✕</button>
+            </div>
           </div>
-          <img id="pq-preview" style="display:none;width:100%;max-height:180px;object-fit:contain;border-radius:8px;margin-bottom:8px;border:1px solid var(--border)">
           <label>문제 지시문</label>
           <input type="text" id="pq-q" placeholder="사진을 보고 알맞은 답을 고르세요.">
           <label>답변 유형</label>
@@ -565,15 +589,12 @@ textarea{min-height:52px;resize:vertical}
 
 <!-- PAGE: ANSWERS -->
 <div class="page" id="page-answers">
-  <div style="padding:16px 0 12px;font-size:16px;font-weight:700">학생 답 모음</div>
-  <div class="quiz-select-bar">
-    <select id="ans-quiz-select" onchange="loadAnswers()">
-      <option value="">— 퀴즈를 선택하세요 —</option>
-    </select>
-    <button class="btn-sec" style="font-size:12px;padding:8px 14px" onclick="initAnswersPage()">새로고침</button>
+  <div style="padding:16px 0 12px;display:flex;align-items:center;justify-content:space-between;gap:10px">
+    <span style="font-size:16px;font-weight:700">학생 답 모음</span>
+    <button class="btn-sec" style="font-size:12px;padding:8px 14px" onclick="initAnswersPage()">🔄 새로고침</button>
   </div>
   <div id="ans-area">
-    <div class="empty-state"><div class="empty-icon">📊</div><div class="empty-text">퀴즈를 선택하면 학생들의 답이 표시됩니다</div></div>
+    <div class="empty-state"><div class="empty-icon">⏳</div><div class="empty-text">불러오는 중...</div></div>
   </div>
 </div>
 
@@ -993,7 +1014,104 @@ function setPqType(t){
 function fileToB64(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=rej;r.readAsDataURL(file);});}
 async function loadAudioFile(inp){if(!inp.files[0]) return;inp._b64=await fileToB64(inp.files[0]);document.getElementById('audio-url').value='';document.getElementById('audio-player').src=inp._b64;document.getElementById('audio-preview').style.display='';}
 async function loadImgFile(inp){if(!inp.files[0]) return;const b64=await fileToB64(inp.files[0]);const idx=parseInt(inp.dataset.idx);document.querySelectorAll('.img-opt')[idx].value=b64;const prev=document.querySelectorAll('.img-preview')[idx];prev.src=b64;prev.style.display='';}
-async function loadPqFile(inp){if(!inp.files[0]) return;inp._b64=await fileToB64(inp.files[0]);document.getElementById('pq-url').value='';const p=document.getElementById('pq-preview');p.src=inp._b64;p.style.display='';}
+async function loadPqFile(inp){
+  if(!inp.files[0]) return;
+  const b64=await fileToB64(inp.files[0]);
+  inp._b64=b64;
+  inp._pastedName='';
+  document.getElementById('pq-url').value='';
+  const p=document.getElementById('pq-preview');
+  p.src=b64;
+  document.getElementById('pq-preview-wrap').style.display='';
+}
+
+function onPqUrlInput(){
+  // If user types a URL, clear file/pasted data and preview
+  const url=document.getElementById('pq-url').value.trim();
+  const pf=document.getElementById('pq-file');
+  if(url){
+    pf.value='';pf._b64='';pf._pastedName='';
+    const p=document.getElementById('pq-preview');
+    p.src=url;
+    document.getElementById('pq-preview-wrap').style.display='';
+  } else if(!pf._b64){
+    document.getElementById('pq-preview-wrap').style.display='none';
+  }
+}
+
+function clearPqImage(){
+  const pf=document.getElementById('pq-file');
+  pf.value='';pf._b64='';pf._pastedName='';
+  document.getElementById('pq-url').value='';
+  document.getElementById('pq-preview-wrap').style.display='none';
+}
+
+function setPqImageFromBlob(blob){
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    const b64=ev.target.result;
+    const pf=document.getElementById('pq-file');
+    pf.value='';
+    pf._b64=b64;
+    pf._pastedName='pasted_'+Date.now()+'.png';
+    document.getElementById('pq-url').value='';
+    const p=document.getElementById('pq-preview');
+    p.src=b64;
+    document.getElementById('pq-preview-wrap').style.display='';
+    // brief visual confirmation
+    const box=document.getElementById('pq-image-box');
+    if(box){box.classList.add('paste-active');setTimeout(()=>box.classList.remove('paste-active'),500);}
+  };
+  reader.readAsDataURL(blob);
+}
+
+async function pastePqFromClipboard(){
+  // Modern Clipboard API - works in most browsers over HTTPS
+  if(navigator.clipboard && navigator.clipboard.read){
+    try{
+      const items=await navigator.clipboard.read();
+      for(const item of items){
+        for(const t of item.types){
+          if(t.startsWith('image/')){
+            const blob=await item.getType(t);
+            setPqImageFromBlob(blob);
+            return;
+          }
+        }
+      }
+      alert('클립보드에 이미지가 없습니다.\n스크린샷을 먼저 복사한 후 다시 시도하거나, Ctrl+V를 직접 눌러주세요.');
+    }catch(e){
+      // Permission denied or unsupported — fall back
+      alert('자동 붙여넣기를 사용할 수 없습니다.\n페이지 어디서나 Ctrl+V (Mac: ⌘+V)를 눌러 붙여넣어주세요.');
+    }
+  } else {
+    alert('이 브라우저는 자동 붙여넣기를 지원하지 않습니다.\nCtrl+V (Mac: ⌘+V)를 눌러 붙여넣어주세요.');
+  }
+}
+
+// Global paste handler for photoq screenshots
+document.addEventListener('paste', function(e){
+  if(qType!=='photoq') return; // only when photoq section is active
+  const sec=document.getElementById('sec-photoq');
+  if(!sec||sec.style.display==='none') return;
+  // Allow normal paste in text inputs and textareas (including pq-url)
+  const tgt=e.target;
+  if(tgt&&(tgt.tagName==='INPUT'&&tgt.type==='text')) return;
+  if(tgt&&tgt.tagName==='TEXTAREA') return;
+  const cd=e.clipboardData||window.clipboardData;
+  if(!cd) return;
+  const items=cd.items||[];
+  for(let i=0;i<items.length;i++){
+    if(items[i].type&&items[i].type.indexOf('image')===0){
+      const blob=items[i].getAsFile();
+      if(blob){
+        setPqImageFromBlob(blob);
+        e.preventDefault();
+        return;
+      }
+    }
+  }
+});
 
 // ── Classify helpers ────────────────────────────────────────────────────────
 function initClsBoxes(){
@@ -1193,10 +1311,14 @@ async function addQ(){
     const pf=document.getElementById('pq-file');
     const fb2=pf._b64||'';
     const rawPqUrl=document.getElementById('pq-url').value.trim();
-    if(!fb2&&!rawPqUrl) return smsg('사진을 업로드하거나 URL을 입력해주세요.','err');
+    if(!fb2&&!rawPqUrl) return smsg('사진을 업로드, URL 입력, 또는 붙여넣기 해주세요.','err');
     const qt=document.getElementById('pq-q').value.trim()||'사진을 보고 답하세요.';
     let imgSrc=rawPqUrl;
-    if(fb2){smsg('사진 업로드 중...','');try{imgSrc=await uploadFile(fb2,'photos/'+Date.now()+'_'+pf.files[0].name);}catch(e){return smsg('업로드 실패: '+e.message,'err');}}
+    if(fb2){
+      smsg('사진 업로드 중...','');
+      const fname=(pf.files&&pf.files[0])?pf.files[0].name:(pf._pastedName||'pasted.png');
+      try{imgSrc=await uploadFile(fb2,'photos/'+Date.now()+'_'+fname);}catch(e){return smsg('업로드 실패: '+e.message,'err');}
+    }
     if(pqSubType==='mc'){
       const opts=[...document.querySelectorAll('.pq-opt')].map(i=>i.value.trim());
       if(opts.some(o=>!o)) return smsg('모든 보기를 입력해주세요.','err');
@@ -1209,7 +1331,8 @@ async function addQ(){
       q={...q,text:qt,imgSrc,answerType:'essay',points:0,pendingGrade:true};
     }
     document.getElementById('pq-q').value='';document.getElementById('pq-url').value='';
-    pf.value='';pf._b64='';document.getElementById('pq-preview').style.display='none';
+    pf.value='';pf._b64='';pf._pastedName='';
+    document.getElementById('pq-preview-wrap').style.display='none';
     document.querySelectorAll('.pq-opt').forEach(i=>i.value='');
     document.querySelectorAll('#pq-opts .cbtn').forEach(b=>b.classList.remove('sel'));
     setPqType('mc');
@@ -1332,17 +1455,21 @@ async function toggleRankRelease(code,btn){
   btn.textContent=on?'✓ 순위 공개':'순위 공개';
   btn.classList.toggle('on',on);
 }
-async function viewAnswersFor(code){showPage('answers');document.getElementById('ans-quiz-select').value=code;loadAnswers();}
+async function viewAnswersFor(code){
+  showPage('answers');
+  await loadAnswers();
+  // Scroll to the requested quiz section
+  setTimeout(function(){
+    const el=document.getElementById('quiz-sec-'+code);
+    if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+  },80);
+}
 
 // Answers page
 async function initAnswersPage(){
   const all=await getQuizzes();
-  const sel=document.getElementById('ans-quiz-select');
-  const cur=sel.value;
   const codes=Object.keys(all).sort((a,b)=>(all[b].createdAt||0)-(all[a].createdAt||0));
   codes.forEach(function(code){if(!qExamDates[code]) qExamDates[code]={start:all[code].examStart||null,end:all[code].examEnd||null};});
-  sel.innerHTML='<option value="">— 퀴즈를 선택하세요 —</option>'+codes.map(c=>'<option value="'+c+'">'+all[c].name+' ('+c+')</option>').join('');
-  if(cur&&all[cur]) sel.value=cur;
   loadAnswers();
 }
 
@@ -1365,7 +1492,7 @@ function checkAnswer(q,ans){
 }
 
 async function gradeEssay(quizCode,aiIdx,qi){
-  const pts=parseInt(document.getElementById('essay-pts-'+aiIdx+'-'+qi).value);
+  const pts=parseInt(document.getElementById('essay-pts-'+quizCode+'-'+aiIdx+'-'+qi).value);
   if(isNaN(pts)||pts<0){alert('올바른 점수를 입력해주세요.');return;}
   try{
     const allAns=(await fbGet('/answers'))||{};
@@ -1386,80 +1513,106 @@ async function gradeEssay(quizCode,aiIdx,qi){
 }
 
 async function loadAnswers(){
-  const code=document.getElementById('ans-quiz-select').value;
   const area=document.getElementById('ans-area');
-  if(!code){area.innerHTML='<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-text">퀴즈를 선택하면 학생들의 답이 표시됩니다</div></div>';return;}
   area.innerHTML='<div class="empty-state"><div class="empty-icon">⏳</div><div class="empty-text">불러오는 중...</div></div>';
   const all=await getQuizzes();
-  const quiz=all[code];
-  if(!quiz){area.innerHTML='<div class="empty-state"><div class="empty-text">퀴즈를 찾을 수 없습니다</div></div>';return;}
-  const allAnswers=(await getAnswers(code)).sort((a,b)=>b.submittedAt-a.submittedAt);
-  const totalPoints=quiz.questions.reduce((s,q)=>s+(q.points||1),0);
-  const avgScore=allAnswers.length?Math.round(allAnswers.reduce((s,a)=>s+(a.score||0),0)/allAnswers.length*10)/10:0;
-  const perfect=allAnswers.filter(a=>(a.score||0)===totalPoints).length;
-  const gradeReleased=quiz.gradeReleased||false;
-  const rankReleased=quiz.rankReleased||false;
-
-  const p=[];
-  // View toggle
-  p.push('<div class="rank-toggle-bar"><button class="active" id="view-list-btn" onclick="setAnswerView(\'list\')">📋 답 목록</button><button id="view-rank-btn" onclick="setAnswerView(\'rank\')">🏆 순위</button></div>');
-  p.push('<div id="answer-list-view">');
-  // Grade release
-  p.push('<div class="grade-toggle"><div class="grade-toggle-label">성적 공개<span class="grade-toggle-sub">'+(gradeReleased?'학생들이 본인 점수를 확인할 수 있습니다':'켜면 학생들이 본인 점수를 확인할 수 있습니다')+'</span></div>');
-  p.push('<label class="toggle-switch"><input type="checkbox" '+(gradeReleased?'checked':'')+' onchange="toggleGradeReleaseFromAnswers(\''+code+'\',this)"><span class="toggle-slider"></span></label></div>');
-  // Stats
-  p.push('<div class="stat-grid">');
-  p.push('<div class="stat-card stat-purple"><div class="stat-num">'+allAnswers.length+'</div><div class="stat-lbl">제출 학생 수</div></div>');
-  p.push('<div class="stat-card stat-teal"><div class="stat-num">'+(totalPoints>0?Math.round(avgScore/totalPoints*100):0)+'점</div><div class="stat-lbl">평균 점수</div></div>');
-  p.push('<div class="stat-card stat-amber"><div class="stat-num">'+perfect+'</div><div class="stat-lbl">100점 학생</div></div>');
-  p.push('</div>');
-  if(allAnswers.length===0){
-    p.push('<div class="empty-state"><div class="empty-icon">🕐</div><div class="empty-text">아직 제출한 학생이 없습니다</div></div>');
-  } else {
-    allAnswers.forEach(function(a,ai){
-      const pct=Math.round((a.score||0)/totalPoints*100);
-      const sc2=pct>=80?'hi':pct>=50?'mid':'lo';
-      const dt=new Date(a.submittedAt).toLocaleString('ko-KR',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
-      p.push('<div class="answer-row"><div class="answer-row-hdr" onclick="toggleDetail('+ai+')">');
-      p.push('<span class="answer-name">'+(a.studentName||'학생 '+(ai+1))+'</span>');
-      p.push('<span class="answer-score '+sc2+'">'+(a.score||0)+' / '+totalPoints+'점 ('+pct+'%)</span>');
-      p.push('<span class="answer-time">'+dt+'</span>');
-      p.push('<span class="answer-chevron" id="chev-'+ai+'">▼</span></div>');
-      p.push('<div class="answer-detail" id="detail-'+ai+'">');
-      quiz.questions.forEach(function(q,qi){
-        const ans=a.answers?a.answers[qi]:null;
-        if(q.type==='photoq'&&q.answerType==='essay'){
-          const txt=ans&&ans.text?ans.text:'(미제출)';
-          const gpts=ans&&ans.pts!=null?ans.pts:null;
-          p.push('<div class="ans-q-row" style="flex-direction:column;align-items:flex-start;gap:6px">');
-          p.push('<div style="display:flex;width:100%;gap:8px;align-items:center"><span class="ans-q-num">'+(qi+1)+'</span><span class="ans-q-text" style="flex:1;white-space:normal">[서술형] '+q.text+'</span><span class="ans-q-result '+(gpts!=null?'res-ok':'res-skip')+'">'+(gpts!=null?gpts+'점':'미채점')+'</span></div>');
-          p.push('<div style="padding:8px 12px;background:var(--bg);border-radius:8px;font-size:13px;width:100%;border:1px solid var(--border)">'+txt+'</div>');
-          p.push('<div style="display:flex;gap:6px;align-items:center"><input type="number" id="essay-pts-'+ai+'-'+qi+'" min="0" max="100" placeholder="점수" value="'+(gpts!=null?gpts:'')+'" style="width:68px;padding:5px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:13px"><button onclick="gradeEssay(\''+code+'\','+ai+','+qi+')" style="padding:5px 12px;background:var(--teal);color:white;border:none;border-radius:6px;font-size:12px;cursor:pointer;font-family:\'Noto Sans KR\',sans-serif">점수 저장</button></div>');
-          p.push('</div>');
-        } else {
-          const correct=checkAnswer(q,ans);
-          p.push('<div class="ans-q-row"><span class="ans-q-num">'+(qi+1)+'</span><span class="ans-q-text">'+q.text+'</span><span class="ans-q-result '+(ans==null?'res-skip':correct?'res-ok':'res-err')+'">'+(ans==null?'미응답':correct?'정답':'오답')+'</span></div>');
-        }
-      });
-      p.push('</div></div>');
-    });
+  const codes=Object.keys(all).sort((a,b)=>(all[b].createdAt||0)-(all[a].createdAt||0));
+  if(!codes.length){
+    area.innerHTML='<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-text">아직 만든 퀴즈가 없습니다</div></div>';
+    return;
   }
-  p.push('</div>');
-  p.push('<div id="answer-rank-view" style="display:none"></div>');
-  area.innerHTML=p.join('');
-  document.getElementById('answer-rank-view').innerHTML=buildRankHTML(allAnswers,totalPoints,rankReleased,code);
+  const allAnswersRaw=(await fbGet('/answers'))||{};
+  const allAnswersArr=Object.values(allAnswersRaw);
+  const out=[];
+  for(let ci=0; ci<codes.length; ci++){
+    const code=codes[ci];
+    const quiz=all[code];
+    if(!quiz||!quiz.questions) continue;
+    const quizAnswers=allAnswersArr.filter(a=>a.quizCode===code).sort((a,b)=>b.submittedAt-a.submittedAt);
+    const totalPoints=quiz.questions.reduce((s,q)=>s+(q.points||1),0);
+    const avgScore=quizAnswers.length?Math.round(quizAnswers.reduce((s,a)=>s+(a.score||0),0)/quizAnswers.length*10)/10:0;
+    const perfect=quizAnswers.filter(a=>(a.score||0)===totalPoints).length;
+    const gradeReleased=quiz.gradeReleased||false;
+    const rankReleased=quiz.rankReleased||false;
+
+    out.push('<div class="quiz-answers-section" id="quiz-sec-'+code+'" style="margin-bottom:28px;padding-bottom:20px;border-bottom:2px solid var(--border)">');
+    // Quiz header
+    out.push('<div style="background:var(--purple-l);border:1px solid #c8c4f0;border-radius:var(--r);padding:14px 18px;margin-bottom:14px">');
+    out.push('<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span style="font-size:16px;font-weight:700;color:var(--purple-d)">'+quiz.name+'</span><span class="quiz-code" style="font-size:13px">'+code+'</span><span class="quiz-meta-tag">문제 '+quiz.questions.length+'개</span><span class="quiz-meta-tag">제출 '+quizAnswers.length+'명</span></div>');
+    if(quiz.desc) out.push('<div style="font-size:12px;color:var(--purple);margin-top:4px;opacity:.8">'+quiz.desc+'</div>');
+    out.push('</div>');
+
+    // View toggle (per quiz)
+    out.push('<div class="rank-toggle-bar"><button class="active" id="view-list-btn-'+code+'" onclick="setAnswerView(\'list\',\''+code+'\')">📋 답 목록</button><button id="view-rank-btn-'+code+'" onclick="setAnswerView(\'rank\',\''+code+'\')">🏆 순위</button></div>');
+    out.push('<div id="answer-list-view-'+code+'">');
+    // Grade release
+    out.push('<div class="grade-toggle"><div class="grade-toggle-label">성적 공개<span class="grade-toggle-sub">'+(gradeReleased?'학생들이 본인 점수를 확인할 수 있습니다':'켜면 학생들이 본인 점수를 확인할 수 있습니다')+'</span></div>');
+    out.push('<label class="toggle-switch"><input type="checkbox" '+(gradeReleased?'checked':'')+' onchange="toggleGradeReleaseFromAnswers(\''+code+'\',this)"><span class="toggle-slider"></span></label></div>');
+    // Stats
+    out.push('<div class="stat-grid">');
+    out.push('<div class="stat-card stat-purple"><div class="stat-num">'+quizAnswers.length+'</div><div class="stat-lbl">제출 학생 수</div></div>');
+    out.push('<div class="stat-card stat-teal"><div class="stat-num">'+(totalPoints>0?Math.round(avgScore/totalPoints*100):0)+'점</div><div class="stat-lbl">평균 점수</div></div>');
+    out.push('<div class="stat-card stat-amber"><div class="stat-num">'+perfect+'</div><div class="stat-lbl">100점 학생</div></div>');
+    out.push('</div>');
+    if(quizAnswers.length===0){
+      out.push('<div class="empty-state"><div class="empty-icon">🕐</div><div class="empty-text">아직 제출한 학생이 없습니다</div></div>');
+    } else {
+      quizAnswers.forEach(function(a,ai){
+        const pct=totalPoints>0?Math.round((a.score||0)/totalPoints*100):0;
+        const sc2=pct>=80?'hi':pct>=50?'mid':'lo';
+        const dt=new Date(a.submittedAt).toLocaleString('ko-KR',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+        out.push('<div class="answer-row"><div class="answer-row-hdr" onclick="toggleDetail(\''+code+'\','+ai+')">');
+        out.push('<span class="answer-name">'+(a.studentName||'학생 '+(ai+1))+'</span>');
+        out.push('<span class="answer-score '+sc2+'">'+(a.score||0)+' / '+totalPoints+'점 ('+pct+'%)</span>');
+        out.push('<span class="answer-time">'+dt+'</span>');
+        out.push('<span class="answer-chevron" id="chev-'+code+'-'+ai+'">▼</span></div>');
+        out.push('<div class="answer-detail" id="detail-'+code+'-'+ai+'">');
+        quiz.questions.forEach(function(q,qi){
+          const ans=a.answers?a.answers[qi]:null;
+          if(q.type==='photoq'&&q.answerType==='essay'){
+            const txt=ans&&ans.text?ans.text:'(미제출)';
+            const gpts=ans&&ans.pts!=null?ans.pts:null;
+            out.push('<div class="ans-q-row" style="flex-direction:column;align-items:flex-start;gap:6px">');
+            out.push('<div style="display:flex;width:100%;gap:8px;align-items:center"><span class="ans-q-num">'+(qi+1)+'</span><span class="ans-q-text" style="flex:1;white-space:normal">[서술형] '+q.text+'</span><span class="ans-q-result '+(gpts!=null?'res-ok':'res-skip')+'">'+(gpts!=null?gpts+'점':'미채점')+'</span></div>');
+            out.push('<div style="padding:8px 12px;background:var(--bg);border-radius:8px;font-size:13px;width:100%;border:1px solid var(--border)">'+txt+'</div>');
+            out.push('<div style="display:flex;gap:6px;align-items:center"><input type="number" id="essay-pts-'+code+'-'+ai+'-'+qi+'" min="0" max="100" placeholder="점수" value="'+(gpts!=null?gpts:'')+'" style="width:68px;padding:5px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:13px"><button onclick="gradeEssay(\''+code+'\','+ai+','+qi+')" style="padding:5px 12px;background:var(--teal);color:white;border:none;border-radius:6px;font-size:12px;cursor:pointer;font-family:\'Noto Sans KR\',sans-serif">점수 저장</button></div>');
+            out.push('</div>');
+          } else {
+            const correct=checkAnswer(q,ans);
+            out.push('<div class="ans-q-row"><span class="ans-q-num">'+(qi+1)+'</span><span class="ans-q-text">'+q.text+'</span><span class="ans-q-result '+(ans==null?'res-skip':correct?'res-ok':'res-err')+'">'+(ans==null?'미응답':correct?'정답':'오답')+'</span></div>');
+          }
+        });
+        out.push('</div></div>');
+      });
+    }
+    out.push('</div>');
+    out.push('<div id="answer-rank-view-'+code+'" style="display:none"></div>');
+    out.push('</div>');
+  }
+  area.innerHTML=out.join('');
+  // Build rank views after innerHTML is set
+  for(let ci=0; ci<codes.length; ci++){
+    const code=codes[ci];
+    const quiz=all[code];
+    if(!quiz||!quiz.questions) continue;
+    const quizAnswers=allAnswersArr.filter(a=>a.quizCode===code).sort((a,b)=>b.submittedAt-a.submittedAt);
+    const totalPoints=quiz.questions.reduce((s,q)=>s+(q.points||1),0);
+    const rankReleased=quiz.rankReleased||false;
+    const rEl=document.getElementById('answer-rank-view-'+code);
+    if(rEl) rEl.innerHTML=buildRankHTML(quizAnswers,totalPoints,rankReleased,code);
+  }
 }
 
-function setAnswerView(view){
-  document.getElementById('answer-list-view').style.display=view==='list'?'':'none';
-  document.getElementById('answer-rank-view').style.display=view==='rank'?'':'none';
-  document.getElementById('view-list-btn').classList.toggle('active',view==='list');
-  document.getElementById('view-rank-btn').classList.toggle('active',view==='rank');
+function setAnswerView(view,code){
+  document.getElementById('answer-list-view-'+code).style.display=view==='list'?'':'none';
+  document.getElementById('answer-rank-view-'+code).style.display=view==='rank'?'':'none';
+  document.getElementById('view-list-btn-'+code).classList.toggle('active',view==='list');
+  document.getElementById('view-rank-btn-'+code).classList.toggle('active',view==='rank');
 }
 
-function toggleDetail(ai){
-  const d=document.getElementById('detail-'+ai);
-  const c=document.getElementById('chev-'+ai);
+function toggleDetail(code,ai){
+  const d=document.getElementById('detail-'+code+'-'+ai);
+  const c=document.getElementById('chev-'+code+'-'+ai);
   const open=d.classList.toggle('open');
   c.classList.toggle('open',open);
 }
