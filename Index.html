@@ -1584,6 +1584,43 @@ async function initAnswersPage(){
   loadAnswers();
 }
 
+function recalcScore(quiz, a){
+  let score=0;
+  const ans=a.answers||{};
+  quiz.questions.forEach(function(q,qi){
+    const v=ans[qi];
+    if(q.type==='photoq'&&q.answerType==='essay'){
+      if(v&&v.graded) score+=(v.pts||0);
+    } else if(q.type==='mc'){
+      if(q.multiCorrect){const sel=Array.isArray(v)?v:[],cor=Array.isArray(q.correct)?q.correct:[q.correct];if(sel.length===cor.length&&cor.every(function(c){return sel.includes(c);})) score+=(q.points||1);}
+      else{if(v===q.correct) score+=(q.points||1);}
+    } else if(q.type==='tf'||q.type==='imgsel'||q.type==='audio'){
+      if(v===q.correct) score+=(q.points||1);
+    } else if(q.type==='photoq'){
+      if(v===q.correct) score+=(q.points||1);
+    } else if(q.type==='phrase'){
+      const arr=Array.isArray(v)?v:[];if(arr.length===q.phrases.length&&arr.every(function(x,i){return x===q.phrases[i];})) score+=(q.points||1);
+    } else if(q.type==='order'){
+      const arr=Array.isArray(v)?v:[];if(arr.length===q.sentences.length&&arr.every(function(x,i){return x===q.sentences[i];})) score+=(q.points||1);
+    } else if(q.type==='wordfill'){
+      const arr=Array.isArray(v)?v:[];
+      if(q.perBlankPoints&&q.blankPoints){arr.forEach(function(x,i){if(x===q.answers[i]) score+=(q.blankPoints[i]||1);});}
+      else{if(arr.length===q.answers.length&&arr.every(function(x,i){return x===q.answers[i];})) score+=(q.points||1);}
+    } else if(q.type==='inlinesel'){
+      const arr=Array.isArray(v)?v:[];arr.forEach(function(x,i){if(x===q.answers[i]) score+=((q.blankPoints&&q.blankPoints[i])||1);});
+    } else if(q.type==='match'){
+      if(v&&typeof v==='object'&&!Array.isArray(v)){
+        const mv=Object.values(v);
+        if(q.perPairPoints){q.pairs.forEach(function(pair,pi){const m=mv.find(function(x){return x.aIdx===pi;});if(m&&m.bVal===pair.b) score+=(pair.pts||1);});}
+        else{if(q.pairs.every(function(pair,pi){const m=mv.find(function(x){return x.aIdx===pi;});return m&&m.bVal===pair.b;})) score+=(q.points||1);}
+      }
+    } else if(q.type==='classify'){
+      if(v&&typeof v==='object'){q.cats.forEach(function(cat,ci){const pl=(v[ci]||[]).map(function(it){return it.w;});cat.words.forEach(function(w){if(pl.includes(w)) score+=1;});});}
+    }
+  });
+  return score;
+}
+
 function checkAnswer(q,ans){
   if(ans==null) return false;
   if(q.type==='mc'){
@@ -1641,8 +1678,8 @@ async function loadAnswers(){
     if(!quiz||!quiz.questions) continue;
     const quizAnswers=allAnswersArr.filter(a=>a.quizCode===code).sort((a,b)=>b.submittedAt-a.submittedAt);
     const totalPoints=quiz.questions.reduce((s,q)=>s+(q.points||1),0);
-    const avgScore=quizAnswers.length?Math.round(quizAnswers.reduce((s,a)=>s+(a.score||0),0)/quizAnswers.length*10)/10:0;
-    const perfect=quizAnswers.filter(a=>(a.score||0)===totalPoints).length;
+    const avgScore=quizAnswers.length?Math.round(quizAnswers.reduce((s,a)=>s+(a._score||0),0)/quizAnswers.length*10)/10:0;
+    const perfect=quizAnswers.filter(a=>a._score===totalPoints).length;
     const gradeReleased=quiz.gradeReleased||false;
     const rankReleased=quiz.rankReleased||false;
 
@@ -1668,13 +1705,14 @@ async function loadAnswers(){
     if(quizAnswers.length===0){
       out.push('<div class="empty-state"><div class="empty-icon">🕐</div><div class="empty-text">아직 제출한 학생이 없습니다</div></div>');
     } else {
-      quizAnswers.forEach(function(a,ai){
-        const pct=totalPoints>0?Math.round((a.score||0)/totalPoints*100):0;
+      quizAnswers.forEach(function(a){ a._score=recalcScore(quiz,a); });
+    quizAnswers.forEach(function(a,ai){
+        const pct=totalPoints>0?Math.round(a._score/totalPoints*100):0;
         const sc2=pct>=80?'hi':pct>=50?'mid':'lo';
         const dt=new Date(a.submittedAt).toLocaleString('ko-KR',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
         out.push('<div class="answer-row"><div class="answer-row-hdr" onclick="toggleDetail(\''+code+'\','+ai+')">');
         out.push('<span class="answer-name">'+(a.studentName||'학생 '+(ai+1))+'</span>');
-        out.push('<span class="answer-score '+sc2+'">'+(a.score||0)+' / '+totalPoints+'점 ('+pct+'%)</span>');
+        out.push('<span class="answer-score '+sc2+'">'+(a._score)+' / '+totalPoints+'점 ('+pct+'%)</span>');
         out.push('<span class="answer-time">'+dt+'</span>');
         out.push('<span class="answer-chevron" id="chev-'+code+'-'+ai+'">▼</span></div>');
         out.push('<div class="answer-detail" id="detail-'+code+'-'+ai+'">');
@@ -1733,13 +1771,13 @@ function formatTime(ms){if(ms==null) return '-';const s=Math.floor(ms/1000);cons
 function buildRankHTML(answers,totalPoints,rankReleased,quizCode){
   if(!answers.length) return '<div class="empty-state"><div class="empty-icon">🕐</div><div class="empty-text">아직 제출한 학생이 없습니다</div></div>';
   const sorted=[...answers].sort(function(a,b){
-    if((b.score||0)!==(a.score||0)) return (b.score||0)-(a.score||0);
+    if((b._score||0)!==(a._score||0)) return (b._score||0)-(a._score||0);
     if(a.timeTaken!=null&&b.timeTaken!=null&&a.timeTaken!==b.timeTaken) return a.timeTaken-b.timeTaken;
     return (a.submittedAt||0)-(b.submittedAt||0);
   });
   let rank=1;
   const ranked=sorted.map(function(a,i){
-    if(i>0){const prev=sorted[i-1];if(!((a.score||0)===(prev.score||0)&&a.timeTaken===prev.timeTaken)) rank=i+1;}
+    if(i>0){const prev=sorted[i-1];if(!((a._score||0)===(prev._score||0)&&a.timeTaken===prev.timeTaken)) rank=i+1;}
     return Object.assign({},a,{rank:rank});
   });
   const medals=['🥇','🥈','🥉'];
@@ -1747,10 +1785,10 @@ function buildRankHTML(answers,totalPoints,rankReleased,quizCode){
   p.push('<div class="rank-release-bar"><span>'+(rankReleased?'✓ 학생들이 순위를 볼 수 있습니다':'학생들에게 순위를 공개할 수 있습니다')+'</span><label class="toggle-switch"><input type="checkbox" '+(rankReleased?'checked':'')+' onchange="toggleRankReleaseFromAnswers(\''+quizCode+'\',this)"><span class="toggle-slider"></span></label></div>');
   p.push('<table class="rank-table"><thead><tr><th>순위</th><th>이름</th><th>점수</th><th>소요 시간</th></tr></thead><tbody>');
   ranked.forEach(function(a){
-    const pct=totalPoints>0?Math.round((a.score||0)/totalPoints*100):0;
+    const pct=totalPoints>0?Math.round((a._score||0)/totalPoints*100):0;
     const medal=a.rank<=3?medals[a.rank-1]:'';
     const rc=a.rank<=3?'rank-'+a.rank:'';
-    p.push('<tr class="'+rc+'"><td><span class="rank-num">'+medal+(medal?'':'#'+a.rank)+'</span></td><td>'+a.studentName+'</td><td><span class="rank-score">'+(a.score||0)+' / '+totalPoints+'점</span> <span style="font-size:12px;color:var(--muted)">('+pct+'%)</span></td><td class="rank-time">'+formatTime(a.timeTaken)+'</td></tr>');
+    p.push('<tr class="'+rc+'"><td><span class="rank-num">'+medal+(medal?'':'#'+a.rank)+'</span></td><td>'+a.studentName+'</td><td><span class="rank-score">'+(a._score||0)+' / '+totalPoints+'점</span> <span style="font-size:12px;color:var(--muted)">('+pct+'%)</span></td><td class="rank-time">'+formatTime(a.timeTaken)+'</td></tr>');
   });
   p.push('</tbody></table>');
   return p.join('');
