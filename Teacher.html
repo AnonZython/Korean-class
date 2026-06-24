@@ -35,6 +35,9 @@ input[type=text]:focus{border-color:var(--purple)}
 .btn-sec:hover{background:var(--bg)}
 .smsg{font-size:13px;text-align:center;padding:6px 0;min-height:20px}
 .smsg.ok{color:var(--teal)}.smsg.err{color:var(--red)}
+
+.instr-block{background:var(--purple-l);border-left:4px solid var(--purple);border-radius:0 var(--r) var(--r) 0;padding:12px 16px;margin-bottom:10px}
+.instr-text{font-size:14px;font-weight:700;color:var(--purple-d);line-height:1.6}
 .quiz-banner{background:var(--purple-l);border:1px solid #c8c4f0;border-radius:var(--r);padding:14px 18px;margin-bottom:16px}
 .quiz-banner-name{font-size:17px;font-weight:700;color:var(--purple-d)}
 .quiz-banner-desc{font-size:13px;color:var(--purple);margin-top:3px;opacity:.8}
@@ -124,6 +127,8 @@ input[type=text]:focus{border-color:var(--purple)}
 .audio-player{background:var(--purple-l);border:1px solid #c8c4f0;border-radius:var(--rs);padding:12px 14px;margin-bottom:14px;display:flex;align-items:center;gap:12px}
 .audio-player audio{flex:1;height:36px}
 .audio-label{font-size:12px;font-weight:700;color:var(--purple);white-space:nowrap}
+.imgsel-media-text{background:var(--sur);border:1.5px solid var(--border);border-radius:var(--rs);padding:12px 14px;margin-bottom:14px;font-size:14px;line-height:1.8;color:var(--text);white-space:pre-wrap}
+.imgsel-media-text.has-text{background:var(--bg)}
 .wf-words-box{display:flex;flex-wrap:wrap;gap:8px;padding:12px;background:var(--purple-l);border:1px solid #c8c4f0;border-radius:var(--rs);margin-bottom:12px}
 .wf-word-chip{padding:6px 14px;border:1.5px solid #c8c4f0;border-radius:20px;font-size:14px;cursor:pointer;background:var(--sur);color:var(--purple);font-family:'Noto Sans KR',sans-serif;transition:all .12s;user-select:none}
 .wf-word-chip:hover{border-color:var(--purple);background:var(--purple-l)}
@@ -309,7 +314,16 @@ function fmt(text){
 const typeNames={mc:'객관식',tf:'O/X',match:'A↔B 연결',imgsel:'이미지 선택',phrase:'Phrase 순서',order:'문장 순서',audio:'Audio 듣기',wordfill:'단어 빈칸',inlinesel:'문장 내 선택',photoq:'사진 보고 답하기',classify:'단어 분류'};
 
 function renderQuiz(){
-  document.getElementById('qcontainer').innerHTML=qdata.questions.map((q,qi)=>buildQ(q,qi)).join('');
+  let lastInstr=null;
+  const html=qdata.questions.map(function(q,qi){
+    let instrHtml='';
+    if(q.instruction && q.instruction!==lastInstr){
+      lastInstr=q.instruction;
+      instrHtml='<div class="instr-block"><div class="instr-text">'+fmt(q.instruction)+'</div></div>';
+    }
+    return instrHtml+buildQ(q,qi);
+  }).join('');
+  document.getElementById('qcontainer').innerHTML=html;
   document.getElementById('quiz-wrap').style.display='';
   initStates(); updateProg();
 }
@@ -333,7 +347,13 @@ function buildQ(q,qi){
       <div class="match-col" id="colB-${qi}">${shB.map((b,bi)=>`<div class="m-item" id="mB-${qi}-${bi}" data-val="${b.replace(/"/g,'&quot;')}" onclick="clickB(${qi},${bi})">${fmt(b)}</div>`).join('')}</div>
     </div>`;
   } else if(q.type==='imgsel'){
-    body=`<div class="img-grid">${q.options.map((o,oi)=>{
+    let imgselMedia='';
+    if(q.mediaType==='text'&&q.mediaText){
+      imgselMedia=`<div class="imgsel-media-text has-text">${fmt(q.mediaText)}</div>`;
+    } else if(q.mediaType==='audio'&&q.mediaAudio){
+      imgselMedia=`<div class="audio-player"><span class="audio-label">🎧 듣기</span><audio controls src="${q.mediaAudio}" preload="none"></audio></div>`;
+    }
+    body=imgselMedia+`<div class="img-grid">${q.options.map((o,oi)=>{
       const isUrl=/^https?:\/\//.test(o)||o.startsWith('data:');
       return `<div class="img-opt" id="iopt-${qi}-${oi}" onclick="selImg(${qi},${oi})">
         ${isUrl?`<img src="${o}" alt="보기 ${nums[oi]}">`:`<div class="img-placeholder">${fmt(o)}</div>`}
@@ -929,6 +949,7 @@ function buildAnswerReview(quiz, myBest){
   const typeLabels = {mc:'객관식',tf:'O/X',match:'A↔B 연결',imgsel:'이미지 선택',phrase:'Phrase 순서',order:'문장 순서',audio:'Audio 듣기',wordfill:'단어 빈칸',inlinesel:'문장 내 선택',photoq:'사진 보고 답하기',classify:'단어 분류'};
 
   let html = '<div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px;padding-bottom:8px;border-bottom:1.5px solid var(--border)">📋 문제별 답안 확인</div>';
+  let rvLastInstr=null;
 
   quiz.questions.forEach(function(q, qi){
     const a = savedAns[qi];
@@ -984,7 +1005,12 @@ function buildAnswerReview(quiz, myBest){
     } else if(q.type==='imgsel'){
       isCorrect = a===q.correct;
       if(a==null) isCorrect=false;
-      body = '<div class="img-grid">';
+      if(q.mediaType==='text'&&q.mediaText){
+        body='<div class="imgsel-media-text has-text">'+fmt(q.mediaText)+'</div>';
+      } else if(q.mediaType==='audio'&&q.mediaAudio){
+        body='<div class="audio-player" style="pointer-events:none"><span class="audio-label">🎧 듣기</span><audio controls src="'+q.mediaAudio+'" preload="none"></audio></div>';
+      }
+      body += '<div class="img-grid">';
       q.options.forEach(function(o,oi){
         const picked=a===oi, isAns=oi===q.correct;
         const isUrl=/^https?:\/\//.test(o)||o.startsWith('data:');
@@ -1161,7 +1187,12 @@ function buildAnswerReview(quiz, myBest){
       ? '<span style="font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;background:var(--red-l);color:var(--red)">오답</span>'
       : '<span style="font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;background:var(--bg);color:var(--muted);border:1px solid var(--border)">확인 필요</span>';
 
-    html += '<div style="border:1.5px solid '+borderColor+';border-radius:var(--r);padding:16px;margin-bottom:12px;background:var(--sur)">'
+    let rvInstrHtml='';
+    if(q.instruction && q.instruction!==rvLastInstr){
+      rvLastInstr=q.instruction;
+      rvInstrHtml='<div class="instr-block" style="margin-bottom:10px"><div class="instr-text">'+fmt(q.instruction)+'</div></div>';
+    }
+    html += rvInstrHtml+'<div style="border:1.5px solid '+borderColor+';border-radius:var(--r);padding:16px;margin-bottom:12px;background:var(--sur)">'
       +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">'
         +'<span style="font-size:11px;font-weight:700;color:var(--muted)">'+(qi+1)+'번</span>'
         +'<span style="font-size:11px;color:var(--muted);flex:1">'+(typeLabels[q.type]||q.type)+'</span>'
