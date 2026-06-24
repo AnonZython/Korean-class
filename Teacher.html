@@ -275,6 +275,25 @@ function setMsg(id,txt,cls){
 }
 
 const nums=['①','②','③','④','⑤','⑥'];
+
+// ── Rich text formatting (markdown-like) ──────────────────────────────────
+// Supports: **bold**, __underline__, [c:red]text[/c] or [c:#A32D2D]text[/c]
+function fmt(text){
+  if(text==null) return '';
+  let s=String(text)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  s=s.replace(/\*\*([^*\n]+?)\*\*/g,'<strong>$1</strong>');
+  s=s.replace(/__([^_\n]+?)__/g,'<u>$1</u>');
+  const FMT_COLORS={red:'#A32D2D',blue:'#185FA5',green:'#0F6E56',purple:'#534AB7',orange:'#854F0B',pink:'#993556',teal:'#0F6E56','빨강':'#A32D2D','파랑':'#185FA5','초록':'#0F6E56','보라':'#534AB7','주황':'#854F0B','분홍':'#993556'};
+  s=s.replace(/\[c:([^\]]+)\]([^[\n]+?)\[\/c\]/g,function(_,c,t){
+    const k=c.trim().toLowerCase();
+    let col=FMT_COLORS[k]||(/^#[0-9a-f]{3,8}$/i.test(c.trim())?c.trim():null);
+    if(!col) return t;
+    return '<span style="color:'+col+'">'+t+'</span>';
+  });
+  return s;
+}
 const typeNames={mc:'객관식',tf:'O/X',match:'A↔B 연결',imgsel:'이미지 선택',phrase:'Phrase 순서',order:'문장 순서',audio:'Audio 듣기',wordfill:'단어 빈칸',inlinesel:'문장 내 선택',photoq:'사진 보고 답하기',classify:'단어 분류'};
 
 function renderQuiz(){
@@ -288,7 +307,7 @@ function buildQ(q,qi){
   if(q.type==='mc'){
     body=q.options.map((o,oi)=>`
       <div class="opt" id="opt-${qi}-${oi}" onclick="selMC(${qi},${oi})">
-        <span class="ocircle">${nums[oi]}</span><span class="otext">${o}</span>
+        <span class="ocircle">${nums[oi]}</span><span class="otext">${fmt(o)}</span>
       </div>`).join('');
   } else if(q.type==='tf'){
     body=`
@@ -298,14 +317,14 @@ function buildQ(q,qi){
     const shB=[...q.pairs.map(p=>p.b)].sort(()=>Math.random()-.5);
     body=`<p class="match-hint">A 항목 클릭 → B 항목 클릭으로 연결 · 연결된 항목을 다시 클릭하면 취소</p>
     <div class="match-grid" id="mgrid-${qi}">
-      <div class="match-col" id="colA-${qi}">${q.pairs.map((p,pi)=>`<div class="m-item" id="mA-${qi}-${pi}" onclick="clickA(${qi},${pi})">${p.a}</div>`).join('')}</div>
-      <div class="match-col" id="colB-${qi}">${shB.map((b,bi)=>`<div class="m-item" id="mB-${qi}-${bi}" data-val="${b.replace(/"/g,'&quot;')}" onclick="clickB(${qi},${bi})">${b}</div>`).join('')}</div>
+      <div class="match-col" id="colA-${qi}">${q.pairs.map((p,pi)=>`<div class="m-item" id="mA-${qi}-${pi}" onclick="clickA(${qi},${pi})">${fmt(p.a)}</div>`).join('')}</div>
+      <div class="match-col" id="colB-${qi}">${shB.map((b,bi)=>`<div class="m-item" id="mB-${qi}-${bi}" data-val="${b.replace(/"/g,'&quot;')}" onclick="clickB(${qi},${bi})">${fmt(b)}</div>`).join('')}</div>
     </div>`;
   } else if(q.type==='imgsel'){
     body=`<div class="img-grid">${q.options.map((o,oi)=>{
       const isUrl=/^https?:\/\//.test(o)||o.startsWith('data:');
       return `<div class="img-opt" id="iopt-${qi}-${oi}" onclick="selImg(${qi},${oi})">
-        ${isUrl?`<img src="${o}" alt="보기 ${nums[oi]}">`:`<div class="img-placeholder">${o}</div>`}
+        ${isUrl?`<img src="${o}" alt="보기 ${nums[oi]}">`:`<div class="img-placeholder">${fmt(o)}</div>`}
         ${isUrl?`<button class="img-zoom-btn" onclick="event.stopPropagation();openImgZoom('${o.replace(/'/g,"\\'")}')">🔍</button>`:''}
         <div class="img-lbl">${nums[oi]}</div></div>`;
     }).join('')}</div>`;
@@ -313,40 +332,48 @@ function buildQ(q,qi){
     const sh=[...q.phrases].sort(()=>Math.random()-.5);
     body=`<p class="slot-hint">단어를 클릭해서 위 칸에 순서대로 배열하세요</p>
     <div class="phrase-slot" id="pslot-${qi}"></div>
-    <div class="phrase-bank" id="pbank-${qi}">${sh.map((p,pi)=>`<span class="pchip" id="pc-${qi}-${pi}" data-val="${p.replace(/"/g,'&quot;')}" onclick="clickPhrase(${qi},this)">${p}</span>`).join('')}</div>
+    <div class="phrase-bank" id="pbank-${qi}">${sh.map((p,pi)=>`<span class="pchip" id="pc-${qi}-${pi}" data-val="${p.replace(/"/g,'&quot;')}" onclick="clickPhrase(${qi},this)">${fmt(p)}</span>`).join('')}</div>
     <div id="phrase-fb-${qi}"></div>`;
   } else if(q.type==='order'){
     const sh=[...q.sentences].sort(()=>Math.random()-.5);
     body=`<p class="slot-hint">문장을 순서대로 클릭하세요</p>
     <div class="order-slot" id="oslot-${qi}"></div>
-    <div class="order-bank" id="obank-${qi}">${sh.map((s,si)=>`<div class="sent-card" id="oc-${qi}-${si}" data-val="${s.replace(/"/g,'&quot;')}" onclick="clickOrderSent(${qi},this)">${s}</div>`).join('')}</div>
+    <div class="order-bank" id="obank-${qi}">${sh.map((s,si)=>`<div class="sent-card" id="oc-${qi}-${si}" data-val="${s.replace(/"/g,'&quot;')}" onclick="clickOrderSent(${qi},this)">${fmt(s)}</div>`).join('')}</div>
     <div id="order-fb-${qi}"></div>`;
   } else if(q.type==='audio'){
     body=`<div class="audio-player"><span class="audio-label">🎧 듣기</span><audio controls src="${q.audioUrl}" preload="none"></audio></div>`
       +q.options.map((o,oi)=>`
       <div class="opt" id="opt-${qi}-${oi}" onclick="selMC(${qi},${oi})">
-        <span class="ocircle">${nums[oi]}</span><span class="otext">${o}</span>
+        <span class="ocircle">${nums[oi]}</span><span class="otext">${fmt(o)}</span>
       </div>`).join('');
   } else if(q.type==='wordfill'){
     // Build word bank (shuffled)
     const shuffled=[...q.words].sort(()=>Math.random()-.5);
     body=`<p style="font-size:12px;color:var(--muted);margin-bottom:6px">단어를 클릭하여 빈칸을 채우고, 잘못 넣은 단어는 빈칸을 클릭하면 돌아옵니다</p>
-    <div class="wf-words-box" id="wfbank-${qi}">${shuffled.map((w,wi)=>`<span class="wf-word-chip" id="wfc-${qi}-${wi}" data-w="${w.replace(/"/g,'&quot;')}" onclick="clickWfWord(${qi},${wi})">${w}</span>`).join('')}</div>
+    <div class="wf-words-box" id="wfbank-${qi}">${shuffled.map((w,wi)=>`<span class="wf-word-chip" id="wfc-${qi}-${wi}" data-w="${w.replace(/"/g,'&quot;')}" onclick="clickWfWord(${qi},${wi})">${fmt(w)}</span>`).join('')}</div>
     <div id="wfsents-${qi}">${q.sentences.map((sent,si)=>{
       let bi=0;
       // Count blanks before this sentence for global blank index
       const prevBlanks=q.sentences.slice(0,si).reduce((n,ss)=>n+(ss.match(/___/g)||[]).length,0);
-      return '<div class="wf-sentence">'+sent.replace(/___/g,()=>{
-        const gbi=prevBlanks+bi++;
-        return `<span class="wf-blank" id="wfblank-${qi}-${gbi}" data-bi="${gbi}" onclick="clickWfBlank(${qi},${gbi})">　　　</span>`;
-      })+'</div>';
+      // Split on ___ and format each text part, leaving blanks
+      const parts=sent.split('___');
+      let html='<div class="wf-sentence">';
+      parts.forEach(function(part,idx){
+        html+=fmt(part);
+        if(idx<parts.length-1){
+          const gbi=prevBlanks+bi++;
+          html+=`<span class="wf-blank" id="wfblank-${qi}-${gbi}" data-bi="${gbi}" onclick="clickWfBlank(${qi},${gbi})">　　　</span>`;
+        }
+      });
+      html+='</div>';
+      return html;
     }).join('')}</div>`;
   } else if(q.type==='photoq'){
     const imgTag=`<img class="photoq-img" src="${q.imgSrc}" alt="문제 사진">`;
     if(q.answerType==='mc'){
       body=imgTag+q.options.map((o,oi)=>`
       <div class="opt" id="opt-${qi}-${oi}" onclick="selMC(${qi},${oi})">
-        <span class="ocircle">${nums[oi]}</span><span class="otext">${o}</span>
+        <span class="ocircle">${nums[oi]}</span><span class="otext">${fmt(o)}</span>
       </div>`).join('');
     } else {
       body=imgTag
@@ -362,13 +389,13 @@ function buildQ(q,qi){
     allWords.sort(function(){return Math.random()-.5;});
     var bankHtml='<div class="cls-words-bank" id="clsbank-'+qi+'">';
     allWords.forEach(function(item){
-      bankHtml+='<span class="cls-word-chip" id="'+item.id+'" data-ci="'+item.ci+'" data-wi="'+item.wi+'" data-w="'+item.w+'" onclick="clsWordClick('+qi+',this)">'+item.w+'</span>';
+      bankHtml+='<span class="cls-word-chip" id="'+item.id+'" data-ci="'+item.ci+'" data-wi="'+item.wi+'" data-w="'+item.w.replace(/"/g,'&quot;')+'" onclick="clsWordClick('+qi+',this)">'+fmt(item.w)+'</span>';
     });
     bankHtml+='</div>';
     var catsHtml='';
     q.cats.forEach(function(cat,ci){
       catsHtml+='<div class="cls-cat-box" id="clscat-'+qi+'-'+ci+'" onclick="clsCatClick('+qi+','+ci+')">';
-      catsHtml+='<div class="cls-cat-label">'+cat.name+'</div>';
+      catsHtml+='<div class="cls-cat-label">'+fmt(cat.name)+'</div>';
       catsHtml+='<div id="clsplaced-'+qi+'-'+ci+'"></div>';
       catsHtml+='</div>';
     });
@@ -383,22 +410,22 @@ function buildQ(q,qi){
       while((m=re2.exec(sent))!==null){
         const parts=m[1].split('/');
         if(parts.length>=2){
-          html+=sent.slice(last,m.index);
+          html+=fmt(sent.slice(last,m.index));
           const si=globalSelIdx;
           // Show all options as separate buttons
           html+='<span class="ils-group">'
-            +parts.map((p,pi)=>`<button class="ils-btn" id="ilsb-${qi}-${si}-${pi}" data-si="${si}" data-pi="${pi}" data-val="${p}" onclick="pickIls(${qi},${si},${pi})">${p}</button>`).join('')
+            +parts.map((p,pi)=>`<button class="ils-btn" id="ilsb-${qi}-${si}-${pi}" data-si="${si}" data-pi="${pi}" data-val="${p}" onclick="pickIls(${qi},${si},${pi})">${fmt(p)}</button>`).join('')
             +'</span>';
           globalSelIdx++;
           last=m.index+m[0].length;
         }
       }
-      html+=sent.slice(last)+'</div>';
+      html+=fmt(sent.slice(last))+'</div>';
       return html;
     }).join('');
     body=sentHtml;
   }
-    return `<div class="qcard"><p class="qnum">${qi+1}번 · ${typeNames[q.type]}</p><p class="qtext">${q.text}</p>${body}</div>`;
+    return `<div class="qcard"><p class="qnum">${qi+1}번 · ${typeNames[q.type]}</p><p class="qtext">${fmt(q.text)}</p>${body}</div>`;
 }
 
 function initStates(){
@@ -614,7 +641,7 @@ function clickWfBlank(qi,bi){
   st.blanks[bi]={word:st.selectedWord,chipId:st.selectedChipId};
   const chip=document.getElementById(st.selectedChipId);
   if(chip){chip.classList.add('used');chip.style.outline='';}
-  blank.textContent=st.selectedWord;blank.classList.add('filled');
+  blank.innerHTML=fmt(st.selectedWord);blank.classList.add('filled');
   st.selectedWord=null;st.selectedChipId=null;
   // Check if all blanks filled
   const totalBlanks=qdata.questions[qi].answers.length;
@@ -689,7 +716,7 @@ function clsCatClick(qi,ci){
     st.placed[ci].forEach(function(item,idx){
       var span=document.createElement('span');
       span.className='cls-placed-word';
-      span.textContent=item.w+' ✕';
+      span.innerHTML=fmt(item.w)+' ✕';
       span.onclick=function(){clsRemoveWord(qi,ci,idx);};
       placedDiv.appendChild(span);
     });
@@ -711,7 +738,7 @@ function clsRemoveWord(qi,ci,idx){
     st.placed[ci].forEach(function(item2,idx2){
       var span=document.createElement('span');
       span.className='cls-placed-word';
-      span.textContent=item2.w+' ✕';
+      span.innerHTML=fmt(item2.w)+' ✕';
       span.onclick=function(){clsRemoveWord(qi,ci,idx2);};
       placedDiv.appendChild(span);
     });
