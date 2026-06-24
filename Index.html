@@ -1011,6 +1011,28 @@ function setPqType(t){
 }
 
 // File helpers
+// ── Rich text formatting (markdown-like) ──────────────────────────────────
+// Supports: **bold**, __underline__, [c:red]text[/c] or [c:#A32D2D]text[/c]
+function fmt(text){
+  if(text==null) return '';
+  let s=String(text)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  // Bold: **text**
+  s=s.replace(/\*\*([^*\n]+?)\*\*/g,'<strong>$1</strong>');
+  // Underline: __text__
+  s=s.replace(/__([^_\n]+?)__/g,'<u>$1</u>');
+  // Color: [c:name]text[/c]
+  const FMT_COLORS={red:'#A32D2D',blue:'#185FA5',green:'#0F6E56',purple:'#534AB7',orange:'#854F0B',pink:'#993556',teal:'#0F6E56','빨강':'#A32D2D','파랑':'#185FA5','초록':'#0F6E56','보라':'#534AB7','주황':'#854F0B','분홍':'#993556'};
+  s=s.replace(/\[c:([^\]]+)\]([^[\n]+?)\[\/c\]/g,function(_,c,t){
+    const k=c.trim().toLowerCase();
+    let col=FMT_COLORS[k]||(/^#[0-9a-f]{3,8}$/i.test(c.trim())?c.trim():null);
+    if(!col) return t;
+    return '<span style="color:'+col+'">'+t+'</span>';
+  });
+  return s;
+}
+
 function fileToB64(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=rej;r.readAsDataURL(file);});}
 async function loadAudioFile(inp){if(!inp.files[0]) return;inp._b64=await fileToB64(inp.files[0]);document.getElementById('audio-url').value='';document.getElementById('audio-player').src=inp._b64;document.getElementById('audio-preview').style.display='';}
 async function loadImgFile(inp){if(!inp.files[0]) return;const b64=await fileToB64(inp.files[0]);const idx=parseInt(inp.dataset.idx);document.querySelectorAll('.img-opt')[idx].value=b64;const prev=document.querySelectorAll('.img-preview')[idx];prev.src=b64;prev.style.display='';}
@@ -1368,7 +1390,7 @@ function renderQList(){
   document.getElementById('qlist-sub').textContent='총 '+questions.length+'개';
   const groups={};const order=[];
   questions.forEach((q,i)=>{if(!groups[q.type]){groups[q.type]=[];order.push(q.type);}groups[q.type].push({q,i});});
-  document.getElementById('q-list').innerHTML=order.map(t=>'<div style="margin-bottom:10px"><div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;padding:3px 0;border-bottom:1px solid var(--border);margin-bottom:6px;display:flex;justify-content:space-between"><span>'+TI[t]+' '+TL[t]+'</span><span style="font-weight:400">'+groups[t].length+'개</span></div>'+groups[t].map(function(obj){const q=obj.q;const i=obj.i;return '<div class="q-item"><span class="q-n">'+(i+1)+'</span><span class="q-t">'+q.text+'</span><span class="q-pts">'+(q.points||0)+'점</span><span class="q-tag '+TC[q.type]+'">'+TL[q.type]+'</span><button class="rmv" onclick="rmQ('+i+')">✕</button></div>';}).join('')+'</div>').join('');
+  document.getElementById('q-list').innerHTML=order.map(t=>'<div style="margin-bottom:10px"><div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;padding:3px 0;border-bottom:1px solid var(--border);margin-bottom:6px;display:flex;justify-content:space-between"><span>'+TI[t]+' '+TL[t]+'</span><span style="font-weight:400">'+groups[t].length+'개</span></div>'+groups[t].map(function(obj){const q=obj.q;const i=obj.i;return '<div class="q-item"><span class="q-n">'+(i+1)+'</span><span class="q-t">'+fmt(q.text)+'</span><span class="q-pts">'+(q.points||0)+'점</span><span class="q-tag '+TC[q.type]+'">'+TL[q.type]+'</span><button class="rmv" onclick="rmQ('+i+')">✕</button></div>';}).join('')+'</div>').join('');
 }
 function rmQ(i){questions.splice(i,1);renderQList();}
 
@@ -1573,13 +1595,13 @@ async function loadAnswers(){
             const txt=ans&&ans.text?ans.text:'(미제출)';
             const gpts=ans&&ans.pts!=null?ans.pts:null;
             out.push('<div class="ans-q-row" style="flex-direction:column;align-items:flex-start;gap:6px">');
-            out.push('<div style="display:flex;width:100%;gap:8px;align-items:center"><span class="ans-q-num">'+(qi+1)+'</span><span class="ans-q-text" style="flex:1;white-space:normal">[서술형] '+q.text+'</span><span class="ans-q-result '+(gpts!=null?'res-ok':'res-skip')+'">'+(gpts!=null?gpts+'점':'미채점')+'</span></div>');
+            out.push('<div style="display:flex;width:100%;gap:8px;align-items:center"><span class="ans-q-num">'+(qi+1)+'</span><span class="ans-q-text" style="flex:1;white-space:normal">[서술형] '+fmt(q.text)+'</span><span class="ans-q-result '+(gpts!=null?'res-ok':'res-skip')+'">'+(gpts!=null?gpts+'점':'미채점')+'</span></div>');
             out.push('<div style="padding:8px 12px;background:var(--bg);border-radius:8px;font-size:13px;width:100%;border:1px solid var(--border)">'+txt+'</div>');
             out.push('<div style="display:flex;gap:6px;align-items:center"><input type="number" id="essay-pts-'+code+'-'+ai+'-'+qi+'" min="0" max="100" placeholder="점수" value="'+(gpts!=null?gpts:'')+'" style="width:68px;padding:5px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:13px"><button onclick="gradeEssay(\''+code+'\','+ai+','+qi+')" style="padding:5px 12px;background:var(--teal);color:white;border:none;border-radius:6px;font-size:12px;cursor:pointer;font-family:\'Noto Sans KR\',sans-serif">점수 저장</button></div>');
             out.push('</div>');
           } else {
             const correct=checkAnswer(q,ans);
-            out.push('<div class="ans-q-row"><span class="ans-q-num">'+(qi+1)+'</span><span class="ans-q-text">'+q.text+'</span><span class="ans-q-result '+(ans==null?'res-skip':correct?'res-ok':'res-err')+'">'+(ans==null?'미응답':correct?'정답':'오답')+'</span></div>');
+            out.push('<div class="ans-q-row"><span class="ans-q-num">'+(qi+1)+'</span><span class="ans-q-text">'+fmt(q.text)+'</span><span class="ans-q-result '+(ans==null?'res-skip':correct?'res-ok':'res-err')+'">'+(ans==null?'미응답':correct?'정답':'오답')+'</span></div>');
           }
         });
         out.push('</div></div>');
@@ -1654,6 +1676,36 @@ async function toggleRankReleaseFromAnswers(code,checkbox){
   loadAnswers();
 }
 
+// Tag all question-form inputs as formattable
+(function tagFmtFields(){
+  const sectionIds=['sec-mc','sec-tf','sec-match','sec-imgsel','sec-phrase','sec-order','sec-audio','sec-wordfill','sec-inlinesel','sec-photoq','sec-classify'];
+  sectionIds.forEach(function(id){
+    const sec=document.getElementById(id);
+    if(!sec) return;
+    sec.querySelectorAll('input[type=text], textarea').forEach(function(el){
+      // Exclude image URL fields (pq-url, img-opt inside imgsel, audio-url) — those expect raw URLs
+      if(el.id==='pq-url'||el.id==='audio-url') return;
+      if(el.classList.contains('img-opt')) return;
+      el.classList.add('fmt-field');
+    });
+  });
+})();
+
+// Observer for dynamically-added wordfill/inlinesel/classify inputs
+(function watchDynamicFmtFields(){
+  const watchIds=['wf-sents','inlinesel-sents','cls-boxes','match-pairs','phrase-list','order-list'];
+  watchIds.forEach(function(id){
+    const el=document.getElementById(id);
+    if(!el) return;
+    new MutationObserver(function(){
+      el.querySelectorAll('input[type=text]:not(.fmt-field), textarea:not(.fmt-field)').forEach(function(i){
+        if(i.classList.contains('img-opt')) return;
+        i.classList.add('fmt-field');
+      });
+    }).observe(el,{childList:true,subtree:true});
+  });
+})();
+
 setType('mc');
 updateBadges();
 </script>
@@ -1694,5 +1746,138 @@ Object.assign(TL, TL_DISPLAY);
   </div>
   <button class="fp-confirm" onclick="confirmPicker()">확인 ✓</button>
 </div>
+<!-- Floating Format Toolbar -->
+<div id="fmt-toolbar" style="position:absolute;display:none;z-index:1000;background:#1a1830;border-radius:8px;padding:5px;box-shadow:0 6px 24px rgba(0,0,0,.25);gap:3px;align-items:center" onmousedown="event.preventDefault()">
+  <button class="fmt-btn" onclick="applyFmt('bold')" title="굵게 (Ctrl+B)" style="font-weight:900">B</button>
+  <button class="fmt-btn" onclick="applyFmt('underline')" title="밑줄 (Ctrl+U)" style="text-decoration:underline">U</button>
+  <span style="width:1px;height:18px;background:#555;margin:0 2px"></span>
+  <button class="fmt-btn fmt-color" onclick="applyFmt('color','red')" title="빨강" style="background:#A32D2D"></button>
+  <button class="fmt-btn fmt-color" onclick="applyFmt('color','blue')" title="파랑" style="background:#185FA5"></button>
+  <button class="fmt-btn fmt-color" onclick="applyFmt('color','green')" title="초록" style="background:#0F6E56"></button>
+  <button class="fmt-btn fmt-color" onclick="applyFmt('color','purple')" title="보라" style="background:#534AB7"></button>
+  <button class="fmt-btn fmt-color" onclick="applyFmt('color','orange')" title="주황" style="background:#854F0B"></button>
+  <span style="width:1px;height:18px;background:#555;margin:0 2px"></span>
+  <button class="fmt-btn" onclick="clearFmt()" title="서식 제거" style="font-size:12px">✕</button>
+  <button class="fmt-btn" onclick="toggleFmtHelp()" title="도움말" style="font-size:13px;font-weight:700">?</button>
+</div>
+<div id="fmt-help" style="display:none;position:absolute;z-index:1001;background:#fff;border:1.5px solid var(--purple);border-radius:8px;padding:14px 16px;box-shadow:0 6px 24px rgba(0,0,0,.18);max-width:280px;font-size:12px;line-height:1.7;color:var(--text)">
+  <div style="font-weight:700;color:var(--purple);margin-bottom:8px;font-size:13px">✨ 서식 사용법</div>
+  <div><code style="background:var(--bg);padding:1px 5px;border-radius:3px">**굵게**</code> → <strong>굵게</strong></div>
+  <div><code style="background:var(--bg);padding:1px 5px;border-radius:3px">__밑줄__</code> → <u>밑줄</u></div>
+  <div><code style="background:var(--bg);padding:1px 5px;border-radius:3px">[c:red]색깔[/c]</code> → <span style="color:#A32D2D">색깔</span></div>
+  <div style="margin-top:8px;color:var(--muted);font-size:11px">색: red, blue, green, purple, orange, pink<br>또는 #FF0000 같은 색상코드</div>
+  <div style="margin-top:10px;color:var(--muted);font-size:11px">💡 텍스트를 선택하고 버튼 클릭 → 자동 적용</div>
+</div>
+<style>
+.fmt-btn{background:#2a2848;color:#fff;border:none;border-radius:5px;width:28px;height:28px;cursor:pointer;font-size:13px;font-family:'Noto Sans KR',sans-serif;display:inline-flex;align-items:center;justify-content:center;padding:0;transition:background .12s}
+.fmt-btn:hover{background:var(--purple)}
+.fmt-btn.fmt-color{padding:0;border:1px solid rgba(255,255,255,.2)}
+.fmt-btn.fmt-color:hover{transform:scale(1.1)}
+.fmt-preview{font-size:12px;color:var(--muted);padding:6px 10px;background:var(--bg);border-radius:6px;border:1px dashed var(--border);margin-top:4px;display:none;line-height:1.5}
+.fmt-preview.show{display:block}
+.fmt-preview-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-right:6px}
+</style>
+<script>
+let fmtActiveField=null;
+const FMT_FIELD_SEL='input[type=text].fmt-field, textarea.fmt-field';
+
+document.addEventListener('focusin',function(e){
+  if(e.target.matches(FMT_FIELD_SEL)){
+    fmtActiveField=e.target;
+    showFmtToolbar(e.target);
+  }
+});
+document.addEventListener('focusout',function(e){
+  setTimeout(function(){
+    const ae=document.activeElement;
+    if(ae&&(ae.matches(FMT_FIELD_SEL)||ae.closest('#fmt-toolbar')||ae.closest('#fmt-help'))) return;
+    hideFmtToolbar();
+  },120);
+});
+window.addEventListener('scroll',function(){if(fmtActiveField&&document.activeElement===fmtActiveField) showFmtToolbar(fmtActiveField);},true);
+window.addEventListener('resize',function(){if(fmtActiveField&&document.activeElement===fmtActiveField) showFmtToolbar(fmtActiveField);});
+
+function showFmtToolbar(el){
+  const tb=document.getElementById('fmt-toolbar');
+  if(!tb) return;
+  const r=el.getBoundingClientRect();
+  tb.style.display='flex';
+  // Place above the field (or below if no room)
+  const tbH=tb.offsetHeight||40;
+  let top=window.scrollY+r.top-tbH-6;
+  if(top<window.scrollY+4) top=window.scrollY+r.bottom+6;
+  tb.style.top=top+'px';
+  tb.style.left=(window.scrollX+r.left)+'px';
+}
+function hideFmtToolbar(){
+  const tb=document.getElementById('fmt-toolbar');
+  if(tb) tb.style.display='none';
+  const h=document.getElementById('fmt-help');
+  if(h) h.style.display='none';
+}
+function toggleFmtHelp(){
+  const h=document.getElementById('fmt-help');
+  const tb=document.getElementById('fmt-toolbar');
+  if(h.style.display==='block'){h.style.display='none';return;}
+  const r=tb.getBoundingClientRect();
+  h.style.display='block';
+  h.style.top=(window.scrollY+r.bottom+6)+'px';
+  h.style.left=(window.scrollX+r.left)+'px';
+}
+function applyFmt(type,color){
+  const f=fmtActiveField;
+  if(!f) return;
+  const start=f.selectionStart;
+  const end=f.selectionEnd;
+  const val=f.value;
+  const sel=val.substring(start,end);
+  if(!sel){
+    // No selection: insert empty markers and place cursor in the middle
+    let ins;
+    if(type==='bold') ins='****';
+    else if(type==='underline') ins='____';
+    else ins='[c:'+color+'][/c]';
+    const cursorOffset=type==='color'?('[c:'+color+']').length:2;
+    f.value=val.substring(0,start)+ins+val.substring(end);
+    f.focus();
+    f.setSelectionRange(start+cursorOffset,start+cursorOffset);
+  } else {
+    let wrapped;
+    if(type==='bold') wrapped='**'+sel+'**';
+    else if(type==='underline') wrapped='__'+sel+'__';
+    else wrapped='[c:'+color+']'+sel+'[/c]';
+    f.value=val.substring(0,start)+wrapped+val.substring(end);
+    f.focus();
+    f.setSelectionRange(start,start+wrapped.length);
+  }
+  // Trigger input event for preview updates
+  f.dispatchEvent(new Event('input',{bubbles:true}));
+}
+function clearFmt(){
+  const f=fmtActiveField;
+  if(!f) return;
+  const start=f.selectionStart;
+  const end=f.selectionEnd;
+  const val=f.value;
+  if(start===end) return;
+  const sel=val.substring(start,end);
+  const cleaned=sel
+    .replace(/\*\*([^*\n]+?)\*\*/g,'$1')
+    .replace(/__([^_\n]+?)__/g,'$1')
+    .replace(/\[c:[^\]]+\]([^[\n]+?)\[\/c\]/g,'$1');
+  f.value=val.substring(0,start)+cleaned+val.substring(end);
+  f.focus();
+  f.setSelectionRange(start,start+cleaned.length);
+  f.dispatchEvent(new Event('input',{bubbles:true}));
+}
+// Keyboard shortcuts
+document.addEventListener('keydown',function(e){
+  if(!fmtActiveField||document.activeElement!==fmtActiveField) return;
+  if(!(e.ctrlKey||e.metaKey)) return;
+  if(e.key==='b'||e.key==='B'){e.preventDefault();applyFmt('bold');}
+  else if(e.key==='u'||e.key==='U'){e.preventDefault();applyFmt('underline');}
+});
+</script>
+
 </body>
 </html>
