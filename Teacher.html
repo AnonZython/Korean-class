@@ -350,8 +350,9 @@ function buildQ(q,qi){
     let imgselMedia='';
     if(q.mediaType==='text'&&q.mediaText){
       imgselMedia=`<div class="imgsel-media-text has-text">${fmt(q.mediaText)}</div>`;
-    } else if(q.mediaType==='audio'&&q.mediaAudio){
-      imgselMedia=`<div class="audio-player"><span class="audio-label">🎧 듣기</span><audio controls src="${q.mediaAudio}" preload="none"></audio></div>`;
+    } else if(q.mediaType==='audio'){
+      const _iUrls=q.mediaAudios||(q.mediaAudio?[q.mediaAudio]:[]);
+      imgselMedia=_iUrls.map(function(u,ui){return '<div class="audio-player"><span class="audio-label">🎧 '+((_iUrls.length>1)?'파일 '+(ui+1):'듣기')+'</span><audio controls src="'+u+'" preload="none"></audio></div>';}).join('');
     }
     body=imgselMedia+`<div class="img-grid">${q.options.map((o,oi)=>{
       const isUrl=/^https?:\/\//.test(o)||o.startsWith('data:');
@@ -373,7 +374,8 @@ function buildQ(q,qi){
     <div class="order-bank" id="obank-${qi}">${sh.map((s,si)=>`<div class="sent-card" id="oc-${qi}-${si}" data-val="${s.replace(/"/g,'&quot;')}" onclick="clickOrderSent(${qi},this)">${fmt(s)}</div>`).join('')}</div>
     <div id="order-fb-${qi}"></div>`;
   } else if(q.type==='audio'){
-    body=`<div class="audio-player"><span class="audio-label">🎧 듣기</span><audio controls src="${q.audioUrl}" preload="none"></audio></div>`
+    const _audUrls=q.audioUrls||(q.audioUrl?[q.audioUrl]:[]);
+    body=_audUrls.map(function(u,ui){return '<div class="audio-player"><span class="audio-label">🎧 '+((_audUrls.length>1)?'파일 '+(ui+1):'듣기')+'</span><audio controls src="'+u+'" preload="none"></audio></div>';}).join('')
       +q.options.map((o,oi)=>`
       <div class="opt" id="opt-${qi}-${oi}" onclick="selMC(${qi},${oi})">
         <span class="ocircle">${nums[oi]}</span><span class="otext">${fmt(o)}</span>
@@ -960,7 +962,8 @@ function buildAnswerReview(quiz, myBest){
     if(q.type==='mc' || q.type==='audio' || (q.type==='photoq' && q.answerType==='mc')){
       const correctVal = q.correct;
       if(q.type==='audio'){
-        body += '<div class="audio-player" style="pointer-events:none"><span class="audio-label">🎧 듣기</span><audio controls src="'+q.audioUrl+'" preload="none"></audio></div>';
+        const _rvUrls=q.audioUrls||(q.audioUrl?[q.audioUrl]:[]);
+        _rvUrls.forEach(function(u,ui){ body+='<div class="audio-player" style="pointer-events:none"><span class="audio-label">🎧 '+((_rvUrls.length>1)?'파일 '+(ui+1):'듣기')+'</span><audio controls src="'+u+'" preload="none"></audio></div>'; });
       }
       if(q.type==='photoq'){
         body += '<img class="photoq-img" src="'+q.imgSrc+'" alt="문제 사진">';
@@ -1007,8 +1010,9 @@ function buildAnswerReview(quiz, myBest){
       if(a==null) isCorrect=false;
       if(q.mediaType==='text'&&q.mediaText){
         body='<div class="imgsel-media-text has-text">'+fmt(q.mediaText)+'</div>';
-      } else if(q.mediaType==='audio'&&q.mediaAudio){
-        body='<div class="audio-player" style="pointer-events:none"><span class="audio-label">🎧 듣기</span><audio controls src="'+q.mediaAudio+'" preload="none"></audio></div>';
+      } else if(q.mediaType==='audio'){
+        const _rvIUrls=q.mediaAudios||(q.mediaAudio?[q.mediaAudio]:[]);
+        _rvIUrls.forEach(function(u,ui){ body+='<div class="audio-player" style="pointer-events:none"><span class="audio-label">🎧 '+((_rvIUrls.length>1)?'파일 '+(ui+1):'듣기')+'</span><audio controls src="'+u+'" preload="none"></audio></div>'; });
       }
       body += '<div class="img-grid">';
       q.options.forEach(function(o,oi){
