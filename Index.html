@@ -984,6 +984,7 @@ function setType(t){
   const hidePts=t==='match'||t==='wordfill'||t==='inlinesel'||t==='classify';
   document.getElementById('pts-row-wrap').style.display=hidePts?'none':'';
   if(t==='photoq'){setPqType('mc');}
+  if(t==='audio' && audSlots.length===0) setTimeout(function(){_initSlots('aud');},0);
   tfVal=null; phraseList=[]; renderChips();
   document.getElementById('tf-O').classList.remove('sel');
   document.getElementById('tf-X').classList.remove('sel');
@@ -1972,7 +1973,6 @@ async function toggleRankReleaseFromAnswers(code,checkbox){
 // Tag all question-form inputs as formattable
 (function tagFmtFields(){
   const sectionIds=['sec-mc','sec-tf','sec-match','sec-imgsel','sec-phrase','sec-order','sec-audio','sec-wordfill','sec-inlinesel','sec-photoq','sec-classify'];
-  if(t==='audio' && audSlots.length===0) setTimeout(function(){_initSlots('aud');},0);
   sectionIds.forEach(function(id){
     const sec=document.getElementById(id);
     if(!sec) return;
