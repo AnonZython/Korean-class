@@ -1756,8 +1756,9 @@ function recalcScore(quiz, a){
     if(q.type==='photoq'&&q.answerType==='essay'){
       if(v&&v.graded) score+=(v.pts||0);
     } else if(q.type==='mc'){
-      if(q.multiCorrect){const sel=Array.isArray(v)?v:[],cor=Array.isArray(q.correct)?q.correct:[q.correct];if(sel.length===cor.length&&cor.every(function(c){return sel.includes(c);})) score+=(q.points||1);}
-      else{if(v===q.correct) score+=(q.points||1);}
+      const _ia=Array.isArray(q.correct)?q.correct:[q.correct];
+      if(q.multiCorrect){const sel=Array.isArray(v)?v:[];if(sel.length===_ia.length&&_ia.every(function(c){return sel.includes(c);})) score+=(q.points||1);}
+      else{if(v===_ia[0]) score+=(q.points||1);}
     } else if(q.type==='tf'||q.type==='imgsel'||q.type==='audio'){
       if(v===q.correct) score+=(q.points||1);
     } else if(q.type==='photoq'){
@@ -1788,8 +1789,9 @@ function recalcScore(quiz, a){
 function checkAnswer(q,ans){
   if(ans==null) return false;
   if(q.type==='mc'){
-    if(q.multiCorrect){const sel=Array.isArray(ans)?ans:[];const cor=Array.isArray(q.correct)?q.correct:[q.correct];return sel.length===cor.length&&cor.every(c=>sel.includes(c));}
-    return ans===q.correct;
+    const _ca=Array.isArray(q.correct)?q.correct:[q.correct];
+    if(q.multiCorrect){const sel=Array.isArray(ans)?ans:[];return sel.length===_ca.length&&_ca.every(c=>sel.includes(c));}
+    return ans===_ca[0];
   }
   if(q.type==='tf') return ans===q.correct;
   if(q.type==='imgsel'||q.type==='audio') return ans===q.correct;
