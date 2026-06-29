@@ -112,17 +112,18 @@ textarea{min-height:52px;resize:vertical}
 .pub-bar{position:fixed;bottom:0;left:0;right:0;background:var(--sur);border-top:1px solid var(--border);padding:12px 20px;display:none;align-items:center;gap:12px;z-index:99}
 .share-box{background:var(--purple-l);border:2px solid var(--purple);border-radius:var(--r);padding:28px 20px;text-align:center;margin-top:8px}
 .share-code{font-family:'DM Mono',monospace;font-size:48px;font-weight:500;letter-spacing:12px;color:var(--purple-d);padding:14px 0;line-height:1;cursor:pointer}
-.quiz-card{background:var(--sur);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;margin-bottom:10px;display:flex;align-items:flex-start;gap:14px}
+.quiz-card{background:var(--sur);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;margin-bottom:8px}
 .quiz-card:hover{border-color:#c8c4f0}
-.quiz-card-body{flex:1;min-width:0}
-.quiz-card-name{font-size:15px;font-weight:700;margin-bottom:3px}
-.quiz-card-desc{font-size:12px;color:var(--muted);margin-bottom:8px}
-.quiz-card-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-.quiz-code{font-family:'DM Mono',monospace;font-size:15px;font-weight:500;letter-spacing:4px;background:var(--purple-l);color:var(--purple);padding:3px 10px;border-radius:6px;cursor:pointer;user-select:all}
+.quiz-card-body{min-width:0}
+.qc-top{display:flex;align-items:baseline;gap:8px;margin-bottom:4px;flex-wrap:wrap}
+.quiz-card-name{font-size:14px;font-weight:700}
+.quiz-card-desc{font-size:12px;color:var(--muted)}
+.quiz-card-meta{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-bottom:8px}
+.quiz-code{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;letter-spacing:3px;background:var(--purple-l);color:var(--purple);padding:2px 8px;border-radius:6px;cursor:pointer;user-select:all}
 .quiz-code:hover{background:#d8d4f8}
-.quiz-meta-tag{font-size:11px;color:var(--muted);background:var(--bg);border:1px solid var(--border);padding:2px 8px;border-radius:20px}
-.quiz-card-actions{display:flex;flex-direction:column;gap:6px;flex-shrink:0}
-.icon-btn{background:none;border:1px solid var(--border);border-radius:var(--rs);padding:6px 10px;font-size:12px;cursor:pointer;color:var(--muted);white-space:nowrap;font-family:'Noto Sans KR',sans-serif}
+.quiz-meta-tag{font-size:11px;color:var(--muted);background:var(--bg);border:1px solid var(--border);padding:1px 7px;border-radius:20px}
+.quiz-card-actions{display:flex;flex-wrap:wrap;gap:5px}
+.icon-btn{background:none;border:1px solid var(--border);border-radius:var(--rs);padding:4px 10px;font-size:12px;cursor:pointer;color:var(--muted);white-space:nowrap;font-family:'Noto Sans KR',sans-serif}
 .icon-btn:hover{background:var(--bg);color:var(--text)}
 .icon-btn.danger:hover{background:var(--red-l);color:var(--red);border-color:var(--red)}
 .icon-btn.on{background:var(--teal-l);color:var(--teal);border-color:var(--teal);font-weight:700}
@@ -134,13 +135,13 @@ textarea{min-height:52px;resize:vertical}
 .toggle-slider:before{position:absolute;content:"";height:18px;width:18px;left:3px;bottom:3px;background:white;border-radius:50%;transition:.3s}
 .toggle-switch input:checked + .toggle-slider{background:var(--teal)}
 .toggle-switch input:checked + .toggle-slider:before{transform:translateX(20px)}
-.grade-toggle{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--bg);border-radius:var(--rs);margin-bottom:14px;border:1px solid var(--border)}
-.grade-toggle-label{flex:1;font-size:13px;font-weight:500}
-.grade-toggle-sub{font-size:11px;color:var(--muted);display:block;margin-top:2px}
-.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
-.stat-card{background:var(--bg);border-radius:var(--rs);padding:14px;text-align:center}
-.stat-num{font-size:26px;font-weight:700;font-family:'DM Mono',monospace}
-.stat-lbl{font-size:11px;color:var(--muted);margin-top:3px;font-weight:500}
+.grade-toggle{display:flex;align-items:center;gap:8px;padding:0}
+.grade-toggle-label{font-size:12px;font-weight:500;color:var(--text)}
+.grade-toggle-sub{display:none}
+.stat-grid{display:flex;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.stat-card{background:var(--bg);border-radius:var(--rs);padding:6px 12px;text-align:center;display:flex;align-items:center;gap:6px;border:1px solid var(--border)}
+.stat-num{font-size:16px;font-weight:700;font-family:'DM Mono',monospace}
+.stat-lbl{font-size:11px;color:var(--muted);font-weight:500}
 .stat-purple .stat-num{color:var(--purple)}.stat-teal .stat-num{color:var(--teal)}.stat-amber .stat-num{color:var(--amber)}
 .answer-row{background:var(--sur);border:1px solid var(--border);border-radius:var(--rs);margin-bottom:8px;overflow:hidden}
 .answer-row-hdr{display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer}
@@ -159,8 +160,8 @@ textarea{min-height:52px;resize:vertical}
 .ans-q-text{flex:1;color:var(--text);line-height:1.4}
 .ans-q-result{font-size:12px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap}
 .res-ok{background:var(--teal-l);color:var(--teal)}.res-err{background:var(--red-l);color:var(--red)}.res-skip{background:var(--bg);color:var(--muted);border:1px solid var(--border)}
-.rank-toggle-bar{display:flex;gap:8px;margin-bottom:14px}
-.rank-toggle-bar button{padding:7px 16px;font-size:13px;font-family:'Noto Sans KR',sans-serif;font-weight:500;border:1.5px solid var(--border);border-radius:var(--rs);background:var(--sur);color:var(--muted);cursor:pointer}
+.rank-toggle-bar{display:flex;gap:6px;margin-bottom:10px;align-items:center;flex-wrap:wrap}
+.rank-toggle-bar button{padding:4px 12px;font-size:12px;font-family:'Noto Sans KR',sans-serif;font-weight:500;border:1.5px solid var(--border);border-radius:var(--rs);background:var(--sur);color:var(--muted);cursor:pointer}
 .rank-toggle-bar button.active{background:var(--purple-l);color:var(--purple);border-color:var(--purple);font-weight:700}
 .rank-table{width:100%;border-collapse:collapse;font-size:13px}
 .rank-table th{text-align:left;padding:8px 12px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid var(--border)}
@@ -1705,7 +1706,7 @@ async function renderQuizList(){
     const grOn=q.gradeReleased?'on':'';
     const examBadge=getExamBadge(q);
     const rkOn=q.rankReleased?'on':'';
-    return '<div class="quiz-card"><div class="quiz-card-body"><div class="quiz-card-name">'+q.name+examBadge+'</div>'+(q.desc?'<div class="quiz-card-desc">'+q.desc+'</div>':'')+'<div class="quiz-card-meta"><span class="quiz-code" onclick="copyText(\''+code+'\',this)">'+code+'</span><span class="quiz-meta-tag">문제 '+q.questions.length+'개</span><span class="quiz-meta-tag">제출 '+sub+'명</span>'+(date?'<span class="quiz-meta-tag">'+date+'</span>':'')+'</div>'+'<div class="exam-edit-area" id="exam-edit-'+code+'">'+'<div class="exam-edit-row"><span class="exam-edit-lbl">시작</span>'+'<button class="exam-dt-btn" onclick="openPickerForQuiz(\''+code+'\',\'start\')">📅 <span id="qdt-start-'+code+'">'+(q.examStart?fmtDT(q.examStart):'날짜 선택')+'</span></button></div>'+'<div class="exam-edit-row"><span class="exam-edit-lbl">종료</span>'+'<button class="exam-dt-btn" onclick="openPickerForQuiz(\''+code+'\',\'end\')">📅 <span id="qdt-end-'+code+'">'+(q.examEnd?fmtDT(q.examEnd):'날짜 선택')+'</span></button></div>'+'<div class="exam-edit-row" style="margin-top:4px">'+'<button class="exam-save-btn" onclick="saveExamPeriod(\''+code+'\')" id="exam-save-'+code+'">저장</button>'+'<button class="exam-clear-btn" onclick="clearExamPeriod(\''+code+'\')" id="exam-clear-'+code+'">기간 삭제</button>'+'</div></div>'+'<div class="quiz-card-actions"><button class="icon-btn" onclick="viewAnswersFor(\''+code+'\')">답 보기</button><button class="icon-btn" onclick="editQuiz(\''+code+'\')">✏️ 수정</button><button class="icon-btn '+grOn+'" onclick="toggleGradeRelease(\''+code+'\',this)">'+(q.gradeReleased?'✓ 성적 공개':'성적 공개')+'</button><button class="icon-btn '+rkOn+'" onclick="toggleRankRelease(\''+code+'\',this)">'+(q.rankReleased?'✓ 순위 공개':'순위 공개')+'</button><button class="icon-btn" onclick="toggleExamEdit(\''+code+'\')">'+(q.examStart?'⏰ 기간 수정':'⏰ 기간 설정')+'</button><button class="icon-btn danger" onclick="deleteQuiz(\''+code+'\')">삭제</button></div></div>';
+    return '<div class="quiz-card"><div class="quiz-card-body"><div class="qc-top"><span class="quiz-card-name">'+q.name+examBadge+'</span>'+(q.desc?'<span class="quiz-card-desc">'+q.desc+'</span>':'')+'</div><div class="quiz-card-meta"><span class="quiz-code" onclick="copyText(\''+code+'\',this)">'+code+'</span><span class="quiz-meta-tag">문제 '+q.questions.length+'개</span><span class="quiz-meta-tag">제출 '+sub+'명</span>'+(date?'<span class="quiz-meta-tag">'+date+'</span>':'')+'</div>'+'<div class="quiz-card-actions"><button class="icon-btn" onclick="viewAnswersFor(\''+code+'\')">답 보기</button><button class="icon-btn" onclick="editQuiz(\''+code+'\')">✏️ 수정</button><button class="icon-btn '+grOn+'" onclick="toggleGradeRelease(\''+code+'\',this)">'+(q.gradeReleased?'✓ 성적 공개':'성적 공개')+'</button><button class="icon-btn '+rkOn+'" onclick="toggleRankRelease(\''+code+'\',this)">'+(q.rankReleased?'✓ 순위 공개':'순위 공개')+'</button><button class="icon-btn" onclick="toggleExamEdit(\''+code+'\')">'+(q.examStart?'⏰ 기간 수정':'⏰ 기간 설정')+'</button><button class="icon-btn danger" onclick="deleteQuiz(\''+code+'\')">삭제</button></div>'+'<div class="exam-edit-area" id="exam-edit-'+code+'">'+'<div class="exam-edit-row"><span class="exam-edit-lbl">시작</span>'+'<button class="exam-dt-btn" onclick="openPickerForQuiz(\''+code+'\',\'start\')">📅 <span id="qdt-start-'+code+'">'+(q.examStart?fmtDT(q.examStart):'날짜 선택')+'</span></button></div>'+'<div class="exam-edit-row"><span class="exam-edit-lbl">종료</span>'+'<button class="exam-dt-btn" onclick="openPickerForQuiz(\''+code+'\',\'end\')">📅 <span id="qdt-end-'+code+'">'+(q.examEnd?fmtDT(q.examEnd):'날짜 선택')+'</span></button></div>'+'<div class="exam-edit-row" style="margin-top:4px">'+'<button class="exam-save-btn" onclick="saveExamPeriod(\''+code+'\')" id="exam-save-'+code+'">저장</button>'+'<button class="exam-clear-btn" onclick="clearExamPeriod(\''+code+'\')" id="exam-clear-'+code+'">기간 삭제</button>'+'</div></div>'+'</div></div>';
   }).join('');
 }
 function copyText(text,el){navigator.clipboard.writeText(text).then(()=>{const o=el.textContent;el.textContent='복사됨!';setTimeout(()=>el.textContent=o,1200);}).catch(()=>{});}
@@ -1850,25 +1851,33 @@ async function loadAnswers(){
     const gradeReleased=quiz.gradeReleased||false;
     const rankReleased=quiz.rankReleased||false;
 
-    out.push('<div class="quiz-answers-section" id="quiz-sec-'+code+'" style="margin-bottom:28px;padding-bottom:20px;border-bottom:2px solid var(--border)">');
-    // Quiz header
-    out.push('<div style="background:var(--purple-l);border:1px solid #c8c4f0;border-radius:var(--r);padding:14px 18px;margin-bottom:14px">');
-    out.push('<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span style="font-size:16px;font-weight:700;color:var(--purple-d)">'+quiz.name+'</span><span class="quiz-code" style="font-size:13px">'+code+'</span><span class="quiz-meta-tag">문제 '+quiz.questions.length+'개</span><span class="quiz-meta-tag">제출 '+quizAnswers.length+'명</span></div>');
-    if(quiz.desc) out.push('<div style="font-size:12px;color:var(--purple);margin-top:4px;opacity:.8">'+quiz.desc+'</div>');
+    out.push('<div class="quiz-answers-section" id="quiz-sec-'+code+'" style="margin-bottom:16px;padding-bottom:14px;border-bottom:2px solid var(--border)">');
+    // Compact header row: name + code + meta + toggles all in one line
+    out.push('<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">');
+    out.push('<span style="font-size:14px;font-weight:700;color:var(--text)">'+quiz.name+'</span>');
+    if(quiz.desc) out.push('<span style="font-size:12px;color:var(--muted)">'+quiz.desc+'</span>');
+    out.push('<span class="quiz-code" style="font-size:12px;letter-spacing:2px">'+code+'</span>');
+    out.push('<span class="quiz-meta-tag">'+quiz.questions.length+'개</span>');
+    out.push('<span class="quiz-meta-tag">제출 '+quizAnswers.length+'명</span>');
+    out.push('<span style="flex:1"></span>');
+    // Grade toggle inline
+    out.push('<div class="grade-toggle"><div class="grade-toggle-label">성적 공개</div>');
+    out.push('<label class="toggle-switch"><input type="checkbox" '+(gradeReleased?'checked':'')+' onchange="toggleGradeReleaseFromAnswers(\''+code+'\',this)"><span class="toggle-slider"></span></label></div>');
+    // Rank toggle inline
+    out.push('<div class="grade-toggle"><div class="grade-toggle-label">순위 공개</div>');
+    out.push('<label class="toggle-switch"><input type="checkbox" '+(rankReleased?'checked':'')+' onchange="toggleRankReleaseFromAnswers(\''+code+'\',this)"><span class="toggle-slider"></span></label></div>');
     out.push('</div>');
 
-    // View toggle (per quiz)
-    out.push('<div class="rank-toggle-bar"><button class="active" id="view-list-btn-'+code+'" onclick="setAnswerView(\'list\',\''+code+'\')">📋 답 목록</button><button id="view-rank-btn-'+code+'" onclick="setAnswerView(\'rank\',\''+code+'\')">🏆 순위</button></div>');
+    // View toggle + stats in one row
+    out.push('<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px">');
+    out.push('<div class="rank-toggle-bar" style="margin:0"><button class="active" id="view-list-btn-'+code+'" onclick="setAnswerView(\'list\',\''+code+'\')">📋 답 목록</button><button id="view-rank-btn-'+code+'" onclick="setAnswerView(\'rank\',\''+code+'\')">🏆 순위</button></div>');
+    out.push('<div class="stat-grid" style="margin:0">');
+    out.push('<div class="stat-card stat-purple"><div class="stat-num">'+quizAnswers.length+'</div><div class="stat-lbl">제출</div></div>');
+    out.push('<div class="stat-card stat-teal"><div class="stat-num">'+(totalPoints>0?Math.round(avgScore/totalPoints*100):0)+'점</div><div class="stat-lbl">평균</div></div>');
+    out.push('<div class="stat-card stat-amber"><div class="stat-num">'+perfect+'</div><div class="stat-lbl">100점</div></div>');
+    out.push('</div></div>');
+
     out.push('<div id="answer-list-view-'+code+'">');
-    // Grade release
-    out.push('<div class="grade-toggle"><div class="grade-toggle-label">성적 공개<span class="grade-toggle-sub">'+(gradeReleased?'학생들이 본인 점수를 확인할 수 있습니다':'켜면 학생들이 본인 점수를 확인할 수 있습니다')+'</span></div>');
-    out.push('<label class="toggle-switch"><input type="checkbox" '+(gradeReleased?'checked':'')+' onchange="toggleGradeReleaseFromAnswers(\''+code+'\',this)"><span class="toggle-slider"></span></label></div>');
-    // Stats
-    out.push('<div class="stat-grid">');
-    out.push('<div class="stat-card stat-purple"><div class="stat-num">'+quizAnswers.length+'</div><div class="stat-lbl">제출 학생 수</div></div>');
-    out.push('<div class="stat-card stat-teal"><div class="stat-num">'+(totalPoints>0?Math.round(avgScore/totalPoints*100):0)+'점</div><div class="stat-lbl">평균 점수</div></div>');
-    out.push('<div class="stat-card stat-amber"><div class="stat-num">'+perfect+'</div><div class="stat-lbl">100점 학생</div></div>');
-    out.push('</div>');
     if(quizAnswers.length===0){
       out.push('<div class="empty-state"><div class="empty-icon">🕐</div><div class="empty-text">아직 제출한 학생이 없습니다</div></div>');
     } else {
@@ -1949,7 +1958,6 @@ function buildRankHTML(answers,totalPoints,rankReleased,quizCode){
   });
   const medals=['🥇','🥈','🥉'];
   const p=[];
-  p.push('<div class="rank-release-bar"><span>'+(rankReleased?'✓ 학생들이 순위를 볼 수 있습니다':'학생들에게 순위를 공개할 수 있습니다')+'</span><label class="toggle-switch"><input type="checkbox" '+(rankReleased?'checked':'')+' onchange="toggleRankReleaseFromAnswers(\''+quizCode+'\',this)"><span class="toggle-slider"></span></label></div>');
   p.push('<table class="rank-table"><thead><tr><th>순위</th><th>이름</th><th>점수</th><th>소요 시간</th></tr></thead><tbody>');
   ranked.forEach(function(a){
     const pct=totalPoints>0?Math.round((a._score||0)/totalPoints*100):0;
