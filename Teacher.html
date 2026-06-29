@@ -801,13 +801,13 @@ async function submitAll(){
   qdata.questions.forEach((q,qi)=>{
     if(q.type==='mc'){
       const ans=answers[qi];
+      const _mc_corr=Array.isArray(q.correct)?q.correct:[q.correct];
       if(q.multiCorrect){
         const selected=Array.isArray(ans)?ans:[];
-        const correct=Array.isArray(q.correct)?q.correct:[q.correct];
-        const isOk=selected.length===correct.length&&correct.every(c=>selected.includes(c));
+        const isOk=selected.length===_mc_corr.length&&_mc_corr.every(c=>selected.includes(c));
         if(isOk) score+=(q.points||1);
       } else {
-        if(ans===q.correct) score+=(q.points||1);
+        if(ans===_mc_corr[0]) score+=(q.points||1);
       }
       q.options.forEach((_,oi)=>{
         const el=document.getElementById('opt-'+qi+'-'+oi);if(!el) return;
@@ -960,7 +960,7 @@ function buildAnswerReview(quiz, myBest){
 
     // MC / Audio / PhotoQ(mc)
     if(q.type==='mc' || q.type==='audio' || (q.type==='photoq' && q.answerType==='mc')){
-      const correctVal = q.correct;
+      const correctVal = (q.type==='mc'&&!q.multiCorrect&&Array.isArray(q.correct))?q.correct[0]:q.correct;
       if(q.type==='audio'){
         const _rvUrls=q.audioUrls||(q.audioUrl?[q.audioUrl]:[]);
         _rvUrls.forEach(function(u,ui){ body+='<div class="audio-player" style="pointer-events:none"><span class="audio-label">🎧 '+((_rvUrls.length>1)?'파일 '+(ui+1):'듣기')+'</span><audio controls src="'+u+'" preload="none"></audio></div>'; });
@@ -1233,8 +1233,9 @@ async function checkGrade(){
     quiz.questions.forEach(function(q,qi){
       const a=sa[qi];
       if(q.type==='mc'){
-        if(q.multiCorrect){const sel=Array.isArray(a)?a:[],corr=Array.isArray(q.correct)?q.correct:[q.correct];if(sel.length===corr.length&&corr.every(function(c){return sel.includes(c);}))score+=(q.points||1);}
-        else{if(a===q.correct)score+=(q.points||1);}
+        const _rc=Array.isArray(q.correct)?q.correct:[q.correct];
+        if(q.multiCorrect){const sel=Array.isArray(a)?a:[];if(sel.length===_rc.length&&_rc.every(function(c){return sel.includes(c);}))score+=(q.points||1);}
+        else{if(a===_rc[0])score+=(q.points||1);}
       }else if(q.type==='tf'||q.type==='imgsel'||q.type==='audio'){
         if(a===q.correct)score+=(q.points||1);
       }else if(q.type==='phrase'){
