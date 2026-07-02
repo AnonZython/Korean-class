@@ -427,12 +427,13 @@ textarea{min-height:52px;resize:vertical}
             <button type="button" onclick="addAudioSlot('img')" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--bg);border:1.5px dashed var(--border);border-radius:var(--rs);font-size:13px;color:var(--muted);cursor:pointer;font-family:'Noto Sans KR',sans-serif;margin-bottom:6px" id="img-add-btn">＋ 파일 추가</button>
           </div>
           <label>문제</label><input type="text" id="imgsel-q" placeholder="'도서관'을 나타내는 이미지는?">
-          <label>보기 — 이미지 파일 또는 URL (정답 옆 ✓)</label>
+          <label>보기 — 이미지 파일 · URL · 붙여넣기(Ctrl+V) (정답 옆 ✓)</label>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:8px">💡 보기 영역을 클릭한 뒤 Ctrl+V(붙여넣기)로 스크린샷을 바로 넣을 수 있습니다.</div>
           <div id="imgsel-opts">
-            <div class="opt-row" style="align-items:flex-start;flex-wrap:wrap;gap:6px"><span class="opt-lbl" style="margin-top:8px">①</span><div style="flex:1;min-width:0"><input type="file" class="img-file-inp" accept="image/*" data-idx="0" onchange="loadImgFile(this)" style="width:100%;font-size:12px;margin-bottom:4px"><input type="text" class="img-opt" placeholder="또는 이미지 URL" style="margin:0"><img class="img-preview" data-idx="0" style="display:none;width:80px;height:60px;object-fit:cover;border-radius:6px;margin-top:4px"></div><button class="cbtn" onclick="selC(this,'imgsel-opts')" style="margin-top:8px">✓</button></div>
-            <div class="opt-row" style="align-items:flex-start;flex-wrap:wrap;gap:6px"><span class="opt-lbl" style="margin-top:8px">②</span><div style="flex:1;min-width:0"><input type="file" class="img-file-inp" accept="image/*" data-idx="1" onchange="loadImgFile(this)" style="width:100%;font-size:12px;margin-bottom:4px"><input type="text" class="img-opt" placeholder="또는 이미지 URL" style="margin:0"><img class="img-preview" data-idx="1" style="display:none;width:80px;height:60px;object-fit:cover;border-radius:6px;margin-top:4px"></div><button class="cbtn" onclick="selC(this,'imgsel-opts')" style="margin-top:8px">✓</button></div>
-            <div class="opt-row" style="align-items:flex-start;flex-wrap:wrap;gap:6px"><span class="opt-lbl" style="margin-top:8px">③</span><div style="flex:1;min-width:0"><input type="file" class="img-file-inp" accept="image/*" data-idx="2" onchange="loadImgFile(this)" style="width:100%;font-size:12px;margin-bottom:4px"><input type="text" class="img-opt" placeholder="또는 이미지 URL" style="margin:0"><img class="img-preview" data-idx="2" style="display:none;width:80px;height:60px;object-fit:cover;border-radius:6px;margin-top:4px"></div><button class="cbtn" onclick="selC(this,'imgsel-opts')" style="margin-top:8px">✓</button></div>
-            <div class="opt-row" style="align-items:flex-start;flex-wrap:wrap;gap:6px"><span class="opt-lbl" style="margin-top:8px">④</span><div style="flex:1;min-width:0"><input type="file" class="img-file-inp" accept="image/*" data-idx="3" onchange="loadImgFile(this)" style="width:100%;font-size:12px;margin-bottom:4px"><input type="text" class="img-opt" placeholder="또는 이미지 URL" style="margin:0"><img class="img-preview" data-idx="3" style="display:none;width:80px;height:60px;object-fit:cover;border-radius:6px;margin-top:4px"></div><button class="cbtn" onclick="selC(this,'imgsel-opts')" style="margin-top:8px">✓</button></div>
+            <div class="opt-row img-paste-row" data-pidx="0" tabindex="0" onpaste="onImgPaste(event,0)" style="align-items:flex-start;flex-wrap:wrap;gap:6px;outline:none;border:1.5px solid transparent;border-radius:8px;padding:4px" onfocus="this.style.borderColor='var(--purple)';this.style.background='var(--purple-l)'" onblur="this.style.borderColor='transparent';this.style.background='transparent'"><span class="opt-lbl" style="margin-top:8px">①</span><div style="flex:1;min-width:0"><input type="file" class="img-file-inp" accept="image/*" data-idx="0" onchange="loadImgFile(this)" style="width:100%;font-size:12px;margin-bottom:4px"><input type="text" class="img-opt" placeholder="또는 이미지 URL" style="margin:0"><img class="img-preview" data-idx="0" style="display:none;width:80px;height:60px;object-fit:cover;border-radius:6px;margin-top:4px"></div><button class="cbtn" onclick="selC(this,'imgsel-opts')" style="margin-top:8px">✓</button></div>
+            <div class="opt-row img-paste-row" data-pidx="1" tabindex="0" onpaste="onImgPaste(event,1)" style="align-items:flex-start;flex-wrap:wrap;gap:6px;outline:none;border:1.5px solid transparent;border-radius:8px;padding:4px" onfocus="this.style.borderColor='var(--purple)';this.style.background='var(--purple-l)'" onblur="this.style.borderColor='transparent';this.style.background='transparent'"><span class="opt-lbl" style="margin-top:8px">②</span><div style="flex:1;min-width:0"><input type="file" class="img-file-inp" accept="image/*" data-idx="1" onchange="loadImgFile(this)" style="width:100%;font-size:12px;margin-bottom:4px"><input type="text" class="img-opt" placeholder="또는 이미지 URL" style="margin:0"><img class="img-preview" data-idx="1" style="display:none;width:80px;height:60px;object-fit:cover;border-radius:6px;margin-top:4px"></div><button class="cbtn" onclick="selC(this,'imgsel-opts')" style="margin-top:8px">✓</button></div>
+            <div class="opt-row img-paste-row" data-pidx="2" tabindex="0" onpaste="onImgPaste(event,2)" style="align-items:flex-start;flex-wrap:wrap;gap:6px;outline:none;border:1.5px solid transparent;border-radius:8px;padding:4px" onfocus="this.style.borderColor='var(--purple)';this.style.background='var(--purple-l)'" onblur="this.style.borderColor='transparent';this.style.background='transparent'"><span class="opt-lbl" style="margin-top:8px">③</span><div style="flex:1;min-width:0"><input type="file" class="img-file-inp" accept="image/*" data-idx="2" onchange="loadImgFile(this)" style="width:100%;font-size:12px;margin-bottom:4px"><input type="text" class="img-opt" placeholder="또는 이미지 URL" style="margin:0"><img class="img-preview" data-idx="2" style="display:none;width:80px;height:60px;object-fit:cover;border-radius:6px;margin-top:4px"></div><button class="cbtn" onclick="selC(this,'imgsel-opts')" style="margin-top:8px">✓</button></div>
+            <div class="opt-row img-paste-row" data-pidx="3" tabindex="0" onpaste="onImgPaste(event,3)" style="align-items:flex-start;flex-wrap:wrap;gap:6px;outline:none;border:1.5px solid transparent;border-radius:8px;padding:4px" onfocus="this.style.borderColor='var(--purple)';this.style.background='var(--purple-l)'" onblur="this.style.borderColor='transparent';this.style.background='transparent'"><span class="opt-lbl" style="margin-top:8px">④</span><div style="flex:1;min-width:0"><input type="file" class="img-file-inp" accept="image/*" data-idx="3" onchange="loadImgFile(this)" style="width:100%;font-size:12px;margin-bottom:4px"><input type="text" class="img-opt" placeholder="또는 이미지 URL" style="margin:0"><img class="img-preview" data-idx="3" style="display:none;width:80px;height:60px;object-fit:cover;border-radius:6px;margin-top:4px"></div><button class="cbtn" onclick="selC(this,'imgsel-opts')" style="margin-top:8px">✓</button></div>
           </div>
         </div>
 
@@ -1236,6 +1237,26 @@ function setImgselMedia(t){
   if(t==='audio' && imgSlots.length===0) _initSlots('img');
 }
 async function loadImgFile(inp){if(!inp.files[0]) return;const b64=await fileToB64(inp.files[0]);const idx=parseInt(inp.dataset.idx);document.querySelectorAll('.img-opt')[idx].value=b64;const prev=document.querySelectorAll('.img-preview')[idx];prev.src=b64;prev.style.display='';}
+function setImgOption(idx,b64){
+  const opts=document.querySelectorAll('#imgsel-opts .img-opt');
+  const prevs=document.querySelectorAll('#imgsel-opts .img-preview');
+  if(opts[idx]){ opts[idx].value=b64; }
+  if(prevs[idx]){ prevs[idx].src=b64; prevs[idx].style.display=''; }
+}
+function onImgPaste(ev,idx){
+  const items=(ev.clipboardData||window.clipboardData)?.items;
+  if(!items) return;
+  for(let i=0;i<items.length;i++){
+    if(items[i].type.indexOf('image')===0){
+      ev.preventDefault();
+      const file=items[i].getAsFile();
+      const r=new FileReader();
+      r.onload=function(e){ setImgOption(idx,e.target.result); };
+      r.readAsDataURL(file);
+      return;
+    }
+  }
+}
 async function loadPqFile(inp){
   if(!inp.files[0]) return;
   const b64=await fileToB64(inp.files[0]);
