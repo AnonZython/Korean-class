@@ -2184,285 +2184,195 @@ document.addEventListener('keydown',function(e){
 
 <!-- ── Audio Trim Modal ─────────────────────────────────────────────── -->
 <div id="trim-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:3000;align-items:center;justify-content:center;padding:16px" onclick="if(event.target===this)closeTrim()">
-  <div style="background:var(--sur);border-radius:var(--r);padding:22px 20px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.4)">
-    <div style="display:flex;align-items:center;margin-bottom:16px">
+  <div style="background:var(--sur);border-radius:var(--r);padding:22px 20px;width:100%;max-width:460px;box-shadow:0 20px 60px rgba(0,0,0,.4)">
+    <div style="display:flex;align-items:center;margin-bottom:8px">
       <span style="font-size:16px;font-weight:700;flex:1">✂️ 오디오 트림</span>
       <button onclick="closeTrim()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);line-height:1">✕</button>
     </div>
-    <div id="trim-status" style="font-size:13px;color:var(--muted);min-height:18px;margin-bottom:10px"></div>
-
-    <!-- Waveform canvas -->
-    <canvas id="trim-canvas" height="72" style="width:100%;border-radius:8px;background:#1a1830;display:block;margin-bottom:12px;cursor:crosshair"></canvas>
-
-    <!-- Dual-range slider track -->
-    <div style="position:relative;height:36px;margin-bottom:10px;user-select:none" id="trim-slider-wrap">
-      <div style="position:absolute;top:50%;left:0;right:0;height:6px;background:var(--border);border-radius:3px;transform:translateY(-50%)"></div>
-      <div id="trim-fill" style="position:absolute;top:50%;height:6px;background:var(--purple);border-radius:3px;transform:translateY(-50%);pointer-events:none"></div>
-      <input type="range" id="trim-s" min="0" step="0.01" value="0"
-        style="position:absolute;width:100%;height:100%;opacity:0;cursor:pointer;margin:0;z-index:3"
-        oninput="onTrimRange()">
-      <input type="range" id="trim-e" min="0" step="0.01" value="100"
-        style="position:absolute;width:100%;height:100%;opacity:0;cursor:pointer;margin:0;z-index:3"
-        oninput="onTrimRange()">
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6">
+      ▶ 재생하면서 원하는 지점에서 <b style="color:var(--purple)">시작 지정</b> · <b style="color:var(--teal)">끝 지정</b> 버튼을 누르세요.
     </div>
 
-    <!-- Time labels -->
-    <div style="display:flex;gap:10px;margin-bottom:14px;align-items:flex-end">
-      <div style="flex:1">
-        <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px">시작</div>
-        <input type="number" id="trim-s-inp" min="0" step="0.1" value="0"
-          style="width:100%;text-align:center;font-family:'DM Mono',monospace;font-size:16px;font-weight:700;padding:8px"
-          oninput="onTrimInput()">
-        <div style="text-align:center;font-size:11px;color:var(--muted);margin-top:3px">초</div>
-      </div>
-      <div style="flex:1;text-align:center">
-        <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px">선택 길이</div>
-        <div id="trim-len" style="font-family:'DM Mono',monospace;font-size:22px;font-weight:700;color:var(--purple);padding:8px 0;border:1.5px solid var(--border);border-radius:var(--rs)">0.0s</div>
-      </div>
-      <div style="flex:1">
-        <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px">끝</div>
-        <input type="number" id="trim-e-inp" min="0" step="0.1" value="0"
-          style="width:100%;text-align:center;font-family:'DM Mono',monospace;font-size:16px;font-weight:700;padding:8px"
-          oninput="onTrimInput()">
-        <div style="text-align:center;font-size:11px;color:var(--muted);margin-top:3px">초</div>
-      </div>
+    <!-- Big play/pause button -->
+    <div style="text-align:center;margin-bottom:8px">
+      <button id="trim-play-btn" onclick="trimTogglePlay()" style="width:64px;height:64px;border-radius:50%;border:none;background:var(--purple);color:#fff;font-size:26px;cursor:pointer;box-shadow:0 4px 14px rgba(83,74,183,.4)">▶</button>
     </div>
 
-    <!-- Preview player -->
-    <audio id="trim-player" controls style="width:100%;height:36px;margin-bottom:14px"></audio>
+    <!-- Progress bar (click to seek) -->
+    <div id="trim-progress-wrap" onclick="trimSeek(event)" style="position:relative;height:40px;background:#ece9fb;border-radius:8px;margin-bottom:6px;cursor:pointer;overflow:hidden">
+      <div id="trim-region" style="position:absolute;top:0;bottom:0;background:rgba(83,74,183,.22);border-left:3px solid var(--purple);border-right:3px solid var(--teal)"></div>
+      <div id="trim-playhead" style="position:absolute;top:0;bottom:0;width:2px;background:var(--purple-d);left:0"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;font-family:'DM Mono',monospace;color:var(--muted);margin-bottom:16px">
+      <span id="trim-cur-lbl">0:00.0</span>
+      <span id="trim-total-lbl">0:00.0</span>
+    </div>
 
-    <!-- Buttons -->
-    <div style="display:flex;gap:10px">
-      <button onclick="previewTrim()" class="btn-sec" style="flex:1">▶ 미리 듣기</button>
+    <!-- Set start / end buttons -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <button onclick="trimSetPoint('s')" style="padding:13px;background:var(--purple-l);border:2px solid var(--purple);border-radius:var(--rs);font-size:14px;font-weight:700;color:var(--purple);cursor:pointer;font-family:'Noto Sans KR',sans-serif">
+        ◀ 시작 지정<br><span id="trim-s-lbl" style="font-family:'DM Mono',monospace;font-size:16px">0:00.0</span>
+      </button>
+      <button onclick="trimSetPoint('e')" style="padding:13px;background:var(--teal-l);border:2px solid var(--teal);border-radius:var(--rs);font-size:14px;font-weight:700;color:var(--teal);cursor:pointer;font-family:'Noto Sans KR',sans-serif">
+        끝 지정 ▶<br><span id="trim-e-lbl" style="font-family:'DM Mono',monospace;font-size:16px">0:00.0</span>
+      </button>
+    </div>
+
+    <div style="text-align:center;font-size:13px;color:var(--muted);margin-bottom:14px">
+      선택 길이: <b id="trim-len" style="color:var(--text);font-family:'DM Mono',monospace">0:00.0</b>
+    </div>
+
+    <div style="display:flex;gap:8px">
+      <button onclick="previewTrim()" class="btn-sec" style="flex:1">▶ 구간 듣기</button>
       <button onclick="applyTrim()" class="btn-pri" style="flex:2">✂️ 트림 적용</button>
     </div>
     <div id="trim-msg" style="font-size:12px;color:var(--teal);text-align:center;margin-top:10px;min-height:16px"></div>
+    <audio id="trim-main-player" style="display:none"></audio>
   </div>
 </div>
 
 <script>
-// ── Audio Trim ───────────────────────────────────────────────────────────────
-let _trimCtx=null, _trimBuf=null, _trimSrc=null, _trimTarget=null, _trimSlotIdx=0;
+// ── Audio Trim (recorder-style) ────────────────────────────────────────────────
+let _trimCtx=null,_trimBuf=null,_trimTarget=null,_trimSlotIdx=0,_trimStart=0,_trimEnd=0,_trimPreviewStop=null;
+
+function _trimFmt(sec){const m=Math.floor(sec/60),s=(Math.max(0,sec)%60).toFixed(1).padStart(4,'0');return m+':'+s;}
 
 function openTrim(ctx,idx){
   _trimTarget=ctx; _trimSlotIdx=idx;
-  const arr=_slotArr(ctx);
-  const slot=arr[idx]||{};
-  const b64=slot.b64||'';
-  if(!b64){alert('파일 업로드로 추가한 오디오만 트림할 수 있습니다.');return;}
+  const slot=(_slotArr(ctx))[idx]||{};
+  if(!slot.b64){alert('파일 업로드로 추가한 오디오만 트림할 수 있습니다.');return;}
   document.getElementById('trim-modal').style.display='flex';
-  document.getElementById('trim-status').textContent='오디오 분석 중...';
   document.getElementById('trim-msg').textContent='';
-  document.getElementById('trim-player').src='';
-  fetch(b64).then(function(r){return r.arrayBuffer();}).then(function(buf){
-    if(!_trimCtx) _trimCtx=new(window.AudioContext||window.webkitAudioContext)();
+  const player=document.getElementById('trim-main-player');
+  player.src=slot.b64; player.load();
+  player.onloadedmetadata=function(){
+    const dur=player.duration;
+    _trimStart=0; _trimEnd=dur;
+    document.getElementById('trim-total-lbl').textContent=_trimFmt(dur);
+    document.getElementById('trim-s-lbl').textContent=_trimFmt(0);
+    document.getElementById('trim-e-lbl').textContent=_trimFmt(dur);
+    updateTrimUI();
+  };
+  player.ontimeupdate=updateTrimPlayhead;
+  player.onended=function(){document.getElementById('trim-play-btn').textContent='▶';};
+  // Also decode for WAV export
+  fetch(slot.b64).then(r=>r.arrayBuffer()).then(buf=>{
+    if(!_trimCtx)_trimCtx=new(window.AudioContext||window.webkitAudioContext)();
     return _trimCtx.decodeAudioData(buf);
-  }).then(function(decoded){
-    _trimBuf=decoded;
-    const dur=decoded.duration;
-    document.getElementById('trim-s').max=dur;
-    document.getElementById('trim-e').max=dur;
-    document.getElementById('trim-s').value=0;
-    document.getElementById('trim-e').value=dur;
-    document.getElementById('trim-s-inp').max=dur;
-    document.getElementById('trim-e-inp').max=dur;
-    document.getElementById('trim-s-inp').value=0;
-    document.getElementById('trim-e-inp').value=dur.toFixed(1);
-    document.getElementById('trim-status').textContent='전체 길이: '+dur.toFixed(2)+'초';
-    drawTrimWave(decoded);
-    updateTrimFill();
-    updateTrimLen();
-  }).catch(function(e){
-    document.getElementById('trim-status').textContent='오디오를 읽을 수 없습니다: '+e.message;
-  });
+  }).then(dec=>{_trimBuf=dec;}).catch(()=>{});
 }
 
 function closeTrim(){
+  const p=document.getElementById('trim-main-player');
+  p.pause(); document.getElementById('trim-play-btn').textContent='▶';
   document.getElementById('trim-modal').style.display='none';
-  if(_trimSrc){try{_trimSrc.stop();}catch(e){}_trimSrc=null;}
 }
 
-function drawTrimWave(buf){
-  const canvas=document.getElementById('trim-canvas');
-  const W=canvas.offsetWidth||460; canvas.width=W;
-  const H=canvas.height; const ctx=canvas.getContext('2d');
-  ctx.clearRect(0,0,W,H);
-  const data=buf.getChannelData(0);
-  const step=Math.ceil(data.length/W);
-  const mid=H/2;
-  ctx.strokeStyle='#534AB7'; ctx.lineWidth=1;
-  ctx.beginPath();
-  for(let x=0;x<W;x++){
-    let min=1,max=-1;
-    for(let j=0;j<step;j++){const v=data[x*step+j]||0;if(v<min)min=v;if(v>max)max=v;}
-    ctx.moveTo(x+.5,mid+min*mid*.9);
-    ctx.lineTo(x+.5,mid+max*mid*.9);
+function trimTogglePlay(){
+  const p=document.getElementById('trim-main-player');
+  const btn=document.getElementById('trim-play-btn');
+  if(p.paused){ p.play(); btn.textContent='⏸'; }
+  else { p.pause(); btn.textContent='▶'; }
+}
+
+function trimSeek(ev){
+  const p=document.getElementById('trim-main-player');
+  if(!p.duration) return;
+  const wrap=document.getElementById('trim-progress-wrap');
+  const r=wrap.getBoundingClientRect();
+  const ratio=Math.max(0,Math.min(1,(ev.clientX-r.left)/r.width));
+  p.currentTime=ratio*p.duration;
+  updateTrimPlayhead();
+}
+
+function trimSetPoint(which){
+  const p=document.getElementById('trim-main-player');
+  const t=p.currentTime;
+  if(which==='s'){
+    _trimStart=Math.min(t,_trimEnd-0.1);
+    if(_trimStart<0)_trimStart=0;
+    document.getElementById('trim-s-lbl').textContent=_trimFmt(_trimStart);
+  } else {
+    _trimEnd=Math.max(t,_trimStart+0.1);
+    if(_trimEnd>p.duration)_trimEnd=p.duration;
+    document.getElementById('trim-e-lbl').textContent=_trimFmt(_trimEnd);
   }
-  ctx.stroke();
-  // overlay selected region
-  updateTrimCanvasOverlay(buf.duration);
+  updateTrimUI();
 }
 
-function updateTrimCanvasOverlay(dur){
-  dur=dur||(_trimBuf?_trimBuf.duration:1);
-  const canvas=document.getElementById('trim-canvas');
-  if(!canvas) return;
-  const W=canvas.width||canvas.offsetWidth; const H=canvas.height;
-  const ctx=canvas.getContext('2d');
-  const s=parseFloat(document.getElementById('trim-s').value)||0;
-  const e=parseFloat(document.getElementById('trim-e').value)||dur;
-  const x1=s/dur*W, x2=e/dur*W;
-  // Redraw waveform if buffer available
-  if(_trimBuf){
-    ctx.clearRect(0,0,W,H);
-    const data=_trimBuf.getChannelData(0);
-    const step=Math.ceil(data.length/W);
-    const mid=H/2;
-    // Dimmed outside
-    ctx.strokeStyle='#534AB730'; ctx.lineWidth=1;
-    ctx.beginPath();
-    for(let x=0;x<W;x++){
-      let mn=1,mx=-1;
-      for(let j=0;j<step;j++){const v=data[x*step+j]||0;if(v<mn)mn=v;if(v>mx)mx=v;}
-      ctx.moveTo(x+.5,mid+mn*mid*.9);
-      ctx.lineTo(x+.5,mid+mx*mid*.9);
-    }
-    ctx.stroke();
-    // Bright selected region
-    ctx.strokeStyle='#534AB7'; ctx.lineWidth=1;
-    ctx.beginPath();
-    for(let x=Math.floor(x1);x<Math.ceil(x2);x++){
-      let mn=1,mx=-1;
-      for(let j=0;j<step;j++){const v=data[x*step+j]||0;if(v<mn)mn=v;if(v>mx)mx=v;}
-      ctx.moveTo(x+.5,mid+mn*mid*.9);
-      ctx.lineTo(x+.5,mid+mx*mid*.9);
-    }
-    ctx.stroke();
-    // Selection overlay
-    ctx.fillStyle='rgba(83,74,183,.12)';
-    ctx.fillRect(x1,0,x2-x1,H);
-    // Handles
-    [x1,x2].forEach(function(x){
-      ctx.fillStyle='#534AB7';
-      ctx.fillRect(x-1.5,0,3,H);
-    });
+function updateTrimUI(){
+  const p=document.getElementById('trim-main-player');
+  const dur=p.duration||1;
+  const region=document.getElementById('trim-region');
+  region.style.left=(_trimStart/dur*100)+'%';
+  region.style.width=((_trimEnd-_trimStart)/dur*100)+'%';
+  document.getElementById('trim-len').textContent=_trimFmt(_trimEnd-_trimStart);
+}
+
+function updateTrimPlayhead(){
+  const p=document.getElementById('trim-main-player');
+  const dur=p.duration||1;
+  document.getElementById('trim-playhead').style.left=(p.currentTime/dur*100)+'%';
+  document.getElementById('trim-cur-lbl').textContent=_trimFmt(p.currentTime);
+  // Stop preview at end point
+  if(_trimPreviewStop!==null && p.currentTime>=_trimPreviewStop){
+    p.pause(); document.getElementById('trim-play-btn').textContent='▶';
+    _trimPreviewStop=null;
   }
-}
-
-function onTrimRange(){
-  const dur=_trimBuf?_trimBuf.duration:100;
-  let s=parseFloat(document.getElementById('trim-s').value);
-  let e=parseFloat(document.getElementById('trim-e').value);
-  if(s>e-0.1){
-    // Determine which thumb moved last (whichever is closer to the other)
-    const mid=(s+e)/2;
-    if(s>=e) { if(document.activeElement===document.getElementById('trim-s')) s=e-0.1; else e=s+0.1; }
-  }
-  s=Math.max(0,Math.min(s,dur-0.1));
-  e=Math.max(s+0.1,Math.min(e,dur));
-  document.getElementById('trim-s').value=s;
-  document.getElementById('trim-e').value=e;
-  document.getElementById('trim-s-inp').value=s.toFixed(1);
-  document.getElementById('trim-e-inp').value=e.toFixed(1);
-  updateTrimFill(); updateTrimLen(); updateTrimCanvasOverlay(dur);
-}
-
-function onTrimInput(){
-  const dur=_trimBuf?_trimBuf.duration:100;
-  let s=parseFloat(document.getElementById('trim-s-inp').value)||0;
-  let e=parseFloat(document.getElementById('trim-e-inp').value)||dur;
-  s=Math.max(0,Math.min(s,dur-0.1));
-  e=Math.max(s+0.1,Math.min(e,dur));
-  document.getElementById('trim-s').value=s;
-  document.getElementById('trim-e').value=e;
-  updateTrimFill(); updateTrimLen(); updateTrimCanvasOverlay(dur);
-}
-
-function updateTrimFill(){
-  const dur=_trimBuf?_trimBuf.duration:100;
-  const s=parseFloat(document.getElementById('trim-s').value)||0;
-  const e=parseFloat(document.getElementById('trim-e').value)||dur;
-  const pS=s/dur*100, pE=e/dur*100;
-  const fill=document.getElementById('trim-fill');
-  fill.style.left=pS+'%'; fill.style.width=(pE-pS)+'%';
-}
-function updateTrimLen(){
-  const s=parseFloat(document.getElementById('trim-s').value)||0;
-  const e=parseFloat(document.getElementById('trim-e').value)||(_trimBuf?_trimBuf.duration:0);
-  document.getElementById('trim-len').textContent=(e-s).toFixed(1)+'s';
 }
 
 function previewTrim(){
-  if(!_trimBuf){alert('오디오를 먼저 로드해 주세요.');return;}
-  const s=parseFloat(document.getElementById('trim-s').value)||0;
-  const e=parseFloat(document.getElementById('trim-e').value)||_trimBuf.duration;
-  const wav=_audioBufferToWav(_trimBuf,s,e);
-  const blob=new Blob([wav],{type:'audio/wav'});
-  const url=URL.createObjectURL(blob);
-  const player=document.getElementById('trim-player');
-  player.src=url; player.play();
+  const p=document.getElementById('trim-main-player');
+  if(!p.duration) return;
+  p.currentTime=_trimStart;
+  _trimPreviewStop=_trimEnd;
+  p.play(); document.getElementById('trim-play-btn').textContent='⏸';
 }
 
 function applyTrim(){
-  if(!_trimBuf){alert('오디오를 먼저 로드해 주세요.');return;}
-  const s=parseFloat(document.getElementById('trim-s').value)||0;
-  const e=parseFloat(document.getElementById('trim-e').value)||_trimBuf.duration;
-  if(e-s<0.1){alert('트림 구간이 너무 짧습니다.');return;}
+  if(!_trimBuf){alert('오디오 처리 준비 중입니다. 잠시 후 다시 시도해 주세요.');return;}
+  if(_trimEnd-_trimStart<0.1){alert('트림 구간이 너무 짧습니다.');return;}
   document.getElementById('trim-msg').textContent='처리 중...';
-  const wav=_audioBufferToWav(_trimBuf,s,e);
-  const blob=new Blob([wav],{type:'audio/wav'});
+  const wav=_audioBufferToWav(_trimBuf,_trimStart,_trimEnd);
   const reader=new FileReader();
   reader.onload=function(ev){
     const b64=ev.target.result;
-    const ctx=_trimTarget; const sidx=_trimSlotIdx;
-    const arr=_slotArr(ctx);
-    if(arr[sidx]){ arr[sidx].b64=b64; arr[sidx].url=''; }
+    const ctx=_trimTarget,sidx=_trimSlotIdx,arr=_slotArr(ctx);
+    if(arr[sidx]){arr[sidx].b64=b64;arr[sidx].url='';}
     const prev=document.getElementById(ctx+'-slot-prev-'+sidx);
-    if(prev){ const aud=prev.querySelector('audio'); if(aud) aud.src=b64; }
-    // Update _trimBuf so further trims work on the new range
-    fetch(b64).then(function(r){return r.arrayBuffer();}).then(function(buf){
-      return _trimCtx.decodeAudioData(buf);
-    }).then(function(dec){
+    if(prev){const a=prev.querySelector('audio');if(a)a.src=b64;}
+    // Reload for further trimming
+    const player=document.getElementById('trim-main-player');
+    player.src=b64; player.load();
+    fetch(b64).then(r=>r.arrayBuffer()).then(buf=>_trimCtx.decodeAudioData(buf)).then(dec=>{
       _trimBuf=dec;
       const dur=dec.duration;
-      document.getElementById('trim-s').max=dur;
-      document.getElementById('trim-e').max=dur;
-      document.getElementById('trim-s').value=0;
-      document.getElementById('trim-e').value=dur;
-      document.getElementById('trim-s-inp').value='0';
-      document.getElementById('trim-e-inp').value=dur.toFixed(1);
-      document.getElementById('trim-status').textContent='전체 길이: '+dur.toFixed(2)+'초';
-      drawTrimWave(dec);
-      updateTrimFill(); updateTrimLen();
-      document.getElementById('trim-msg').textContent='✓ 트림 적용됨! 다시 트림하거나 창을 닫으세요.';
+      _trimStart=0; _trimEnd=dur;
+      document.getElementById('trim-total-lbl').textContent=_trimFmt(dur);
+      document.getElementById('trim-s-lbl').textContent=_trimFmt(0);
+      document.getElementById('trim-e-lbl').textContent=_trimFmt(dur);
+      updateTrimUI();
+      document.getElementById('trim-msg').textContent='✓ 적용됨! 닫거나 다시 트림하세요.';
     });
   };
-  reader.readAsDataURL(blob);
+  reader.readAsDataURL(new Blob([wav],{type:'audio/wav'}));
 }
 
 function _audioBufferToWav(buf,start,end){
-  const sr=buf.sampleRate, ch=buf.numberOfChannels;
-  const s=Math.floor(start*sr), e=Math.floor(end*sr), frames=e-s;
+  const sr=buf.sampleRate,ch=buf.numberOfChannels;
+  const s=Math.floor(start*sr),e=Math.floor(end*sr),frames=e-s;
   const pcm=new Int16Array(frames*ch);
-  for(let c=0;c<ch;c++){
-    const d=buf.getChannelData(c);
-    for(let i=0;i<frames;i++){
-      const v=Math.max(-1,Math.min(1,d[s+i]));
-      pcm[i*ch+c]=v<0?v*0x8000:v*0x7FFF;
-    }
-  }
-  const dataLen=pcm.byteLength;
-  const ab=new ArrayBuffer(44+dataLen);
-  const dv=new DataView(ab);
-  function ws(off,str){for(let i=0;i<str.length;i++) dv.setUint8(off+i,str.charCodeAt(i));}
-  ws(0,'RIFF'); dv.setUint32(4,36+dataLen,true); ws(8,'WAVE');
-  ws(12,'fmt '); dv.setUint32(16,16,true); dv.setUint16(20,1,true);
-  dv.setUint16(22,ch,true); dv.setUint32(24,sr,true);
-  dv.setUint32(28,sr*ch*2,true); dv.setUint16(32,ch*2,true); dv.setUint16(34,16,true);
-  ws(36,'data'); dv.setUint32(40,dataLen,true);
+  for(let c=0;c<ch;c++){const d=buf.getChannelData(c);for(let i=0;i<frames;i++){const v=Math.max(-1,Math.min(1,d[s+i]));pcm[i*ch+c]=v<0?v*0x8000:v*0x7FFF;}}
+  const dataLen=pcm.byteLength,ab=new ArrayBuffer(44+dataLen),dv=new DataView(ab);
+  function ws(o,t){for(let i=0;i<t.length;i++)dv.setUint8(o+i,t.charCodeAt(i));}
+  ws(0,'RIFF');dv.setUint32(4,36+dataLen,true);ws(8,'WAVE');ws(12,'fmt ');
+  dv.setUint32(16,16,true);dv.setUint16(20,1,true);dv.setUint16(22,ch,true);
+  dv.setUint32(24,sr,true);dv.setUint32(28,sr*ch*2,true);dv.setUint16(32,ch*2,true);
+  dv.setUint16(34,16,true);ws(36,'data');dv.setUint32(40,dataLen,true);
   new Uint8Array(ab,44).set(new Uint8Array(pcm.buffer));
   return ab;
 }
+
 </script>
 
 </body>
