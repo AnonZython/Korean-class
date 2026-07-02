@@ -66,14 +66,14 @@ input[type=text]:focus{border-color:var(--purple)}
 .m-item.matched{pointer-events:none}
 
 .match-hint{font-size:12px;color:var(--muted);margin-bottom:6px}
-.img-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-.img-opt{border:1.5px solid var(--border);border-radius:var(--rs);padding:10px;cursor:pointer;text-align:center;background:var(--sur);transition:all .12s}
+.img-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:12px}
+.img-opt{border:1.5px solid var(--border);border-radius:var(--rs);padding:12px;cursor:pointer;text-align:center;background:var(--sur);transition:all .12s}
 .img-opt:hover{border-color:var(--purple)}.img-opt.sel{border-color:var(--purple);background:var(--purple-l)}
 .img-opt.correct{pointer-events:none}
 .img-opt.wrong{pointer-events:none}
-.img-opt img{width:100%;height:140px;object-fit:contain;background:var(--bg);border-radius:6px;display:block;margin-bottom:7px}
+.img-opt img{width:100%;height:200px;object-fit:contain;background:var(--bg);border-radius:6px;display:block;margin-bottom:8px}
 .img-opt{position:relative}
-.img-zoom-btn{position:absolute;top:6px;right:6px;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;border:none;font-size:15px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2}
+.img-zoom-btn{position:absolute;top:8px;right:8px;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;border:none;font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2}
 .img-zoom-btn:hover{background:rgba(0,0,0,.8)}
 .img-lightbox{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:2000;display:none;align-items:center;justify-content:center;padding:20px}
 .img-lightbox.open{display:flex}
@@ -1024,7 +1024,7 @@ function buildAnswerReview(quiz, myBest){
         else if(isAns)     { border='2.5px solid var(--teal)'; bg='rgba(225,245,238,.35)'; tag='<div style="text-align:center;font-size:11px;font-weight:700;color:var(--teal);margin-top:4px">정답</div>'; }
         else               { bg='var(--bg)'; }
         body += '<div style="border:'+border+';border-radius:var(--rs);padding:10px;background:'+bg+';text-align:center">'
-          +(isUrl?'<img src="'+o+'" alt="보기 '+nums[oi]+'" style="width:100%;height:140px;object-fit:contain;background:var(--bg);border-radius:6px;display:block;margin-bottom:7px">':'<div class="img-placeholder">'+fmt(o)+'</div>')
+          +(isUrl?'<img src="'+o+'" alt="보기 '+nums[oi]+'" style="width:100%;height:200px;object-fit:contain;background:var(--bg);border-radius:6px;display:block;margin-bottom:8px">':'<div class="img-placeholder">'+fmt(o)+'</div>')
           +'<div class="img-lbl">'+nums[oi]+'</div>'+tag+'</div>';
       });
       body += '</div>';
