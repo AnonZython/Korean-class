@@ -710,9 +710,42 @@ async function uploadFile(b64,path){
   const res=await fetch(b64);const blob=await res.blob();
   const enc=encodeURIComponent(path);
   const up=await fetch('https://firebasestorage.googleapis.com/v0/b/'+BUCKET+'/o?name='+enc,{method:'POST',headers:{'Content-Type':blob.type},body:blob});
-  if(!up.ok)throw new Error('upload failed');
+  if(!up.ok){
+    let detail='';
+    try{const err=await up.json();detail=err&&err.error&&err.error.message?err.error.message:('HTTP '+up.status);}catch(e){detail='HTTP '+up.status;}
+    const sizeMB=(blob.size/1048576).toFixed(2);
+    throw new Error(detail+' (파일 크기: '+sizeMB+'MB)');
+  }
   const data=await up.json();
   return 'https://firebasestorage.googleapis.com/v0/b/'+BUCKET+'/o/'+enc+'?alt=media&token='+data.downloadTokens;
+}
+
+// Compress an audio b64 to small mono MP3 before uploading (avoids large files).
+// Returns {b64, name} — falls back to original if compression unavailable.
+async function compressAudioB64(b64,name,statusEl){
+  try{
+    if(window.location.protocol==='file:') return {b64:b64,name:name}; // FFmpeg CDN blocked on file://
+    // Estimate current size
+    const head=b64.indexOf(',');
+    const approxBytes=(b64.length-head)*0.75;
+    // Already small (<700KB) → skip compression
+    if(approxBytes<700000) return {b64:b64,name:name};
+    if(statusEl) statusEl.textContent='🔄 오디오 압축 중...';
+    const ok=await _loadFFmpeg(statusEl);
+    if(!ok) return {b64:b64,name:name};
+    const res=await fetch(b64); const buf=new Uint8Array(await res.arrayBuffer());
+    const ext=(name&&name.indexOf('.')>=0)?name.split('.').pop().toLowerCase():'mp3';
+    const inName='comp_in.'+ext, outName='comp_out.mp3';
+    _ffmpegInst.FS('writeFile',inName,buf);
+    await _ffmpegInst.run('-i',inName,'-ac','1','-ar','22050','-b:a','48k',outName);
+    const out=_ffmpegInst.FS('readFile',outName);
+    const blob=new Blob([out.buffer],{type:'audio/mp3'});
+    const newB64=await new Promise(function(r){const fr=new FileReader();fr.onload=e=>r(e.target.result);fr.readAsDataURL(blob);});
+    try{_ffmpegInst.FS('unlink',inName);}catch(e){}
+    try{_ffmpegInst.FS('unlink',outName);}catch(e){}
+    const newName=(name||'audio').replace(/\.[^.]+$/,'')+'.mp3';
+    return {b64:newB64,name:newName};
+  }catch(e){ return {b64:b64,name:name}; }
 }
 
 // State
@@ -1492,7 +1525,10 @@ async function addQ(){
       for(let si=0;si<filledImg.length;si++){
         const s=filledImg[si];
         if(s.b64){
-          try{imgAudioUrls.push(await uploadFile(s.b64,'audio/'+Date.now()+'_'+(s.name||'audio'+si+'.wav')));}
+          try{
+            const c=await compressAudioB64(s.b64,s.name||'audio'+si+'.mp3',document.getElementById('amsg'));
+            imgAudioUrls.push(await uploadFile(c.b64,'audio/'+Date.now()+'_'+c.name));
+          }
           catch(e){return smsg('업로드 실패: '+e.message,'err');}
         } else if(s.url){ imgAudioUrls.push(s.url); }
       }
@@ -1539,7 +1575,10 @@ async function addQ(){
     for(let si=0;si<filledSlots.length;si++){
       const s=filledSlots[si];
       if(s.b64){
-        try{audioUrls.push(await uploadFile(s.b64,'audio/'+Date.now()+'_'+(s.name||'audio'+si+'.wav')));}
+        try{
+          const c=await compressAudioB64(s.b64,s.name||'audio'+si+'.mp3',document.getElementById('amsg'));
+          audioUrls.push(await uploadFile(c.b64,'audio/'+Date.now()+'_'+c.name));
+        }
         catch(e){return smsg('업로드 실패: '+e.message,'err');}
       } else if(s.url){ audioUrls.push(s.url); }
     }
