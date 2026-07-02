@@ -425,8 +425,9 @@ textarea{min-height:52px;resize:vertical}
           <div id="imgsel-audio-area" style="display:none;margin-bottom:10px">
             <div id="imgsel-slots"></div>
             <button type="button" onclick="addAudioSlot('img')" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--bg);border:1.5px dashed var(--border);border-radius:var(--rs);font-size:13px;color:var(--muted);cursor:pointer;font-family:'Noto Sans KR',sans-serif;margin-bottom:6px" id="img-add-btn">＋ 파일 추가</button>
+            <label style="margin-top:8px">📝 듣기 대본 (선택) — 학생 성적 확인 시에만 표시</label>
+            <textarea id="imgsel-transcript" class="fmt-field" placeholder="오디오 내용을 입력하세요. 학생이 성적 확인할 때 대본으로 보여집니다." style="min-height:70px;resize:vertical"></textarea>
           </div>
-          <label>문제</label><input type="text" id="imgsel-q" placeholder="'도서관'을 나타내는 이미지는?">
           <label>보기 — 이미지 파일 · URL · 붙여넣기(Ctrl+V) (정답 옆 ✓)</label>
           <div style="font-size:11px;color:var(--muted);margin-bottom:8px">💡 보기 영역을 클릭한 뒤 Ctrl+V(붙여넣기)로 스크린샷을 바로 넣을 수 있습니다.</div>
           <div id="imgsel-opts">
@@ -462,7 +463,6 @@ textarea{min-height:52px;resize:vertical}
           <label>오디오 파일 (여러 개 추가 가능)</label>
           <div id="audio-slots"></div>
           <button type="button" onclick="addAudioSlot('aud')" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--bg);border:1.5px dashed var(--border);border-radius:var(--rs);font-size:13px;color:var(--muted);cursor:pointer;font-family:'Noto Sans KR',sans-serif;margin-bottom:10px" id="aud-add-btn">＋ 파일 추가</button>
-          <label>문제</label><input type="text" id="audio-q" placeholder="오디오를 듣고 알맞은 답을 고르세요.">
           <label>보기 — 정답 옆 ✓</label>
           <div id="audio-opts">
             <div class="opt-row"><span class="opt-lbl">①</span><input type="text" class="aud-opt" placeholder="보기 1"><button class="cbtn" onclick="selC(this,'audio-opts')">✓</button></div>
@@ -470,6 +470,8 @@ textarea{min-height:52px;resize:vertical}
             <div class="opt-row"><span class="opt-lbl">③</span><input type="text" class="aud-opt" placeholder="보기 3"><button class="cbtn" onclick="selC(this,'audio-opts')">✓</button></div>
             <div class="opt-row"><span class="opt-lbl">④</span><input type="text" class="aud-opt" placeholder="보기 4"><button class="cbtn" onclick="selC(this,'audio-opts')">✓</button></div>
           </div>
+          <label style="margin-top:10px">📝 듣기 대본 (선택) — 학생 성적 확인 시에만 표시</label>
+          <textarea id="audio-transcript" class="fmt-field" placeholder="오디오 내용을 입력하세요. 학생이 성적 확인할 때 대본으로 보여집니다." style="min-height:80px;resize:vertical"></textarea>
         </div>
 
         <!-- Wordfill -->
@@ -1461,8 +1463,7 @@ async function addQ(){
     document.querySelectorAll('#match-pairs input[type=text]').forEach(i=>i.value='');
     document.querySelectorAll('#match-pairs input[type=number]').forEach(i=>i.value='1');
   } else if(qType==='imgsel'){
-    const qt=document.getElementById('imgsel-q').value.trim();
-    if(!qt) return smsg('문제를 입력해주세요.','err');
+    const qt=(document.getElementById('q-instruction').value.trim())||'';
     const allV=[...document.querySelectorAll('.img-opt')].map(i=>i.value.trim());
     if(allV.filter(o=>o).length<2) return smsg('최소 2개의 보기를 입력해주세요.','err');
     const cbs=[...document.querySelectorAll('#imgsel-opts .cbtn')];
@@ -1496,14 +1497,16 @@ async function addQ(){
         } else if(s.url){ imgAudioUrls.push(s.url); }
       }
       q.mediaType='audio'; q.mediaAudios=imgAudioUrls;
+      const imgTr=document.getElementById('imgsel-transcript').value.trim();
+      if(imgTr) q.transcript=imgTr;
     }
     // reset
-    document.getElementById('imgsel-q').value='';
     document.querySelectorAll('.img-opt').forEach(i=>i.value='');
     document.querySelectorAll('.img-file-inp').forEach(i=>i.value='');
     document.querySelectorAll('.img-preview').forEach(i=>{i.src='';i.style.display='none';});
     cbs.forEach(b=>b.classList.remove('sel'));
     document.getElementById('imgsel-text').value='';
+    document.getElementById('imgsel-transcript').value='';
     imgSlots=[]; renderAudioSlots('img');
     setImgselMedia('none');
   } else if(qType==='phrase'){
@@ -1524,8 +1527,7 @@ async function addQ(){
     document.getElementById('order-q').value='';
     document.querySelectorAll('.ord-s').forEach(i=>i.value='');
   } else if(qType==='audio'){
-    const qt=document.getElementById('audio-q').value.trim();
-    if(!qt) return smsg('문제 지시문을 입력해주세요.','err');
+    const qt=(document.getElementById('q-instruction').value.trim())||'';
     const filledSlots=audSlots.filter(function(s){return s.b64||s.url;});
     if(!filledSlots.length) return smsg('오디오 파일을 최소 1개 추가해주세요.','err');
     const opts=[...document.querySelectorAll('.aud-opt')].map(i=>i.value.trim()).filter(o=>o);
@@ -1543,8 +1545,10 @@ async function addQ(){
     }
     const ci=[...document.querySelectorAll('#audio-opts .cbtn')].indexOf(cb);
     q={...q,text:qt,audioUrls:audioUrls,options:opts,correct:ci};
-    document.getElementById('audio-q').value='';
+    const audTr=document.getElementById('audio-transcript').value.trim();
+    if(audTr) q.transcript=audTr;
     document.querySelectorAll('.aud-opt').forEach(i=>i.value='');
+    document.getElementById('audio-transcript').value='';
     document.querySelectorAll('#audio-opts .cbtn').forEach(b=>b.classList.remove('sel'));
     audSlots=[]; renderAudioSlots('aud');
   } else if(qType==='wordfill'){
@@ -2350,33 +2354,50 @@ function previewTrim(){
   p.play(); document.getElementById('trim-play-btn').textContent='⏸';
 }
 
-function applyTrim(){
+async function applyTrim(){
   if(!_trimBuf){alert('오디오 처리 준비 중입니다. 잠시 후 다시 시도해 주세요.');return;}
   if(_trimEnd-_trimStart<0.1){alert('트림 구간이 너무 짧습니다.');return;}
   document.getElementById('trim-msg').textContent='처리 중...';
   const wav=_audioBufferToWav(_trimBuf,_trimStart,_trimEnd);
-  const reader=new FileReader();
-  reader.onload=function(ev){
-    const b64=ev.target.result;
-    const ctx=_trimTarget,sidx=_trimSlotIdx,arr=_slotArr(ctx);
-    if(arr[sidx]){arr[sidx].b64=b64;arr[sidx].url='';}
-    const prev=document.getElementById(ctx+'-slot-prev-'+sidx);
-    if(prev){const a=prev.querySelector('audio');if(a)a.src=b64;}
-    // Reload for further trimming
-    const player=document.getElementById('trim-main-player');
-    player.src=b64; player.load();
-    fetch(b64).then(r=>r.arrayBuffer()).then(buf=>_trimCtx.decodeAudioData(buf)).then(dec=>{
-      _trimBuf=dec;
-      const dur=dec.duration;
-      _trimStart=0; _trimEnd=dur;
-      document.getElementById('trim-total-lbl').textContent=_trimFmt(dur);
-      document.getElementById('trim-s-lbl').textContent=_trimFmt(0);
-      document.getElementById('trim-e-lbl').textContent=_trimFmt(dur);
-      updateTrimUI();
-      document.getElementById('trim-msg').textContent='✓ 적용됨! 닫거나 다시 트림하세요.';
-    });
-  };
-  reader.readAsDataURL(new Blob([wav],{type:'audio/wav'}));
+  // Try to compress to MP3 (much smaller than WAV). Falls back to WAV if FFmpeg unavailable.
+  let b64, blob;
+  const msgEl=document.getElementById('trim-msg');
+  const canFF=(window.location.protocol!=='file:');
+  if(canFF){
+    try{
+      msgEl.textContent='🔄 압축 중...';
+      const ok=await _loadFFmpeg(msgEl);
+      if(ok){
+        _ffmpegInst.FS('writeFile','trim_in.wav',new Uint8Array(wav));
+        // mono, 22kHz, low bitrate — plenty for speech/listening quizzes, tiny size
+        await _ffmpegInst.run('-i','trim_in.wav','-ac','1','-ar','22050','-b:a','48k','trim_out.mp3');
+        const data=_ffmpegInst.FS('readFile','trim_out.mp3');
+        blob=new Blob([data.buffer],{type:'audio/mp3'});
+        try{_ffmpegInst.FS('unlink','trim_in.wav');}catch(e){}
+        try{_ffmpegInst.FS('unlink','trim_out.mp3');}catch(e){}
+      }
+    }catch(e){ /* fall back to wav */ }
+  }
+  if(!blob) blob=new Blob([wav],{type:'audio/wav'});
+  b64=await new Promise(function(res){const r=new FileReader();r.onload=e=>res(e.target.result);r.readAsDataURL(blob);});
+
+  const ctx=_trimTarget,sidx=_trimSlotIdx,arr=_slotArr(ctx);
+  if(arr[sidx]){arr[sidx].b64=b64;arr[sidx].url='';}
+  const prev=document.getElementById(ctx+'-slot-prev-'+sidx);
+  if(prev){const a=prev.querySelector('audio');if(a)a.src=b64;}
+  const player=document.getElementById('trim-main-player');
+  player.src=b64; player.load();
+  const sizeKB=Math.round(blob.size/1024);
+  fetch(b64).then(r=>r.arrayBuffer()).then(buf=>_trimCtx.decodeAudioData(buf)).then(dec=>{
+    _trimBuf=dec;
+    const dur=dec.duration;
+    _trimStart=0; _trimEnd=dur;
+    document.getElementById('trim-total-lbl').textContent=_trimFmt(dur);
+    document.getElementById('trim-s-lbl').textContent=_trimFmt(0);
+    document.getElementById('trim-e-lbl').textContent=_trimFmt(dur);
+    updateTrimUI();
+    msgEl.textContent='✓ 적용됨! ('+sizeKB+' KB) 닫거나 다시 트림하세요.';
+  }).catch(()=>{ msgEl.textContent='✓ 적용됨! ('+sizeKB+' KB)'; });
 }
 
 function _audioBufferToWav(buf,start,end){
